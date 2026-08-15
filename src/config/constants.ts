@@ -6,7 +6,7 @@
  * Elke wijziging hier: LAATST_BIJGEWERKT mee updaten.
  */
 
-export const LAATST_BIJGEWERKT = '2026-08-14';
+export const LAATST_BIJGEWERKT = '2026-08-15';
 
 // ── Zonnepanelen / opbrengst ────────────────────────────────────────────────
 

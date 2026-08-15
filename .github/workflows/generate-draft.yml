@@ -10,6 +10,11 @@ permissions:
   contents: write
   pull-requests: write
 
+# Twee gelijktijdige runs zouden naar dezelfde conceptbranch schrijven.
+concurrency:
+  group: concept-generatie
+  cancel-in-progress: false
+
 jobs:
   concept:
     runs-on: ubuntu-latest
@@ -27,6 +32,9 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
+          # pipefail: zonder dit levert `node ... | tee` de exitcode van tee (0),
+          # waardoor een ontbrekende sleutel of API-fout een groene run zou geven.
+          set -o pipefail
           node scripts/generate-draft.mjs | tee uitvoer.log
           echo "slug=$(grep -oP '(?<=^\[generate-draft\] SLUG=).*' uitvoer.log || true)" >> "$GITHUB_OUTPUT"
           echo "titel=$(grep -oP '(?<=^\[generate-draft\] TITEL=).*' uitvoer.log || true)" >> "$GITHUB_OUTPUT"

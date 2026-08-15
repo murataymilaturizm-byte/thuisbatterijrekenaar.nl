@@ -1,8 +1,10 @@
 ---
 import BaseLayout from './BaseLayout.astro';
-import { LAATST_BIJGEWERKT } from '../config/constants';
+import { LAATST_BIJGEWERKT, datumNl } from '../config/constants';
+import { clusterTitel, clusterUrl } from '../config/clusters';
 import {
   articleSchema,
+  breadcrumbSchema,
   faqPageSchema,
   organizationSchema,
 } from '../lib/seo/jsonld';
@@ -15,12 +17,43 @@ interface Props {
   /** FAQ-items: één bron voor zowel het zichtbare blok als het JSON-LD-schema */
   faq: FaqItem[];
   gepubliceerd: string;
+  /**
+   * Datum waarop deze pagina inhoudelijk is nagelopen (YYYY-MM-DD). Vult
+   * dateModified én de zichtbare datum, zodat schema en tekst niet uit elkaar
+   * kunnen lopen. Valt terug op LAATST_BIJGEWERKT.
+   */
+  gecontroleerd?: string;
+  /** Cluster, voor het kruimelpad. Zonder cluster vervalt de tussenstap. */
+  cluster?: string;
+  /**
+   * Twee à drie zinnen die de vraag van de pagina direct beantwoorden.
+   * Staat bovenaan, is zelfstandig leesbaar en dus citeerbaar.
+   */
+  kortAntwoord?: string;
   /** YMYL-pagina's (belasting/verzekering/juridisch) krijgen een disclaimerblok */
   ymyl?: boolean;
 }
 
-const { title, description, h1, faq, gepubliceerd, ymyl = false } = Astro.props;
+const {
+  title,
+  description,
+  h1,
+  faq,
+  gepubliceerd,
+  gecontroleerd,
+  cluster,
+  kortAntwoord,
+  ymyl = false,
+} = Astro.props;
 const url = new URL(Astro.url.pathname, Astro.site).toString();
+const gewijzigd = gecontroleerd ?? LAATST_BIJGEWERKT;
+
+const kruimels = [
+  { naam: 'Home', url: '/' },
+  { naam: 'Kennisbank', url: '/kennisbank/' },
+  ...(cluster ? [{ naam: clusterTitel(cluster), url: clusterUrl(cluster) }] : []),
+  { naam: h1, url: Astro.url.pathname },
+];
 
 const jsonLd = [
   organizationSchema(),
@@ -29,20 +62,49 @@ const jsonLd = [
     beschrijving: description,
     url,
     gepubliceerd,
-    gewijzigd: LAATST_BIJGEWERKT,
+    gewijzigd,
   }),
   faqPageSchema(faq),
+  breadcrumbSchema(kruimels),
 ];
 ---
 
 <BaseLayout title={title} description={description} jsonLd={jsonLd}>
+  <nav aria-label="Kruimelpad" class="mb-4 text-sm text-slate-500">
+    <ol class="flex flex-wrap items-center gap-x-2">
+      {
+        kruimels.map((k, i) => (
+          <li class="flex items-center gap-x-2">
+            {i > 0 && <span aria-hidden="true">›</span>}
+            {i === kruimels.length - 1 ? (
+              <span aria-current="page" class="text-slate-700">
+                {k.naam}
+              </span>
+            ) : (
+              <a href={k.url} class="hover:underline">
+                {k.naam}
+              </a>
+            )}
+          </li>
+        ))
+      }
+    </ol>
+  </nav>
+
   <article class="prose-slate max-w-none">
     <h1 class="mb-2 text-3xl font-extrabold tracking-tight text-slate-900">
       {h1}
     </h1>
     <p class="mb-6 text-sm text-slate-500">
-      Laatst bijgewerkt: {LAATST_BIJGEWERKT}
+      Laatst gecontroleerd: {datumNl(gewijzigd)}
     </p>
+    {
+      kortAntwoord && (
+        <p class="mb-6 rounded-lg border-l-4 border-emerald-600 bg-emerald-50 p-4 text-slate-800">
+          <strong>Kort antwoord:</strong> {kortAntwoord}
+        </p>
+      )
+    }
     <div class="article-body space-y-4 leading-relaxed text-slate-700">
       <slot />
     </div>

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { organizationSchema } from '../lib/seo/jsonld';
+import { CLUSTERS } from '../config/clusters';
+import { breadcrumbSchema, organizationSchema } from '../lib/seo/jsonld';
 
 const title = 'Kennisbank: alles over thuisbatterijen | Thuisbatterijrekenaar';
 const description =
@@ -52,42 +53,23 @@ const dataItems: KennisbankItem[] = [
   },
 ];
 
-const clusters: { key: string; titel: string; intro: string; items: KennisbankItem[] }[] = [
-  {
-    key: 'basis',
-    titel: 'Saldering en tarieven: de basis',
-    intro: 'Wat er verandert in 2027 en hoe de rekensom van een thuisbatterij werkt.',
-    items: perCluster.get('basis') ?? [],
-  },
-  {
-    key: 'regelgeving',
-    titel: 'Regelgeving, belasting en procedures',
-    intro:
-      'Belasting, verzekering, meldplicht en installatienormen — wat u formeel moet regelen.',
-    items: perCluster.get('regelgeving') ?? [],
-  },
-  {
-    key: 'segment',
-    titel: 'Uw situatie',
-    intro: 'Huurwoning, VvE, geen zonnepanelen of liever een stekkerbatterij.',
-    items: perCluster.get('segment') ?? [],
-  },
-  {
-    key: 'dynamisch',
-    titel: 'Dynamisch contract',
-    intro: 'Uurprijzen benutten — met of zonder thuisbatterij.',
-    items: perCluster.get('dynamisch') ?? [],
-  },
-  {
-    key: 'data',
-    titel: 'Actuele marktdata',
-    intro: 'Live cijfers waarop onze rekenaar rekent.',
-    items: dataItems,
-  },
+// Clusterdefinities komen uit config/clusters.ts — dezelfde bron die de
+// kruimelpaden gebruiken, zodat titels niet uiteen kunnen lopen.
+const clusters = CLUSTERS.map((c) => ({
+  ...c,
+  items: c.key === 'data' ? dataItems : (perCluster.get(c.key) ?? []),
+}));
+
+const jsonLd = [
+  organizationSchema(),
+  breadcrumbSchema([
+    { naam: 'Home', url: '/' },
+    { naam: 'Kennisbank', url: '/kennisbank/' },
+  ]),
 ];
 ---
 
-<BaseLayout title={title} description={description} jsonLd={[organizationSchema()]}>
+<BaseLayout title={title} description={description} jsonLd={jsonLd}>
   <h1 class="mb-2 text-3xl font-extrabold tracking-tight text-slate-900">
     Kennisbank
   </h1>

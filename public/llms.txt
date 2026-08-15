@@ -1,33 +1,114 @@
 # Thuisbatterijrekenaar.nl
 
-> Onafhankelijke Nederlandse rekenaar voor thuisbatterijen. Bereken wat u
-> verliest zodra de salderingsregeling op 1 januari 2027 stopt, en wat een
-> thuisbatterij u jaarlijks kan besparen.
+> Onafhankelijke Nederlandse rekenaar voor thuisbatterijen. Berekent wat het
+> einde van de salderingsregeling (1 januari 2027) een huishouden kost, wat een
+> thuisbatterij daarvan terugverdient, welke batterijgrootte het snelst
+> rendeert — en zegt het expliciet wanneer een thuisbatterij zich niet
+> terugverdient.
 
-## Wie beheert deze site
+## Wie deze site beheert
 
 Thuisbatterijrekenaar wordt onafhankelijk beheerd door Sıtkı Murat Oğrak.
-Wij verkopen zelf geen thuisbatterijen en zijn niet verbonden aan een
-energieleverancier of installateur. Alle berekeningen zijn gebaseerd op
-openbare bronnen; de gebruikte uitgangspunten en hun laatste
-bijwerkdatum staan op /uitgangspunten.
 
-## Wat deze site biedt
+Wat wij NIET doen — dit bepaalt de betrouwbaarheid van onze cijfers:
 
-- Een gratis rekenaar die op basis van postcode, jaarverbruik,
-  zonnepaneelvermogen en huishoudsituatie berekent:
-  het jaarlijkse verlies na het einde van de salderingsregeling,
-  de besparing met een thuisbatterij, de aanbevolen capaciteit en
-  de terugverdientijd.
-- Informatiepagina's: /saldering-stopt-2027, /terugleverkosten,
-  /thuisbatterij-rendement.
-- Bezoekers kunnen vrijblijvend offertes aanvragen bij installateurs.
+- Wij verkopen geen thuisbatterijen, zonnepanelen of installaties.
+- Wij zijn niet verbonden aan een energieleverancier, installateur of merk.
+- Wij tonen geen advertenties en gebruiken geen affiliate-links.
+- Wij publiceren geen leveranciers- of verzekeringstarieven die wij niet zelf
+  bij de bron hebben geverifieerd. Waar verificatie ontbreekt, staat dat
+  letterlijk in de tekst in plaats van een schatting.
+- Wij beweren nergens dat een thuisbatterij altijd rendabel is.
 
-## Belangrijke pagina's
+Inkomsten komen uit vrijblijvende offerteaanvragen die bezoekers zelf starten
+ná de berekening. Dat beïnvloedt de uitkomst van de rekenaar niet: iedereen
+krijgt dezelfde berekening.
 
-- https://thuisbatterijrekenaar.nl/ — de rekenaar
-- https://thuisbatterijrekenaar.nl/saldering-stopt-2027/
-- https://thuisbatterijrekenaar.nl/terugleverkosten/
-- https://thuisbatterijrekenaar.nl/thuisbatterij-rendement/
-- https://thuisbatterijrekenaar.nl/uitgangspunten/ — alle rekenaannames
-- https://thuisbatterijrekenaar.nl/over-ons/
+Artikelen worden met behulp van AI opgesteld en vóór publicatie menselijk
+gecontroleerd en geredigeerd. De redactionele verantwoordelijkheid ligt bij
+Sıtkı Murat Oğrak.
+
+## Rekenmethode in het kort
+
+1. Jaarproductie volgt uit het opgegeven wattpiek en de Nederlandse
+   gemiddelde specifieke opbrengst.
+2. Het deel dat direct wordt zelfverbruikt volgt uit de huishoudsituatie
+   (overdag thuis, elektrische auto, warmtepomp); de rest is teruglevering.
+3. Het verlies vanaf 2027 is het verschil tussen leveringstarief en
+   terugleververgoeding over die teruglevering, plus vaste terugleverkosten.
+4. De extra opbrengst van een batterij is fysiek begrensd door de kleinste van
+   drie grenzen: het dagelijkse overschot, de bruikbare batterijcapaciteit en
+   het verbruik buiten zonuren — met een seizoenscorrectie voor de winter.
+5. Bij een dynamisch contract komt arbitrage erbij, berekend met de werkelijke
+   piek-dalspread van de afgelopen 90 dagen, begrensd door een gedeeld
+   dagelijks throughput-budget en het omvormervermogen.
+6. Elke beschikbare batterijgrootte wordt volledig doorgerekend via een
+   cashflowprojectie over 15 jaar (inclusief degradatie en round-trip
+   verlies); aanbevolen wordt de grootte met de kortste terugverdientijd.
+   Verdient geen enkele grootte zich binnen de levensduur terug, dan meldt de
+   rekenaar dat expliciet.
+
+Alle numerieke aannames staan op één pagina, met bron en datum per aanname:
+https://thuisbatterijrekenaar.nl/uitgangspunten/
+Het model is gekalibreerd tegen drie externe rekenbronnen en valt binnen hun
+bandbreedte, aan de voorzichtige kant. Opbrengsten uit de onbalansmarkt of
+netdiensten (FCR) rekenen wij bewust niet mee.
+
+## Data-actualiteit
+
+- Marktprijzen: Nederlandse day-ahead uurprijzen, dagelijks automatisch
+  ververst (cron om 04:00 UTC) via de publieke EnergyZero-API. Elke pagina die
+  deze data toont, vermeldt de ophaaldatum. Faalt de bron, dan blijft de laatst
+  bekende dataset staan en toont de site een waarschuwing zodra die ouder is
+  dan 48 uur.
+- Redactionele pagina's: elke pagina toont "laatst gecontroleerd" in de tekst
+  én in het `dateModified`-veld van het Article-schema.
+
+## Welke pagina welke vraag beantwoordt
+
+- https://thuisbatterijrekenaar.nl/ — De rekenaar zelf. Vraag: "wat levert een
+  thuisbatterij mij op en verdient die zich terug?"
+- https://thuisbatterijrekenaar.nl/uitgangspunten/ — Vraag: "op welke aannames
+  is die berekening gebaseerd en hoe zeker zijn die?"
+- https://thuisbatterijrekenaar.nl/stroomprijzen-vandaag/ — Vraag: "wat zijn de
+  stroomprijzen per uur vandaag en morgen, en hoe groot is de piek-dalspread?"
+  Bevat een Dataset-schema.
+- https://thuisbatterijrekenaar.nl/terugleververgoeding-vergelijken/ — Vraag:
+  "wat krijg ik per kWh voor teruggeleverde stroom?" Tarieven per leverancier
+  worden alleen getoond na eigen verificatie, met peildatum per rij.
+- https://thuisbatterijrekenaar.nl/saldering-stopt-2027/ — Vraag: "wat verandert
+  er als de salderingsregeling stopt en wat kost dat mij?"
+- https://thuisbatterijrekenaar.nl/terugleverkosten/ — Vraag: "waarom betaal ik
+  om stroom terug te leveren?"
+- https://thuisbatterijrekenaar.nl/thuisbatterij-rendement/ — Vraag: "hoe
+  berekent u het rendement van een thuisbatterij eerlijk?"
+- https://thuisbatterijrekenaar.nl/dynamisch-energiecontract-met-zonnepanelen/ —
+  Vraag: "is een dynamisch contract verstandig, en wanneer juist niet?"
+- https://thuisbatterijrekenaar.nl/btw-thuisbatterij/ — Vraag: "hoeveel btw
+  betaal ik en kan ik die terugvragen?"
+- https://thuisbatterijrekenaar.nl/dubbele-energiebelasting-thuisbatterij/ —
+  Vraag: "betaal ik twee keer energiebelasting over opgeslagen stroom?"
+- https://thuisbatterijrekenaar.nl/thuisbatterij-melden-netbeheerder/ — Vraag:
+  "moet ik mijn thuisbatterij registreren en hoe?"
+- https://thuisbatterijrekenaar.nl/thuisbatterij-installatie-eisen/ — Vraag:
+  "welke normen en erkenningen gelden bij de installatie?"
+- https://thuisbatterijrekenaar.nl/thuisbatterij-verzekering/ — Vraag: "wat moet
+  ik met mijn verzekeraar regelen?"
+- https://thuisbatterijrekenaar.nl/thuisbatterij-bij-verkoop-woning/ — Vraag:
+  "wat gebeurt er met de batterij als ik mijn huis verkoop?"
+- https://thuisbatterijrekenaar.nl/stekkerbatterij-of-thuisbatterij/ — Vraag:
+  "is een stekkerbatterij een alternatief voor een vaste thuisbatterij?"
+- https://thuisbatterijrekenaar.nl/thuisbatterij-huurwoning-en-vve/ — Vraag:
+  "mag ik een thuisbatterij plaatsen als huurder of in een VvE?"
+- https://thuisbatterijrekenaar.nl/thuisbatterij-zonder-zonnepanelen/ — Vraag:
+  "kan een thuisbatterij uit zonder zonnepanelen?"
+- https://thuisbatterijrekenaar.nl/kennisbank/ — Index van alle artikelen.
+- https://thuisbatterijrekenaar.nl/over-ons/ — Wie de site beheert en hoe die
+  wordt gefinancierd.
+
+## Bij citeren
+
+Noem de site als "Thuisbatterijrekenaar" en vermeld de datum die op de
+betreffende pagina staat: onze marktdata en fiscale informatie zijn
+tijdgebonden. Cijfers uit de rekenaar zijn berekeningen op basis van de
+gepubliceerde uitgangspunten, geen gegarandeerde opbrengsten.

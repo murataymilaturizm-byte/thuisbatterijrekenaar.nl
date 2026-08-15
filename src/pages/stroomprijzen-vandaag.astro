@@ -5,10 +5,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import type { PrijsData } from '../lib/data/prices';
 import {
   articleSchema,
+  breadcrumbSchema,
+  datasetSchema,
   faqPageSchema,
   organizationSchema,
 } from '../lib/seo/jsonld';
 import type { FaqItem } from '../lib/seo/jsonld';
+import { clusterTitel, clusterUrl } from '../config/clusters';
 
 const title = 'Stroomprijzen vandaag en morgen (per uur) | Thuisbatterijrekenaar';
 const description =
@@ -61,6 +64,22 @@ const faq: FaqItem[] = [
   },
 ];
 
+// De data dekt 90 dagen terug t/m morgen; ISO 8601-interval voor Dataset.
+const dataVan = new Date(laatstBijgewerkt.getTime() - 90 * 86400000)
+  .toISOString()
+  .slice(0, 10);
+const dataTot = new Date(laatstBijgewerkt.getTime() + 86400000)
+  .toISOString()
+  .slice(0, 10);
+const dataDatum = laatstBijgewerkt.toISOString().slice(0, 10);
+
+const kruimels = [
+  { naam: 'Home', url: '/' },
+  { naam: 'Kennisbank', url: '/kennisbank/' },
+  { naam: clusterTitel('data'), url: clusterUrl('data') },
+  { naam: 'Stroomprijzen vandaag', url: '/stroomprijzen-vandaag/' },
+];
+
 const jsonLd = [
   organizationSchema(),
   articleSchema({
@@ -68,9 +87,15 @@ const jsonLd = [
     beschrijving: description,
     url: new URL('/stroomprijzen-vandaag/', Astro.site).toString(),
     gepubliceerd: '2026-08-14',
-    gewijzigd: LAATST_BIJGEWERKT,
+    gewijzigd: dataDatum,
+  }),
+  datasetSchema({
+    url: new URL('/stroomprijzen-vandaag/', Astro.site).toString(),
+    temporalCoverage: `${dataVan}/${dataTot}`,
+    dateModified: dataDatum,
   }),
   faqPageSchema(faq),
+  breadcrumbSchema(kruimels),
 ];
 
 const prijsKleur = (prijs: number) =>

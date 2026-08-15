@@ -19,10 +19,12 @@ import {
 import type { PrijsData } from '../lib/data/prices';
 import {
   articleSchema,
+  breadcrumbSchema,
   faqPageSchema,
   organizationSchema,
 } from '../lib/seo/jsonld';
 import type { FaqItem } from '../lib/seo/jsonld';
+import { clusterTitel, clusterUrl } from '../config/clusters';
 
 const title = 'Terugleververgoeding vergelijken per leverancier | Thuisbatterijrekenaar';
 const description =
@@ -90,6 +92,12 @@ const jsonLd = [
     gewijzigd: LAATST_BIJGEWERKT,
   }),
   faqPageSchema(faq),
+  breadcrumbSchema([
+    { naam: 'Home', url: '/' },
+    { naam: 'Kennisbank', url: '/kennisbank/' },
+    { naam: clusterTitel('data'), url: clusterUrl('data') },
+    { naam: 'Terugleververgoeding vergelijken', url: '/terugleververgoeding-vergelijken/' },
+  ]),
 ];
 ---
 
