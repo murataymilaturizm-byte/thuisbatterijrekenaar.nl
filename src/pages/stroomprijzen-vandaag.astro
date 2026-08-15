@@ -13,9 +13,9 @@ import {
 import type { FaqItem } from '../lib/seo/jsonld';
 import { clusterTitel, clusterUrl } from '../config/clusters';
 
-const title = 'Stroomprijzen vandaag en morgen (per uur) | Thuisbatterijrekenaar';
+const title = 'Actuele stroomprijzen per uur: vandaag en morgen | Thuisbatterijrekenaar';
 const description =
-  'De actuele Nederlandse stroomprijzen per uur voor vandaag en morgen, de goedkoopste uren en de piek-dalspread van de afgelopen 90 dagen. Dagelijks automatisch bijgewerkt.';
+  'Dagelijks bijgewerkte Nederlandse uurprijzen voor vandaag en morgen, de goedkoopste uren en de piek-dalspread over 90 dagen. Actuele cijfers, geen keuzehulp.';
 
 // Expliciet typen: bij een lege uurprijzen-array zou TypeScript anders
 // never[] afleiden uit de JSON-inhoud (bijv. vóór publicatie van de
@@ -234,8 +234,12 @@ const prijsKleur = (prijs: number) =>
       piek-dalspread interessant: dat is de ruimte waarbinnen een batterij
       kan verdienen door goedkoop te laden en duur te ontladen. Onze{' '}
       <a href="/" class="underline">rekenaar</a> gebruikt exact deze
-      90-dagenspread — geen aannames, maar werkelijke marktdata. Hoe dat
-      model werkt zonder eigen zonnepanelen leest u op{' '}
+      90-dagenspread — geen aannames, maar werkelijke marktdata. Deze pagina
+      toont alleen de cijfers; of een dynamisch contract bij uw situatie past,
+      leest u op{' '}
+      <a href="/dynamisch-energiecontract-met-zonnepanelen/" class="underline"
+        >dynamisch of vast contract kiezen</a
+      >. Hoe dat model werkt zonder eigen zonnepanelen leest u op{' '}
       <a href="/thuisbatterij-zonder-zonnepanelen/" class="underline"
         >thuisbatterij zonder zonnepanelen</a
       >, en wat u voor teruggeleverde stroom krijgt op{' '}

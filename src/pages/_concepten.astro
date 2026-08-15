@@ -11,17 +11,12 @@
 import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
 import { beoordeelConcept, isPubliceerbaar } from '../lib/content/quality';
 import type { PoortResultaat } from '../lib/content/quality';
+import type { PaginaFrontmatter } from '../lib/content/frontmatter';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-interface ConceptFrontmatter {
-  title?: string;
-  h1?: string;
-  cluster?: string;
-  gegenereerd?: string;
-  published?: boolean;
-  aiGegenereerd?: boolean;
-  faq?: { vraag: string; antwoord: string }[];
-}
+// Frontmatter-schema staat in lib/content/frontmatter.ts. Hier alles
+// optioneel: een concept kan halverwege het schrijven nog velden missen.
+type ConceptFrontmatter = Partial<PaginaFrontmatter>;
 
 // Alle MDX-pagina's: concepten renderen we, de rest gebruiken we als linkdoelen.
 const alleModules = import.meta.glob<{
