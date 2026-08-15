@@ -1,0 +1,176 @@
+---
+title: 'Dynamisch energiecontract met zonnepanelen: wanneer verstandig? | Thuisbatterijrekenaar'
+description: 'Na het einde van de saldering bepaalt het moment van verbruik wat uw zonnestroom waard is. Wanneer een dynamisch contract verstandig is — en wanneer juist niet.'
+h1: 'Dynamisch energiecontract met zonnepanelen: wanneer is het verstandig?'
+gepubliceerd: '2026-08-14'
+cluster: 'dynamisch'
+faq:
+  - vraag: 'Is een dynamisch contract altijd goedkoper?'
+    antwoord: >-
+      Nee. Wie het verbruik niet kan of wil verschuiven, betaalt bij een
+      dynamisch contract vooral de dure ochtend- en avonduren en kan
+      duurder uit zijn dan met een vast contract. Het voordeel ontstaat
+      pas door verbruik te verplaatsen naar goedkope uren — handmatig,
+      met automatisering of met een thuisbatterij.
+  - vraag: 'Wat is het verschil tussen een dynamisch en een vast contract?'
+    antwoord: >-
+      Bij een vast contract betaalt u één afgesproken tarief per kWh. Bij
+      een dynamisch contract volgt uw tarief de groothandelsmarkt per uur:
+      goedkoop als er veel zon en wind is, duur in de ochtend- en
+      avondpiek. U ziet de prijzen van morgen doorgaans al een dag vooruit.
+  - vraag: 'Heb ik een slimme meter nodig voor een dynamisch contract?'
+    antwoord: >-
+      Ja. Een slimme meter registreert uw verbruik per uur (of
+      kwartier), en dat is nodig om per uur te kunnen afrekenen. Heeft u
+      nog geen slimme meter, dan kunt u die aanvragen bij uw netbeheerder.
+  - vraag: 'Waarom is een dynamisch contract belangrijk voor een thuisbatterij?'
+    antwoord: >-
+      Twee redenen. Financieel: de batterij kan goedkoop laden en duur
+      ontladen, waardoor er naast extra zelfverbruik een tweede
+      verdienbron ontstaat. Fiscaal: de Belastingdienst stelt een
+      dynamisch energiecontract als voorwaarde voor btw-teruggaaf op een
+      thuisbatterij.
+  - vraag: 'Wordt teruggeleverde zonnestroom ook per uur afgerekend?'
+    antwoord: >-
+      Ja, bij een dynamisch contract krijgt u voor teruglevering de
+      uurprijs van dat moment. Midden op de dag — wanneer uw panelen het
+      meest produceren — is die prijs vaak laag en soms negatief. Juist
+      daarom loont het om middagoverschot op te slaan of te verbruiken in
+      plaats van terug te leveren.
+---
+
+import prijsData from '../../data/prices.json';
+import { euro } from '../../config/constants';
+
+Zolang er gesaldeerd wordt, maakt het financieel weinig uit wannéér u
+stroom verbruikt: teruggeleverde zonnestroom wordt toch weggestreept tegen
+uw afname. Die tijd loopt af. Vanaf 2027 wordt het moment van verbruik de
+belangrijkste knop waaraan u kunt draaien — en daarmee wordt ook de keuze
+van uw contractvorm ineens een strategische beslissing.
+
+## Waarom dit nu speelt
+
+Op 1 januari 2027 stopt de
+[salderingsregeling](/saldering-stopt-2027/). Daarna levert teruggeleverde
+stroom nog maar een beperkte vergoeding op, terwijl afgenomen stroom het
+volle tarief kost. Het gevolg: niet uw jaartotaal, maar uw
+**verbruiksprofiel** bepaalt wat uw zonnepanelen waard zijn. Wie de
+wasmachine, laadpaal of boiler laat draaien op de uren waarin de eigen
+panelen produceren — of waarin marktstroom goedkoop is — houdt het meeste
+over. Een dynamisch contract maakt dat prijsverschil zichtbaar én
+verzilverbaar.
+
+## Wat onze rekenmachine laat zien
+
+Onze berekening laat zien dat het contracttype vaak méér verschil maakt
+dan de batterij zelf. Bij een vast contract komt een thuisbatterij in veel
+situaties niet uit binnen de levensduur van 15 jaar. Bij een dynamisch
+contract verandert dat beeld, omdat u naast eigen verbruik ook profiteert
+van het prijsverschil tussen dure en goedkope uren.
+
+Dat prijsverschil is geen aanname maar meetbare werkelijkheid. Op basis
+van onze marktdata van{' '}
+{new Date(prijsData.opgehaaldOp).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}:
+
+- gemiddelde uurprijs over de afgelopen 30 dagen:
+  **{euro(prijsData.gemiddeldeDagprijs30d)} per kWh**;
+- gemiddelde dagelijkse piek-dalspread over de afgelopen 90 dagen:
+  **{euro(prijsData.piekDalSpread90d)} per kWh**;
+- uren met een negatieve prijs in de afgelopen 30 dagen:
+  **{prijsData.negatieveUren30d}**.
+
+De actuele uurprijzen van vandaag en morgen vindt u op
+[stroomprijzen vandaag](/stroomprijzen-vandaag/). Onze [rekenaar](/)
+gebruikt exact deze spread wanneer u bij stap 4 "dynamisch contract"
+kiest — met verliezen en degradatie meegerekend, zoals toegelicht op
+[uitgangspunten](/uitgangspunten/).
+
+## Voor wie is een dynamisch contract níet verstandig
+
+Een dynamisch contract is geen gratis geld; het is een instrument dat
+alleen werkt als u het bespeelt. Kies er liever niet voor wanneer:
+
+- **U uw verbruik niet kunt of wilt verschuiven.** Wie een vaste
+  dagindeling heeft en geen automatisering gebruikt, betaalt vooral de
+  dure ochtend- en avonduren.
+- **U een strak maandbudget hebt en geen prijsschommelingen wilt.** Bij
+  een koude, windstille winterweek kan de maandfactuur fors hoger
+  uitvallen dan gemiddeld.
+- **U geen slimme meter met P1-poort hebt.** Zonder slimme meter is
+  afrekening per uur niet mogelijk en kunnen apparaten of een batterij
+  niet op de prijzen sturen.
+
+In die gevallen geeft een vast contract meer rust, ook al is het
+gemiddeld iets duurder.
+
+## Wat u nodig hebt
+
+- **Een slimme meter met P1-poort.** De slimme meter wordt door uw
+  netbeheerder geplaatst. Hebt u er nog geen, dan vraagt u die aan bij uw
+  netbeheerder (bijvoorbeeld Liander, Enexis of Stedin). De P1-poort zit
+  op de slimme meter en is de aansluiting waarmee u uw meetgegevens
+  realtime kunt uitlezen.
+  [TEYIT GEREKLI: kosten en levertermijn van een slimme meter per
+  netbeheerder — dit verschilt en verandert; controleer bij uw eigen
+  netbeheerder]
+- **Bereidheid om verbruik te verschuiven, of automatisering.** Timers,
+  slimme stekkers of een systeem dat de laadpaal en boiler op de
+  uurprijzen stuurt.
+- **Bij een thuisbatterij: een Energie Management Systeem (EMS)** dat
+  automatisch laadt op goedkope en ontlaadt op dure uren. Handmatig
+  sturen is in de praktijk niet vol te houden.
+
+## Dynamisch contract en btw-teruggaaf
+
+Er is ook een fiscale reden waarom deze contractvorm voor
+batterijkopers belangrijk is: **de Belastingdienst stelt een dynamisch
+energiecontract als voorwaarde voor btw-teruggaaf op een
+thuisbatterij**. Wie de batterij gebruikt voor de in- en verkoop van
+stroom, wordt ondernemer voor de btw en kan de btw op aanschaf en
+installatie terugvragen — maar zonder dynamisch contract vervalt die
+route. De volledige voorwaarden en de kleine lettertjes leest u op
+[btw op een thuisbatterij](/btw-thuisbatterij/).
+
+## Waar u op let bij het vergelijken
+
+Dynamische contracten lijken op elkaar, maar verschillen op punten die
+structureel doortikken. Let bij het vergelijken op:
+
+- **Vaste maandkosten versus opslag per kWh.** Elke aanbieder rekent
+  vaste kosten en een opslag bovenop de marktprijs. Bij een laag verbruik
+  wegen de vaste kosten zwaarder, bij een hoog verbruik de opslag per
+  kWh — reken het voor uw eigen jaarverbruik door.
+- **Terugleververgoeding en eventuele terugleverkosten.** Wat krijgt u
+  voor teruggeleverde stroom, en worden er
+  [terugleverkosten](/terugleverkosten/) gerekend?
+- **Facturering per uur of per kwartier.** De markt beweegt richting
+  kwartierprijzen; dat kan nauwkeuriger sturen mogelijk maken, maar
+  stelt hogere eisen aan uw automatisering.
+- **App en API.** Kunt u alleen prijzen bekijken, of ook apparaten en
+  een batterij laten sturen? Voor het uitvoeren van een laadstrategie is
+  een koppeling (API of EMS-integratie) vrijwel onmisbaar.
+- **Opzegtermijn.** Dynamische contracten zijn doorgaans maandelijks
+  opzegbaar — controleer dat, zodat u kunt overstappen als het aanbod
+  verandert.
+
+[TEYIT GEREKLI: concrete tarieven per leverancier — volgt in aparte
+vergelijkingspagina]
+
+Wilt u weten wat de combinatie van een dynamisch contract en een
+thuisbatterij in uw situatie oplevert?
+[Reken het door met onze onafhankelijke rekenaar](/) — die rekent met de
+werkelijke marktprijzen van de afgelopen 90 dagen.
+
+### Bronnen
+
+- Belastingdienst, "Thuisbatterij en btw" — laatst gewijzigd 3 augustus 2026:
+  [belastingdienst.nl](https://www.belastingdienst.nl/wps/wcm/connect/nl/btw/content/thuisbatterij-btw)
+- Rijksoverheid, "Salderingsregeling stopt in 2027":
+  [rijksoverheid.nl](https://www.rijksoverheid.nl/themas/klimaat-milieu-en-natuur/energie-thuis/salderingsregeling)
+- EnergyZero, day-ahead uurprijzen Nederland (bron van onze marktdata)
+- Netbeheer Nederland, "Nieuwe elektriciteitsopslageenheid? Registreer deze dan!":
+  [netbeheernederland.nl](https://www.netbeheernederland.nl/artikelen/nieuws/nieuwe-elektriciteitsopslageenheid-registreer-deze-dan)
+- Energieleveren.nl — landelijk registratieportaal van de netbeheerders:
+  [energieleveren.nl](https://www.energieleveren.nl)
+
+Deze pagina is voor het laatst gecontroleerd op 15 augustus 2026.

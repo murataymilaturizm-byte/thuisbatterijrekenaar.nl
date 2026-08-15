@@ -1,0 +1,123 @@
+---
+title: 'Saldering stopt in 2027 — wat betekent dat voor u? | Thuisbatterijrekenaar'
+description: 'De salderingsregeling voor zonnepanelen stopt op 1 januari 2027. Lees wat er verandert, wat u dan nog krijgt voor teruggeleverde stroom en wat u kunt doen.'
+h1: 'Saldering stopt per 1 januari 2027: dit verandert er voor zonnepaneelbezitters'
+gepubliceerd: '2026-08-14'
+cluster: 'basis'
+faq:
+  - vraag: 'Wanneer stopt de salderingsregeling precies?'
+    antwoord: >-
+      De salderingsregeling stopt op 1 januari 2027. Tot die datum mag u
+      teruggeleverde stroom volledig wegstrepen tegen uw verbruik; daarna
+      niet meer.
+  - vraag: 'Krijg ik na 2027 nog geld voor stroom die ik teruglever?'
+    antwoord: >-
+      Ja, maar minder dan nu. Energieleveranciers moeten een redelijke
+      vergoeding betalen. Tot en met 2030 geldt een wettelijk minimum als
+      aandeel van het leveringstarief, maar dat is aanzienlijk lager dan wat
+      salderen u opleverde.
+  - vraag: 'Zijn zonnepanelen na 2027 nog rendabel?'
+    antwoord: >-
+      In de meeste situaties wel, maar het rendement daalt. Stroom die u
+      zelf direct verbruikt blijft de volle waarde houden. Hoe meer eigen
+      verbruik, hoe beter uw rendement — daarom wordt zelfverbruik verhogen
+      de belangrijkste knop om aan te draaien.
+  - vraag: 'Helpt een thuisbatterij tegen het einde van de saldering?'
+    antwoord: >-
+      Ja. Een thuisbatterij slaat uw middagoverschot op zodat u het
+      ’s avonds zelf gebruikt. Daarmee vervangt u laagvergoede teruglevering
+      door volwaardig eigen verbruik. Of het in uw situatie uit kan, rekent
+      u uit met onze rekenaar.
+  - vraag: 'Moet ik nu al iets doen?'
+    antwoord: >-
+      U hoeft niets overhaast te beslissen, maar het is verstandig om vóór
+      2027 uw situatie door te rekenen. Dan weet u wat het einde van de
+      saldering u gaat kosten en kunt u op tijd vergelijken en beslissen.
+---
+
+import {
+  LEVERINGSTARIEF_KWH,
+  TERUGLEVERVERGOEDING_AANDEEL,
+  euro,
+  pct,
+} from '../../config/constants';
+
+Wie zonnepanelen heeft, profiteert nu nog van de salderingsregeling: elke
+kilowattuur die u aan het net teruglevert, mag u wegstrepen tegen een
+kilowattuur die u op een ander moment afneemt. Uw teruggeleverde stroom is
+daardoor evenveel waard als de stroom die u koopt — inclusief belastingen.
+Aan die situatie komt een einde: **per 1 januari 2027 stopt de
+salderingsregeling volledig**.
+
+## Hoe werkt salderen nu?
+
+Zonnepanelen produceren het meest midden op de dag, terwijl de meeste
+huishoudens juist 's ochtends en 's avonds stroom verbruiken. Zonder
+salderingsregeling zou dat middagoverschot weinig opleveren. Salderen lost
+dat op een administratieve manier op: aan het einde van het jaar trekt uw
+energieleverancier de teruggeleverde kilowatturen af van uw verbruikte
+kilowatturen. U betaalt alleen over het verschil.
+
+In de praktijk werkt het net alsof u het elektriciteitsnet als gratis,
+verliesvrije batterij gebruikt. Precies daarom was salderen zo gunstig — en
+precies daarom wordt het afgeschaft: de kosten van dat "gratis opslaan"
+worden gedragen door alle andere stroomgebruikers en door de netbeheerders.
+
+## Wat verandert er op 1 januari 2027?
+
+Vanaf 1 januari 2027 mag u teruggeleverde stroom niet meer wegstrepen tegen
+uw verbruik. Er ontstaan dan twee gescheiden geldstromen:
+
+- **Stroom die u afneemt** betaalt u tegen uw normale leveringstarief,
+  inclusief energiebelasting en btw (indicatief rekenen wij met
+  {euro(LEVERINGSTARIEF_KWH)} per kWh).
+- **Stroom die u teruglevert** levert alleen nog een terugleververgoeding
+  op. Leveranciers zijn verplicht daarvoor een redelijke vergoeding te
+  betalen; tot en met 2030 geldt een wettelijk minimum van
+  {pct(TERUGLEVERVERGOEDING_AANDEEL)} van het leveringstarief.
+
+Het verschil tussen die twee bedragen is uw verlies per teruggeleverde
+kilowattuur. Bovenop dat verschil rekenen veel leveranciers tegenwoordig ook
+[terugleverkosten](/terugleverkosten/): een vast bedrag per maand of jaar
+voor klanten die stroom invoeden.
+
+## Voor wie zijn de gevolgen het grootst?
+
+Het einde van de saldering raakt niet iedereen even hard. De impact hangt
+vooral af van de verhouding tussen uw productie en uw verbruikspatroon:
+
+- **Grote installatie, laag verbruik:** u levert veel terug en verliest dus
+  het meest per jaar.
+- **Overdag niemand thuis:** uw zelfverbruik is laag, waardoor een groot
+  deel van uw productie tegen de lage vergoeding het net op gaat.
+- **Klein dak, hoog verbruik:** u verbruikt veel van uw eigen productie
+  direct en merkt relatief weinig van de verandering.
+
+De kern is steeds hetzelfde: **stroom die u zelf direct verbruikt, behoudt
+de volle waarde**. Alleen het deel dat u teruglevert wordt minder waard.
+
+## Wat kunt u doen?
+
+Er zijn drie realistische routes om het verlies te beperken, en ze zijn goed
+te combineren:
+
+- **Verschuif verbruik naar zonne-uren.** Laat de wasmachine, vaatwasser of
+  laadpaal overdag draaien. Dit kost niets, maar het effect is begrensd door
+  wat u kunt verschuiven.
+- **Plaats een thuisbatterij.** De batterij slaat uw middagoverschot op voor
+  de avond en nacht. Daarmee zet u laagvergoede teruglevering om in
+  volwaardig eigen verbruik. Hoeveel dat oplevert en of de investering zich
+  terugverdient, hangt af van uw situatie — zie ook onze pagina over het
+  [rendement van een thuisbatterij](/thuisbatterij-rendement/).
+- **Overweeg een dynamisch contract.** Met uurprijzen kunt u slim laden en
+  verbruiken op goedkope momenten. Dit vraagt wel meer aandacht of
+  automatisering.
+
+## Reken uw eigen situatie door
+
+Algemene verhalen zeggen weinig over uw dak, uw verbruik en uw huishouden.
+Met onze onafhankelijke rekenaar ziet u in één minuut wat het einde van de
+saldering u naar verwachting per jaar gaat kosten, wat een thuisbatterij u
+zou besparen en welke capaciteit bij uw situatie past. Alle aannames die wij
+gebruiken staan open en bloot op de pagina
+[uitgangspunten](/uitgangspunten/).

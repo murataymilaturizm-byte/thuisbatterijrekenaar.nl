@@ -1,0 +1,12 @@
+---
+import Content, { frontmatter } from '../content/pages/over-ons.mdx';
+import ProseLayout from '../layouts/ProseLayout.astro';
+---
+
+<ProseLayout
+  title={frontmatter.title}
+  description={frontmatter.description}
+  h1={frontmatter.h1}
+>
+  <Content />
+</ProseLayout>

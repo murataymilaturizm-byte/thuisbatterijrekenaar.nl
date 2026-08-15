@@ -1,0 +1,136 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { organizationSchema } from '../lib/seo/jsonld';
+
+const title = 'Kennisbank: alles over thuisbatterijen | Thuisbatterijrekenaar';
+const description =
+  'Alle artikelen over thuisbatterijen op een rij: saldering en tarieven, regelgeving en belasting, situaties zoals huurwoningen, en actuele marktdata.';
+
+interface PaginaFrontmatter {
+  h1: string;
+  description: string;
+  cluster?: string;
+  published?: boolean;
+}
+
+// Alle MDX-inhoudspagina's; concepten (published: false) en pagina's zonder
+// cluster (juridische pagina's) blijven buiten de kennisbank.
+const modules = import.meta.glob<{ frontmatter: PaginaFrontmatter }>(
+  '../content/pages/*.mdx',
+  { eager: true },
+);
+
+interface KennisbankItem {
+  url: string;
+  titel: string;
+  beschrijving: string;
+}
+
+const perCluster = new Map<string, KennisbankItem[]>();
+for (const [pad, mod] of Object.entries(modules)) {
+  const fm = mod.frontmatter;
+  if (fm.published === false || !fm.cluster) continue;
+  const slug = pad.split('/').pop()!.replace('.mdx', '');
+  const lijst = perCluster.get(fm.cluster) ?? [];
+  lijst.push({ url: `/${slug}/`, titel: fm.h1, beschrijving: fm.description });
+  perCluster.set(fm.cluster, lijst);
+}
+
+// De twee datapagina's zijn .astro-pagina's en worden handmatig toegevoegd
+const dataItems: KennisbankItem[] = [
+  {
+    url: '/stroomprijzen-vandaag/',
+    titel: 'Stroomprijzen vandaag en morgen',
+    beschrijving:
+      'De actuele uurprijzen, de goedkoopste uren en de piek-dalspread van de afgelopen 90 dagen — dagelijks automatisch bijgewerkt.',
+  },
+  {
+    url: '/terugleververgoeding-vergelijken/',
+    titel: 'Terugleververgoeding vergelijken per leverancier',
+    beschrijving:
+      'Wat krijgt u per kWh voor teruggeleverde stroom? Geverifieerde tarieven per leverancier, met peildatum.',
+  },
+];
+
+const clusters: { key: string; titel: string; intro: string; items: KennisbankItem[] }[] = [
+  {
+    key: 'basis',
+    titel: 'Saldering en tarieven: de basis',
+    intro: 'Wat er verandert in 2027 en hoe de rekensom van een thuisbatterij werkt.',
+    items: perCluster.get('basis') ?? [],
+  },
+  {
+    key: 'regelgeving',
+    titel: 'Regelgeving, belasting en procedures',
+    intro:
+      'Belasting, verzekering, meldplicht en installatienormen — wat u formeel moet regelen.',
+    items: perCluster.get('regelgeving') ?? [],
+  },
+  {
+    key: 'segment',
+    titel: 'Uw situatie',
+    intro: 'Huurwoning, VvE, geen zonnepanelen of liever een stekkerbatterij.',
+    items: perCluster.get('segment') ?? [],
+  },
+  {
+    key: 'dynamisch',
+    titel: 'Dynamisch contract',
+    intro: 'Uurprijzen benutten — met of zonder thuisbatterij.',
+    items: perCluster.get('dynamisch') ?? [],
+  },
+  {
+    key: 'data',
+    titel: 'Actuele marktdata',
+    intro: 'Live cijfers waarop onze rekenaar rekent.',
+    items: dataItems,
+  },
+];
+---
+
+<BaseLayout title={title} description={description} jsonLd={[organizationSchema()]}>
+  <h1 class="mb-2 text-3xl font-extrabold tracking-tight text-slate-900">
+    Kennisbank
+  </h1>
+  <p class="mb-8 leading-relaxed text-slate-700">
+    Alles wat wij publiceren over thuisbatterijen, gegroepeerd per thema.
+    Elke pagina vermeldt de datum van de laatste update; de aannames achter
+    alle berekeningen staan op
+    <a href="/uitgangspunten/" class="underline">uitgangspunten</a>.
+  </p>
+
+  {
+    clusters.map((cluster) => (
+      <section class="mb-10" aria-labelledby={`cluster-${cluster.key}`}>
+        <h2
+          id={`cluster-${cluster.key}`}
+          class="mb-1 text-2xl font-bold text-slate-900"
+        >
+          {cluster.titel}
+        </h2>
+        <p class="mb-4 text-sm text-slate-500">{cluster.intro}</p>
+        <ul class="space-y-3">
+          {cluster.items.map((item) => (
+            <li class="rounded-lg border border-slate-200 bg-white p-4">
+              <a href={item.url} class="font-semibold text-emerald-700 hover:underline">
+                {item.titel}
+              </a>
+              <p class="mt-1 text-sm text-slate-600">{item.beschrijving}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+
+  <aside class="mt-4 rounded-xl bg-emerald-50 p-6 text-center">
+    <p class="mb-3 text-lg font-semibold text-emerald-900">
+      Liever meteen weten wat het voor uw situatie betekent?
+    </p>
+    <a
+      href="/"
+      class="inline-block rounded-lg bg-emerald-600 px-6 py-3 font-bold text-white transition hover:bg-emerald-700"
+    >
+      Naar de thuisbatterij-rekenaar
+    </a>
+  </aside>
+</BaseLayout>

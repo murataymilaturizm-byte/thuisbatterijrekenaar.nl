@@ -1,0 +1,24 @@
+# thuisbatterijrekenaar.nl — alles toegankelijk, ook voor AI-crawlers
+
+User-agent: *
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+Sitemap: https://thuisbatterijrekenaar.nl/sitemap-index.xml

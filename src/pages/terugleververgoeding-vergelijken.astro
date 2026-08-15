@@ -1,0 +1,187 @@
+---
+import { LAATST_BIJGEWERKT, TERUGLEVERVERGOEDING_AANDEEL, pct } from '../config/constants';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import {
+  articleSchema,
+  faqPageSchema,
+  organizationSchema,
+} from '../lib/seo/jsonld';
+import type { FaqItem } from '../lib/seo/jsonld';
+
+const title = 'Terugleververgoeding vergelijken per leverancier | Thuisbatterijrekenaar';
+const description =
+  'Wat krijgt u per kWh voor teruggeleverde zonnestroom? Vergelijk de terugleververgoedingen en terugleverkosten van Nederlandse energieleveranciers.';
+
+/**
+ * DATASTRUCTUUR — de werkelijke tarieven zijn nog niet geverifieerd.
+ * REGEL: geen tarief publiceren zonder controle bij de leverancier zelf.
+ * Elke null wordt in de tabel weergegeven als "wordt geverifieerd".
+ * [TEYIT GEREKLI: per leverancier de actuele terugleververgoeding (€/kWh)
+ * en terugleverkosten (€/jaar of staffel) opzoeken op de eigen
+ * tarievenpagina en hier invullen, met peildatum per rij]
+ */
+interface LeverancierRij {
+  naam: string;
+  vergoedingPerKwh: number | null;
+  terugleverkosten: string | null;
+  peildatum: string | null;
+}
+
+const leveranciers: LeverancierRij[] = [
+  { naam: 'Eneco', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
+  { naam: 'Essent', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
+  { naam: 'Vattenfall', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
+  { naam: 'Greenchoice', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
+  { naam: 'Budget Energie', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
+  { naam: 'Energiedirect', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
+  { naam: 'Frank Energie', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
+  { naam: 'Tibber', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
+  { naam: 'Zonneplan', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
+  { naam: 'ANWB Energie', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
+];
+
+const faq: FaqItem[] = [
+  {
+    vraag: 'Wat is een terugleververgoeding?',
+    antwoord:
+      'Het bedrag per kWh dat uw energieleverancier betaalt voor zonnestroom die u aan het net teruglevert bovenop wat u mag salderen — en na het einde van de saldering in 2027: voor álle teruggeleverde stroom.',
+  },
+  {
+    vraag: 'Is er een wettelijk minimum voor de terugleververgoeding?',
+    antwoord:
+      'Ja. Na het einde van de saldering geldt tot en met 2030 een wettelijk minimum als aandeel van het leveringstarief. In onze berekeningen hanteren wij dat minimum als conservatief uitgangspunt.',
+  },
+  {
+    vraag: 'Waarom staan er nog geen bedragen in de tabel?',
+    antwoord:
+      'Wij publiceren uitsluitend tarieven die wij zelf bij de leverancier hebben geverifieerd, met peildatum. Liever een lege cel dan een verouderd of verkeerd bedrag — tarieven wijzigen regelmatig.',
+  },
+  {
+    vraag: 'Moet ik kiezen voor de leverancier met de hoogste vergoeding?',
+    antwoord:
+      'Niet automatisch. Kijk naar het totaalplaatje: leveringstarief, vaste kosten, terugleverkosten én de vergoeding samen bepalen wat u per jaar kwijt bent of overhoudt.',
+  },
+];
+
+const jsonLd = [
+  organizationSchema(),
+  articleSchema({
+    titel: 'Terugleververgoeding vergelijken per leverancier',
+    beschrijving: description,
+    url: new URL('/terugleververgoeding-vergelijken/', Astro.site).toString(),
+    gepubliceerd: '2026-08-14',
+    gewijzigd: LAATST_BIJGEWERKT,
+  }),
+  faqPageSchema(faq),
+];
+---
+
+<BaseLayout title={title} description={description} jsonLd={jsonLd}>
+  <h1 class="mb-2 text-3xl font-extrabold tracking-tight text-slate-900">
+    Terugleververgoeding vergelijken per leverancier
+  </h1>
+  <p class="mb-6 text-sm text-slate-500">Laatst bijgewerkt: {LAATST_BIJGEWERKT}</p>
+
+  <div class="space-y-4 leading-relaxed text-slate-700">
+    <p>
+      Zodra de <a href="/saldering-stopt-2027/" class="underline">saldering stopt</a>,
+      wordt de terugleververgoeding de belangrijkste knop in uw
+      energiecontract als zonnepaneelbezitter: het is het enige dat u nog
+      voor uw overtollige stroom krijgt. Tegelijk rekenen veel leveranciers
+      <a href="/terugleverkosten/" class="underline">terugleverkosten</a>.
+      Beide verschillen sterk per leverancier — vergelijken loont.
+    </p>
+    <p>
+      <strong>Ons uitgangspunt bij deze tabel:</strong> wij nemen alleen
+      tarieven op die wij zelf op de tarievenpagina van de leverancier
+      hebben gecontroleerd, mét peildatum. Cellen die nog niet geverifieerd
+      zijn, laten wij bewust leeg. Tot en met 2030 geldt in elk geval het
+      wettelijke minimum van {pct(TERUGLEVERVERGOEDING_AANDEEL)} van het
+      leveringstarief.
+    </p>
+  </div>
+
+  <div class="mt-6 overflow-x-auto rounded-lg border border-slate-200 bg-white">
+    <table class="w-full border-collapse text-sm">
+      <thead>
+        <tr class="border-b border-slate-200 bg-slate-50 text-left text-slate-600">
+          <th scope="col" class="px-4 py-2 font-semibold">Leverancier</th>
+          <th scope="col" class="px-4 py-2 font-semibold">Terugleververgoeding per kWh</th>
+          <th scope="col" class="px-4 py-2 font-semibold">Terugleverkosten</th>
+          <th scope="col" class="px-4 py-2 font-semibold">Peildatum</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          leveranciers.map((l) => (
+            <tr class="border-b border-slate-100">
+              <th scope="row" class="px-4 py-2 text-left font-medium text-slate-800">
+                {l.naam}
+              </th>
+              <td class="px-4 py-2 text-slate-400 italic">
+                {l.vergoedingPerKwh ?? 'wordt geverifieerd'}
+              </td>
+              <td class="px-4 py-2 text-slate-400 italic">
+                {l.terugleverkosten ?? 'wordt geverifieerd'}
+              </td>
+              <td class="px-4 py-2 text-slate-400 italic">{l.peildatum ?? '—'}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+  <p class="mt-2 text-xs text-slate-500">
+    Tarieven worden per leverancier geverifieerd voordat ze hier verschijnen.
+    Ziet u een fout of heeft u een actueel tarief met bron? Mail ons via het
+    adres in de voettekst.
+  </p>
+
+  <section class="mt-8 space-y-4 leading-relaxed text-slate-700">
+    <h2 class="text-2xl font-bold text-slate-900">Zo vergelijkt u eerlijk</h2>
+    <p>
+      Een hoge terugleververgoeding kan worden uitgehold door hoge
+      terugleverkosten of een duur leveringstarief. Zet daarom altijd vier
+      posten naast elkaar: het leveringstarief per kWh, de vaste
+      leveringskosten, de terugleverkosten en de vergoeding per
+      teruggeleverde kWh. Uw werkelijke jaarplaatje hangt af van hoeveel u
+      teruglevert — en dat kunt u drukken met een thuisbatterij, zoals we
+      uitleggen op
+      <a href="/thuisbatterij-rendement/" class="underline"
+        >het rendement van een thuisbatterij</a
+      >. De actuele marktprijzen waarop dynamische contracten zijn gebaseerd
+      ziet u op
+      <a href="/stroomprijzen-vandaag/" class="underline">stroomprijzen vandaag</a>.
+    </p>
+  </section>
+
+  <section class="mt-10" aria-labelledby="faq-heading">
+    <h2 id="faq-heading" class="mb-4 text-2xl font-bold text-slate-900">
+      Veelgestelde vragen
+    </h2>
+    <div class="space-y-3">
+      {
+        faq.map((item) => (
+          <details class="rounded-lg border border-slate-200 bg-white p-4">
+            <summary class="cursor-pointer font-semibold text-slate-800">
+              {item.vraag}
+            </summary>
+            <p class="mt-2 text-slate-700">{item.antwoord}</p>
+          </details>
+        ))
+      }
+    </div>
+  </section>
+
+  <aside class="mt-10 rounded-xl bg-emerald-50 p-6 text-center">
+    <p class="mb-3 text-lg font-semibold text-emerald-900">
+      Hoeveel teruglevering heeft u eigenlijk — en wat kost die u vanaf 2027?
+    </p>
+    <a
+      href="/"
+      class="inline-block rounded-lg bg-emerald-600 px-6 py-3 font-bold text-white transition hover:bg-emerald-700"
+    >
+      Bereken het met de thuisbatterij-rekenaar
+    </a>
+  </aside>
+</BaseLayout>

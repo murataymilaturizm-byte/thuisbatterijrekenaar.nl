@@ -1,0 +1,25 @@
+---
+import { LAATST_BIJGEWERKT } from '../../config/constants';
+import { SITE } from '../../config/site';
+
+const jaar = new Date().getFullYear();
+---
+
+<footer class="mt-16 border-t border-slate-200 bg-slate-50">
+  <div class="mx-auto max-w-4xl px-4 py-8 text-sm text-slate-600">
+    <p class="mb-4">
+      {SITE.naam} wordt onafhankelijk beheerd door {SITE.eigenaar.naam}. Wij
+      verkopen zelf geen thuisbatterijen en zijn niet verbonden aan een
+      energieleverancier of installateur. Cijfers laatst bijgewerkt op {LAATST_BIJGEWERKT}.
+    </p>
+    <nav aria-label="Voettekstnavigatie">
+      <ul class="flex flex-wrap gap-x-5 gap-y-2">
+        <li><a href="/over-ons/" class="hover:underline">Over ons</a></li>
+        <li><a href="/uitgangspunten/" class="hover:underline">Uitgangspunten</a></li>
+        <li><a href="/privacyverklaring/" class="hover:underline">Privacyverklaring</a></li>
+        <li><a href="/algemene-voorwaarden/" class="hover:underline">Algemene voorwaarden</a></li>
+      </ul>
+    </nav>
+    <p class="mt-4 text-slate-400">© {jaar} {SITE.naam}</p>
+  </div>
+</footer>

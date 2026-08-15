@@ -1,0 +1,93 @@
+---
+import { LAATST_BIJGEWERKT, UITGANGSPUNTEN } from '../config/constants';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { organizationSchema } from '../lib/seo/jsonld';
+
+const title = 'Uitgangspunten van de berekening | Thuisbatterijrekenaar';
+const description =
+  'Alle aannames achter de thuisbatterij-rekenaar: tarieven, opbrengsten, prijzen en bronnen — volledig transparant, met datum van de laatste update.';
+---
+
+<BaseLayout title={title} description={description} jsonLd={[organizationSchema()]}>
+  <h1 class="mb-4 text-3xl font-extrabold tracking-tight text-slate-900">
+    Onze uitgangspunten
+  </h1>
+  <p class="mb-2 leading-relaxed text-slate-700">
+    De rekenaar op deze site gebruikt uitsluitend de onderstaande aannames.
+    Alle waarden komen uit openbare bronnen of zijn duidelijk gemarkeerde
+    indicatieve gemiddelden. Werkelijke tarieven en prijzen verschillen per
+    leverancier, installateur en situatie.
+  </p>
+  <p class="mb-2 font-medium text-slate-700">
+    Laatst bijgewerkt: <strong>{LAATST_BIJGEWERKT}</strong>
+  </p>
+  <p class="mb-2 text-sm text-slate-500">
+    Fiscale informatie gecontroleerd tegen belastingdienst.nl op 14 augustus 2026.
+  </p>
+  <p class="mb-2 text-sm text-slate-500">
+    Meldplicht en installatienormen gecontroleerd tegen Netbeheer Nederland
+    op 15 augustus 2026. Waar wij geen bevestiging vonden bij een officiële
+    bron, staat dat expliciet in de tekst.
+  </p>
+  <p class="mb-8 text-sm text-slate-500">
+    Voor verzekering, VvE-regels en de juridische status bij woningverkoop
+    bestaat geen enkele centrale bron. Waar wij geen bevestiging vonden,
+    schrijven wij dat op en leggen wij uit hoe u het zelf controleert bij uw
+    verzekeraar, verhuurder of makelaar.
+  </p>
+
+  <div class="overflow-x-auto">
+    <table class="w-full border-collapse text-left text-sm">
+      <thead>
+        <tr class="border-b-2 border-slate-300 text-slate-900">
+          <th scope="col" class="py-3 pr-4 font-bold">Uitgangspunt</th>
+          <th scope="col" class="py-3 pr-4 font-bold">Waarde</th>
+          <th scope="col" class="py-3 font-bold">Bron / toelichting</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          UITGANGSPUNTEN.map((u) => (
+            <tr class="border-b border-slate-200 align-top text-slate-700">
+              <th scope="row" class="py-3 pr-4 font-semibold text-slate-900">
+                {u.label}
+              </th>
+              <td class="py-3 pr-4">{u.waarde}</td>
+              <td class="py-3 text-slate-500">{u.bron}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <section class="mt-10 space-y-4 leading-relaxed text-slate-700">
+    <h2 class="text-2xl font-bold text-slate-900">Hoe de berekening werkt</h2>
+    <p>
+      Uit uw wattpiek schatten wij de jaarproductie. Op basis van uw
+      huishoudsituatie bepalen wij welk deel daarvan u zelf direct verbruikt;
+      de rest is teruglevering. Het verlies vanaf 2027 is het verschil tussen
+      het leveringstarief en de terugleververgoeding over die teruglevering,
+      plus de vaste terugleverkosten. Een thuisbatterij verhoogt het
+      zelfverbruik; de jaarlijkse besparing is de extra zelf verbruikte stroom
+      maal datzelfde tariefverschil, verminderd met het round-trip verlies van
+      de batterij. Kiest u een dynamisch contract, dan tellen wij daar een
+      arbitragewinst bij op, berekend met de werkelijke piek-dalspread van de
+      afgelopen 90 dagen.
+    </p>
+    <p>
+      De terugverdientijd berekenen wij met een cashflowprojectie over de
+      volledige levensduur: de besparing daalt elk jaar mee met de degradatie
+      van de batterij, en het eerste jaar waarin de cumulatieve besparing de
+      investering overstijgt is de terugverdientijd. Gebeurt dat binnen de
+      levensduur niet, dan zeggen wij eerlijk dat de batterij in uw situatie
+      niet rendabel is — wij rekenen bewust conservatief, zonder aangenomen
+      energieprijsstijging.
+    </p>
+    <p>
+      Vragen over deze uitgangspunten? Neem contact op via het e-mailadres in
+      de voettekst, of lees meer op
+      <a href="/over-ons/" class="underline">de pagina over ons</a>.
+    </p>
+  </section>
+</BaseLayout>

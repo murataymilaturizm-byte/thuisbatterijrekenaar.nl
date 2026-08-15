@@ -1,0 +1,14 @@
+---
+import Content, { frontmatter } from '../content/pages/thuisbatterij-huurwoning-en-vve.mdx';
+import ArticleLayout from '../layouts/ArticleLayout.astro';
+---
+
+<ArticleLayout
+  title={frontmatter.title}
+  description={frontmatter.description}
+  h1={frontmatter.h1}
+  gepubliceerd={frontmatter.gepubliceerd}
+  faq={frontmatter.faq}
+>
+  <Content />
+</ArticleLayout>

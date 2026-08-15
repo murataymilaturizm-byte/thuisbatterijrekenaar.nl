@@ -1,0 +1,267 @@
+---
+import { LAATST_BIJGEWERKT, PRIJS_DATA_MAX_LEEFTIJD_UUR, euro } from '../config/constants';
+import prijsDataJson from '../data/prices.json';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import type { PrijsData } from '../lib/data/prices';
+import {
+  articleSchema,
+  faqPageSchema,
+  organizationSchema,
+} from '../lib/seo/jsonld';
+import type { FaqItem } from '../lib/seo/jsonld';
+
+const title = 'Stroomprijzen vandaag en morgen (per uur) | Thuisbatterijrekenaar';
+const description =
+  'De actuele Nederlandse stroomprijzen per uur voor vandaag en morgen, de goedkoopste uren en de piek-dalspread van de afgelopen 90 dagen. Dagelijks automatisch bijgewerkt.';
+
+// Expliciet typen: bij een lege uurprijzen-array zou TypeScript anders
+// never[] afleiden uit de JSON-inhoud (bijv. vóór publicatie van de
+// day-ahead prijzen van morgen).
+const prijsData: PrijsData = prijsDataJson;
+
+const laatstBijgewerkt = new Date(prijsData.opgehaaldOp);
+const datumFmt = laatstBijgewerkt.toLocaleString('nl-NL', {
+  timeZone: 'Europe/Amsterdam',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+});
+
+const vandaag = prijsData.uurprijzenVandaag;
+const morgen = prijsData.uurprijzenMorgen;
+
+// Goedkoopste 3 uren van vandaag
+const goedkoopste = [...vandaag]
+  .sort((a, b) => a.prijs - b.prijs)
+  .slice(0, 3);
+const goedkoopsteUren = new Set(goedkoopste.map((u) => u.uur));
+
+const faq: FaqItem[] = [
+  {
+    vraag: 'Waar komen deze stroomprijzen vandaan?',
+    antwoord:
+      'De prijzen zijn de Nederlandse day-ahead uurprijzen (EPEX-markt), opgehaald via de publieke EnergyZero-API, inclusief btw maar exclusief energiebelasting en de inkoopvergoeding van uw leverancier. De pagina wordt dagelijks automatisch bijgewerkt.',
+  },
+  {
+    vraag: 'Waarom wijkt mijn tarief af van deze prijzen?',
+    antwoord:
+      'Bij een dynamisch contract betaalt u deze marktprijs plus energiebelasting en een kleine inkoopvergoeding per kWh. Bij een vast contract betaalt u een vast tarief en ziet u deze schommelingen niet terug.',
+  },
+  {
+    vraag: 'Wat is de piek-dalspread en waarom is die belangrijk?',
+    antwoord:
+      'De spread is het gemiddelde verschil tussen het duurste en goedkoopste uur van een dag. Hoe groter de spread, hoe meer een thuisbatterij kan verdienen door goedkoop te laden en duur te ontladen. Onze rekenaar gebruikt de werkelijke spread van de afgelopen 90 dagen.',
+  },
+  {
+    vraag: 'Wat betekent een negatieve stroomprijs?',
+    antwoord:
+      'Bij veel zon en wind en weinig vraag kan de marktprijs onder nul zakken: u krijgt dan geld toe voor verbruik op die uren (exclusief belastingen). Voor batterijbezitters zijn dit de ideale laaduren.',
+  },
+];
+
+const jsonLd = [
+  organizationSchema(),
+  articleSchema({
+    titel: 'Stroomprijzen vandaag en morgen',
+    beschrijving: description,
+    url: new URL('/stroomprijzen-vandaag/', Astro.site).toString(),
+    gepubliceerd: '2026-08-14',
+    gewijzigd: LAATST_BIJGEWERKT,
+  }),
+  faqPageSchema(faq),
+];
+
+const prijsKleur = (prijs: number) =>
+  prijs < 0
+    ? 'text-emerald-700 font-semibold'
+    : prijs >= 0.25
+      ? 'text-red-700'
+      : 'text-slate-700';
+---
+
+<BaseLayout title={title} description={description} jsonLd={jsonLd}>
+  <h1 class="mb-2 text-3xl font-extrabold tracking-tight text-slate-900">
+    Stroomprijzen vandaag{morgen.length > 0 ? ' en morgen' : ''}
+  </h1>
+  <p class="mb-6 text-sm text-slate-500">
+    Laatst bijgewerkt: {datumFmt} · Bron: day-ahead uurprijzen (incl. btw,
+    excl. energiebelasting)
+  </p>
+
+  <p
+    id="verouderd-banner"
+    hidden
+    class="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
+  >
+    Let op: deze data is ouder dan {PRIJS_DATA_MAX_LEEFTIJD_UUR} uur. De
+    getoonde prijzen zijn mogelijk niet meer actueel.
+  </p>
+
+  <div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div class="rounded-xl bg-slate-100 p-5 text-center">
+      <p class="text-sm font-medium text-slate-600">Gemiddelde prijs (30 dagen)</p>
+      <p class="mt-1 text-2xl font-extrabold text-slate-900">
+        {euro(prijsData.gemiddeldeDagprijs30d)}
+      </p>
+      <p class="text-sm text-slate-500">per kWh</p>
+    </div>
+    <div class="rounded-xl bg-slate-100 p-5 text-center">
+      <p class="text-sm font-medium text-slate-600">Piek-dalspread (90 dagen)</p>
+      <p class="mt-1 text-2xl font-extrabold text-slate-900">
+        {euro(prijsData.piekDalSpread90d)}
+      </p>
+      <p class="text-sm text-slate-500">per kWh per dag</p>
+    </div>
+    <div class="rounded-xl bg-slate-100 p-5 text-center">
+      <p class="text-sm font-medium text-slate-600">Negatieve uren (30 dagen)</p>
+      <p class="mt-1 text-2xl font-extrabold text-slate-900">
+        {prijsData.negatieveUren30d}
+      </p>
+      <p class="text-sm text-slate-500">uren onder € 0</p>
+    </div>
+  </div>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-2xl font-bold text-slate-900">
+      Vandaag ({prijsData.datumVandaag})
+    </h2>
+    <p class="mb-3 text-sm text-slate-600">
+      De drie goedkoopste uren van vandaag zijn groen gemarkeerd:{' '}
+      {goedkoopste.map((u) => u.uur).join(', ')}.
+    </p>
+    <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+      <table class="w-full border-collapse text-sm">
+        <thead>
+          <tr class="border-b border-slate-200 bg-slate-50 text-left text-slate-600">
+            <th scope="col" class="px-4 py-2 font-semibold">Uur</th>
+            <th scope="col" class="px-4 py-2 text-right font-semibold">Prijs per kWh</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            vandaag.map((u) => (
+              <tr
+                class={
+                  goedkoopsteUren.has(u.uur)
+                    ? 'border-b border-slate-100 bg-emerald-50'
+                    : 'border-b border-slate-100'
+                }
+              >
+                <td class="px-4 py-1.5 tabular-nums">{u.uur}</td>
+                <td class={`px-4 py-1.5 text-right tabular-nums ${prijsKleur(u.prijs)}`}>
+                  {euro(u.prijs)}
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {
+    morgen.length > 0 && (
+      <section class="mb-8">
+        <h2 class="mb-3 text-2xl font-bold text-slate-900">Morgen</h2>
+        <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+          <table class="w-full border-collapse text-sm">
+            <thead>
+              <tr class="border-b border-slate-200 bg-slate-50 text-left text-slate-600">
+                <th scope="col" class="px-4 py-2 font-semibold">
+                  Uur
+                </th>
+                <th scope="col" class="px-4 py-2 text-right font-semibold">
+                  Prijs per kWh
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {morgen.map((u) => (
+                <tr class="border-b border-slate-100">
+                  <td class="px-4 py-1.5 tabular-nums">{u.uur}</td>
+                  <td class={`px-4 py-1.5 text-right tabular-nums ${prijsKleur(u.prijs)}`}>
+                    {euro(u.prijs)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="space-y-4 leading-relaxed text-slate-700">
+    <h2 class="text-2xl font-bold text-slate-900">
+      Wat heeft u aan deze cijfers?
+    </h2>
+    <p>
+      Voor huishoudens met een <strong>dynamisch energiecontract</strong> zijn
+      dit de prijzen die u — plus energiebelasting en inkoopvergoeding —
+      daadwerkelijk betaalt. Door zwaar verbruik (wasmachine, laadpaal,
+      boiler) naar de goedkoopste uren te verschuiven, bespaart u zonder
+      enige investering.
+    </p>
+    <p>
+      Voor <strong>thuisbatterijbezitters</strong> is vooral de
+      piek-dalspread interessant: dat is de ruimte waarbinnen een batterij
+      kan verdienen door goedkoop te laden en duur te ontladen. Onze{' '}
+      <a href="/" class="underline">rekenaar</a> gebruikt exact deze
+      90-dagenspread — geen aannames, maar werkelijke marktdata. Hoe dat
+      model werkt zonder eigen zonnepanelen leest u op{' '}
+      <a href="/thuisbatterij-zonder-zonnepanelen/" class="underline"
+        >thuisbatterij zonder zonnepanelen</a
+      >, en wat u voor teruggeleverde stroom krijgt op{' '}
+      <a href="/terugleververgoeding-vergelijken/" class="underline"
+        >terugleververgoeding vergelijken</a
+      >.
+    </p>
+    <p>
+      De negatieve uren laten zien hoe vaak stroom "gratis" was in de
+      afgelopen 30 dagen. Voor zonnepaneelbezitters zijn dat de uren waarop
+      terugleveren niets oplevert of zelfs geld kost — een van de redenen
+      waarom <a href="/terugleverkosten/" class="underline">terugleverkosten</a>
+      bestaan en opslag aantrekkelijker wordt.
+    </p>
+  </section>
+
+  <section class="mt-10" aria-labelledby="faq-heading">
+    <h2 id="faq-heading" class="mb-4 text-2xl font-bold text-slate-900">
+      Veelgestelde vragen
+    </h2>
+    <div class="space-y-3">
+      {
+        faq.map((item) => (
+          <details class="rounded-lg border border-slate-200 bg-white p-4">
+            <summary class="cursor-pointer font-semibold text-slate-800">
+              {item.vraag}
+            </summary>
+            <p class="mt-2 text-slate-700">{item.antwoord}</p>
+          </details>
+        ))
+      }
+    </div>
+  </section>
+
+  <aside class="mt-10 rounded-xl bg-emerald-50 p-6 text-center">
+    <p class="mb-3 text-lg font-semibold text-emerald-900">
+      Wat betekenen deze prijzen voor een thuisbatterij in uw situatie?
+    </p>
+    <a
+      href="/"
+      class="inline-block rounded-lg bg-emerald-600 px-6 py-3 font-bold text-white transition hover:bg-emerald-700"
+    >
+      Bereken het met de thuisbatterij-rekenaar
+    </a>
+  </aside>
+
+  <script is:inline define:vars={{ opgehaaldOp: prijsData.opgehaaldOp, maxUur: PRIJS_DATA_MAX_LEEFTIJD_UUR }}>
+    const leeftijdUur = (Date.now() - new Date(opgehaaldOp).getTime()) / 3600000;
+    if (leeftijdUur > maxUur) {
+      const banner = document.getElementById('verouderd-banner');
+      if (banner) banner.hidden = false;
+    }
+  </script>
+</BaseLayout>

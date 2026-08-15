@@ -1,0 +1,15 @@
+---
+import Content, { frontmatter } from '../content/pages/thuisbatterij-melden-netbeheerder.mdx';
+import ArticleLayout from '../layouts/ArticleLayout.astro';
+---
+
+<ArticleLayout
+  title={frontmatter.title}
+  description={frontmatter.description}
+  h1={frontmatter.h1}
+  gepubliceerd={frontmatter.gepubliceerd}
+  faq={frontmatter.faq}
+  ymyl={frontmatter.ymyl}
+>
+  <Content />
+</ArticleLayout>

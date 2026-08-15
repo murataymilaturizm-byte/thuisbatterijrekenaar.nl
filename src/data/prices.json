@@ -1,0 +1,107 @@
+{
+  "bron": "EnergyZero (day-ahead uurprijzen NL, incl. btw)",
+  "opgehaaldOp": "2026-08-15T05:24:11.472Z",
+  "gemiddeldeDagprijs30d": 0.1392,
+  "piekDalSpread90d": 0.2298,
+  "negatieveUren30d": 6,
+  "datumVandaag": "2026-08-15",
+  "uurprijzenVandaag": [
+    {
+      "uur": "00:00",
+      "prijs": 0.21
+    },
+    {
+      "uur": "01:00",
+      "prijs": 0.19
+    },
+    {
+      "uur": "02:00",
+      "prijs": 0.19
+    },
+    {
+      "uur": "03:00",
+      "prijs": 0.19
+    },
+    {
+      "uur": "04:00",
+      "prijs": 0.18
+    },
+    {
+      "uur": "05:00",
+      "prijs": 0.18
+    },
+    {
+      "uur": "06:00",
+      "prijs": 0.19
+    },
+    {
+      "uur": "07:00",
+      "prijs": 0.18
+    },
+    {
+      "uur": "08:00",
+      "prijs": 0.18
+    },
+    {
+      "uur": "09:00",
+      "prijs": 0.15
+    },
+    {
+      "uur": "10:00",
+      "prijs": 0.08
+    },
+    {
+      "uur": "11:00",
+      "prijs": 0.04
+    },
+    {
+      "uur": "12:00",
+      "prijs": 0.01
+    },
+    {
+      "uur": "13:00",
+      "prijs": 0.01
+    },
+    {
+      "uur": "14:00",
+      "prijs": 0.01
+    },
+    {
+      "uur": "15:00",
+      "prijs": 0.02
+    },
+    {
+      "uur": "16:00",
+      "prijs": 0.08
+    },
+    {
+      "uur": "17:00",
+      "prijs": 0.16
+    },
+    {
+      "uur": "18:00",
+      "prijs": 0.21
+    },
+    {
+      "uur": "19:00",
+      "prijs": 0.22
+    },
+    {
+      "uur": "20:00",
+      "prijs": 0.22
+    },
+    {
+      "uur": "21:00",
+      "prijs": 0.22
+    },
+    {
+      "uur": "22:00",
+      "prijs": 0.22
+    },
+    {
+      "uur": "23:00",
+      "prijs": 0.21
+    }
+  ],
+  "uurprijzenMorgen": []
+}

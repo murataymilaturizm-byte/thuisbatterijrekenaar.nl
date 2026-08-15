@@ -1,0 +1,118 @@
+---
+import Calculator from '../components/calculator/Calculator';
+import prijsData from '../data/prices.json';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import type { MarktData } from '../lib/calc/types';
+import {
+  faqPageSchema,
+  organizationSchema,
+  webApplicationSchema,
+} from '../lib/seo/jsonld';
+import type { FaqItem } from '../lib/seo/jsonld';
+
+const title =
+  'Thuisbatterij rekenaar: bereken uw besparing en terugverdientijd | Thuisbatterijrekenaar';
+const description =
+  'Bereken gratis wat u verliest als de saldering in 2027 stopt en wat een thuisbatterij u bespaart. Onafhankelijk, transparant en zonder verplichtingen.';
+
+const faq: FaqItem[] = [
+  {
+    vraag: 'Wat berekent deze rekenaar precies?',
+    antwoord:
+      'De rekenaar schat uw jaarlijkse verlies zodra de salderingsregeling op 1 januari 2027 stopt, de besparing die een thuisbatterij oplevert, de aanbevolen batterijcapaciteit en de terugverdientijd — op basis van uw eigen verbruik en installatie.',
+  },
+  {
+    vraag: 'Is de rekenaar echt onafhankelijk?',
+    antwoord:
+      'Ja. De site wordt onafhankelijk beheerd, wij verkopen zelf geen batterijen en zijn niet verbonden aan een energieleverancier of installateur. Alle aannames staan openbaar op de pagina uitgangspunten.',
+  },
+  {
+    vraag: 'Wat gebeurt er met mijn gegevens?',
+    antwoord:
+      'De rekenaar draait volledig in uw browser; uw invoer wordt niet opgeslagen. Alleen als u zelf een offerte aanvraagt, worden de gegevens uit het formulier gedeeld met maximaal drie installateurs — uitsluitend met uw toestemming.',
+  },
+  {
+    vraag: 'Wat kost het aanvragen van offertes?',
+    antwoord:
+      'Niets. De offerteaanvraag is gratis en vrijblijvend. Wij ontvangen een vergoeding van de deelnemende installateurs; dat heeft geen invloed op de uitkomst van de berekening.',
+  },
+];
+
+const jsonLd = [organizationSchema(), webApplicationSchema(), faqPageSchema(faq)];
+
+// Alleen de statistieken gaan naar het island — niet de volledige uurdata
+const marktData: MarktData = {
+  piekDalSpreadEurPerKwh: prijsData.piekDalSpread90d,
+  laatstBijgewerkt: prijsData.opgehaaldOp,
+};
+---
+
+<BaseLayout title={title} description={description} jsonLd={jsonLd}>
+  <h1 class="mb-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+    Wat kost het einde van de saldering u — en wat bespaart een thuisbatterij?
+  </h1>
+  <p class="mb-6 text-slate-600">
+    Bereken het in één minuut. Onafhankelijk, gratis en zonder verplichtingen.
+  </p>
+
+  <Calculator client:load marktData={marktData} />
+
+  <section class="mt-12 space-y-4 leading-relaxed text-slate-700">
+    <h2 class="text-2xl font-bold text-slate-900">
+      Waarom nu rekenen aan een thuisbatterij?
+    </h2>
+    <p>
+      Op 1 januari 2027 stopt de salderingsregeling. Vanaf dat moment mag u
+      teruggeleverde zonnestroom niet meer wegstrepen tegen uw verbruik en
+      krijgt u er alleen nog een beperkte terugleververgoeding voor. Daarnaast
+      rekenen steeds meer energieleveranciers
+      <a href="/terugleverkosten/" class="underline">terugleverkosten</a> voor
+      huishoudens die stroom invoeden. Beide ontwikkelingen drukken het
+      rendement van zonnepanelen — vooral voor wie overdag weinig thuis is.
+    </p>
+    <p>
+      Een thuisbatterij kan dat verlies deels opvangen door uw middagoverschot
+      op te slaan voor de avond. Maar een batterij is ook een flinke
+      investering, en niet in elke situatie rendabel. Daarom rekent deze
+      rekenaar beide kanten eerlijk door: het verlies zónder batterij én de
+      besparing mét batterij, inclusief terugverdientijd. Komt er geen
+      rendabele uitkomst uit, dan zeggen we dat gewoon.
+    </p>
+    <h2 class="text-2xl font-bold text-slate-900">Hoe werkt de rekenaar?</h2>
+    <p>
+      U beantwoordt zes korte vragen over uw postcode, verbruik,
+      zonnepaneleninstallatie en huishouden. Op basis daarvan schatten wij uw
+      jaarproductie, uw zelfverbruik en uw teruglevering, en rekenen wij uit
+      wat het einde van de saldering u kost en wat een thuisbatterij u
+      bespaart. Alle aannames — van het leveringstarief tot de batterijprijs —
+      staan volledig openbaar op de pagina
+      <a href="/uitgangspunten/" class="underline">uitgangspunten</a>, inclusief
+      de datum van de laatste update. Meer achtergrond leest u in onze
+      artikelen over het
+      <a href="/saldering-stopt-2027/" class="underline"
+        >einde van de saldering</a
+      > en het
+      <a href="/thuisbatterij-rendement/" class="underline"
+        >rendement van een thuisbatterij</a
+      >.
+    </p>
+  </section>
+
+  <section class="mt-12" aria-labelledby="faq-heading">
+    <h2 id="faq-heading" class="mb-4 text-2xl font-bold text-slate-900">
+      Veelgestelde vragen
+    </h2>
+    <div class="space-y-3">
+      {
+        faq.map((item) => (
+          <details class="rounded-lg border border-slate-200 bg-white p-4">
+            <summary class="cursor-pointer font-semibold text-slate-800">
+              {item.vraag}
+            </summary>
+            <p class="mt-2 text-slate-700">{item.antwoord}</p>
+          </details>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>

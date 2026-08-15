@@ -1,0 +1,117 @@
+---
+title: 'Thuisbatterij zonder zonnepanelen: kan dat uit? | Thuisbatterijrekenaar'
+description: 'Ook zonder zonnedak kan een thuisbatterij geld opleveren: laden op goedkope uren, ontladen op dure. Hoe dat werkt, wat het vraagt en waar de grenzen liggen.'
+h1: 'Thuisbatterij zonder zonnepanelen: handelen op uurprijzen'
+gepubliceerd: '2026-08-14'
+cluster: 'segment'
+faq:
+  - vraag: 'Heeft een thuisbatterij zin zonder zonnepanelen?'
+    antwoord: >-
+      Het kan, maar de businesscase is anders. Zonder panelen verdient de
+      batterij uitsluitend aan het prijsverschil tussen goedkope en dure
+      uren. Daarvoor is een dynamisch energiecontract nodig en een systeem
+      dat automatisch op die prijzen stuurt.
+  - vraag: 'Wat is daarvoor nodig?'
+    antwoord: >-
+      Een dynamisch contract met uurprijzen, een batterij met slimme
+      aansturing die de day-ahead prijzen volgt, en voldoende spread tussen
+      piek- en daluren. Zonder automatische aansturing blijft er weinig
+      rendement over.
+  - vraag: 'Hoe groot is het prijsverschil tussen goedkope en dure uren?'
+    antwoord: >-
+      Dat wisselt per dag en seizoen. Onze rekenaar en de pagina
+      stroomprijzen-vandaag tonen de werkelijke gemiddelde piek-dalspread
+      van de afgelopen 90 dagen — wij rekenen met echte marktdata in plaats
+      van een aanname.
+  - vraag: 'Speelt het einde van de saldering hier ook een rol?'
+    antwoord: >-
+      Nauwelijks: saldering gaat over zonnestroom die u teruglevert. Zonder
+      panelen is uw batterijrendement vrijwel volledig afhankelijk van de
+      uurprijzen — en van de belastingen over geladen netstroom.
+  - vraag: 'Wat is het grootste risico van dit model?'
+    antwoord: >-
+      Dat de spread kleiner wordt of de regels veranderen. Hoe meer opslag
+      er op de markt komt, hoe vlakker de prijzen kunnen worden. Reken
+      daarom conservatief en beschouw optimistische handelsprognoses van
+      verkopers kritisch.
+---
+
+import prijsData from '../../data/prices.json';
+import { euro } from '../../config/constants';
+
+De thuisbatterij wordt bijna altijd verkocht als maatje van het zonnedak.
+Maar er is een tweede model: een batterij die **zonder zonnepanelen** geld
+verdient door goedkoop te laden en duur te ontladen. Voor het ene
+huishouden is dat een serieuze optie, voor het andere een riskante belofte.
+Zo werkt het — met echte marktcijfers in plaats van verkoopgemiddelden.
+
+## Het verdienmodel: de spread
+
+Op de groothandelsmarkt wisselt de stroomprijs per uur. Midden op de dag —
+als er veel zon is — is stroom goedkoop en soms zelfs negatief geprijsd;
+in de ochtend- en avondpiek is hij duur. Met een **dynamisch contract**
+krijgt u die uurprijzen direct doorberekend.
+
+Een batterij kan dat verschil verzilveren: laden in de dalen, ontladen (of
+uw huis voeden) in de pieken. De winst per dag is grofweg het prijsverschil
+maal de bruikbare capaciteit, minus de verliezen.
+
+Over de afgelopen 90 dagen was de gemiddelde dagelijkse piek-dalspread op
+de Nederlandse day-ahead markt **{euro(prijsData.piekDalSpread90d)} per
+kWh** (laatst bijgewerkt op basis van onze data van{' '}
+{new Date(prijsData.opgehaaldOp).toLocaleDateString('nl-NL')}). In dezelfde
+periode telden de afgelopen 30 dagen {prijsData.negatieveUren30d} uren met
+een negatieve prijs. Actuele cijfers ziet u op
+[stroomprijzen vandaag](/stroomprijzen-vandaag/).
+
+## Wat er in de praktijk van overblijft
+
+De theoretische spread haalt u nooit volledig binnen. Drie remmen:
+
+- **Round-trip verlies.** Bij laden en ontladen gaat energie verloren; wij
+  rekenen met een indicatief rendement van 90%.
+- **Benutbaarheid.** Niet elke dag is de volle spread beschikbaar op de
+  momenten dat uw batterij kan laden en ontladen; wij rekenen daarom met
+  een benuttingsfactor van 60% — bewust conservatief.
+- **Belastingen.** Over stroom die u uit het net laadt, betaalt u
+  energiebelasting die u niet terugkrijgt. Dit is het
+  [dubbele-energiebelastingprobleem](/dubbele-energiebelasting-thuisbatterij/),
+  en het weegt zwaarder naarmate u meer met het net heen en weer handelt.
+
+Onze [rekenaar](/) gebruikt precies deze formule met de werkelijke spread
+van de afgelopen 90 dagen — kies bij het invullen "dynamisch contract" om
+het arbitrage-effect mee te rekenen.
+
+## Voor wie is dit model interessant?
+
+- **Huishoudens zonder geschikt dak** — huurders zonder zeggenschap over
+  het dak (zie ook
+  [thuisbatterij in huurwoning en VvE](/thuisbatterij-huurwoning-en-vve/)),
+  monumenten, schaduwrijke daken.
+- **Huishoudens met hoog avondverbruik** en de bereidheid om over te
+  stappen op een dynamisch contract.
+- **Wie klein wil testen** kan met een
+  [stekkerbatterij](/stekkerbatterij-of-thuisbatterij/) ervaring opdoen
+  voordat er een vaste installatie komt.
+
+Minder geschikt is het model voor wie geen dynamisch contract wil, het
+systeem niet automatisch kan laten sturen, of rekent op de optimistische
+opbrengsten uit verkoopmateriaal.
+
+## De risico's eerlijk benoemd
+
+Het arbitragemodel leunt volledig op marktomstandigheden die kunnen
+veranderen:
+
+- **De spread kan krimpen** naarmate meer batterijen dezelfde dalen en
+  pieken opzoeken.
+- **Regels en belastingen bewegen** — van de energiebelasting op geladen
+  stroom tot de [btw-behandeling](/btw-thuisbatterij/) van batterijen.
+- **Techniek veroudert**: degradatie vreet capaciteit, en onze berekening
+  neemt dat mee met 2% per jaar.
+
+Daarom rekenen wij conservatief: werkelijke marktdata, verliezen en
+degradatie inbegrepen, en zonder aangenomen prijsstijgingen. Komt daar in
+uw situatie geen rendabele uitkomst uit, dan ziet u dat gewoon in het
+resultaat. [Probeer het zelf in de rekenaar](/) — kies "dynamisch
+contract" bij stap 4.

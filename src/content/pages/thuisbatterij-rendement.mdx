@@ -1,0 +1,128 @@
+---
+title: 'Wat levert een thuisbatterij op? Rendement uitgelegd | Thuisbatterijrekenaar'
+description: 'Hoe verdient een thuisbatterij zich terug? Uitleg over zelfverbruik, besparing, kosten en terugverdientijd — met een onafhankelijke rekenaar voor uw situatie.'
+h1: 'Het rendement van een thuisbatterij: zo rekent u het eerlijk uit'
+gepubliceerd: '2026-08-14'
+cluster: 'basis'
+faq:
+  - vraag: 'Hoe verdient een thuisbatterij zich terug?'
+    antwoord: >-
+      Vooral door zelfverbruik: de batterij slaat uw middagoverschot op,
+      zodat u het ’s avonds zelf gebruikt in plaats van het tegen een lage
+      vergoeding terug te leveren. Het verschil tussen het leveringstarief
+      en de terugleververgoeding is uw besparing per opgeslagen kWh.
+  - vraag: 'Wat kost een thuisbatterij?'
+    antwoord: >-
+      De prijs hangt af van capaciteit, merk en installatie. Wij rekenen
+      indicatief met een prijs per kWh opslagcapaciteit plus vaste kosten
+      voor omvormer en installatie. Vraag altijd meerdere offertes aan;
+      prijzen verschillen aanzienlijk per installateur.
+  - vraag: 'Is een thuisbatterij nu al rendabel?'
+    antwoord: >-
+      Dat verschilt per situatie. Zolang de salderingsregeling loopt, is
+      het voordeel beperkt. Vanaf 2027 wordt de businesscase duidelijk
+      beter, omdat teruggeleverde stroom dan veel minder oplevert dan zelf
+      verbruikte stroom.
+  - vraag: 'Welke capaciteit heb ik nodig?'
+    antwoord: >-
+      Vuistregel: genoeg om uw gemiddelde dagelijkse middagoverschot op te
+      slaan, met wat marge voor zonnige dagen. Een te grote batterij wordt
+      zelden vol benut en verlengt de terugverdientijd. Onze rekenaar
+      adviseert een capaciteit op basis van uw teruglevering.
+  - vraag: 'Kan ik met een dynamisch contract extra verdienen?'
+    antwoord: >-
+      Ja, met een dynamisch contract kan een batterij ook laden bij lage
+      uurprijzen en ontladen bij hoge. Dat kan het rendement verhogen, maar
+      vraagt goede aansturing. Onze rekenaar rekent conservatief en neemt
+      dit extra voordeel niet mee.
+---
+
+import {
+  BATTERIJ_PRIJS_PER_KWH,
+  BATTERIJ_VASTE_KOSTEN,
+  ZELFVERBRUIK_BASIS,
+  ZELFVERBRUIK_MET_BATTERIJ,
+  pct,
+} from '../../config/constants';
+
+Een thuisbatterij is een flinke investering, en de verhalen over het
+rendement lopen sterk uiteen — van "onmisbaar vanaf 2027" tot "nooit
+rendabel". De waarheid zit ertussenin en hangt vooral af van úw situatie.
+Op deze pagina leggen we uit hoe de besparing van een thuisbatterij echt
+werkt, welke kosten ertegenover staan en hoe u een eerlijke terugverdientijd
+berekent.
+
+## Waar komt de besparing vandaan?
+
+Zonder batterij verbruikt een gemiddeld huishouden ongeveer
+{pct(ZELFVERBRUIK_BASIS)} van de eigen zonnestroom direct; de rest gaat het
+net op. Zolang er gesaldeerd wordt, is dat geen probleem. Maar
+[vanaf 1 januari 2027 stopt de saldering](/saldering-stopt-2027/), en dan
+telt elke kWh die u teruglevert nog maar voor een fractie van het
+leveringstarief.
+
+Een thuisbatterij verschuift stroom in de tijd: het overschot van de middag
+wordt opgeslagen en 's avonds en 's nachts gebruikt. Daarmee stijgt het
+zelfverbruik naar indicatief {pct(ZELFVERBRUIK_MET_BATTERIJ)} — afhankelijk
+van uw verbruikspatroon. De besparing per opgeslagen kWh is het verschil
+tussen wat u níet hoeft te kopen (het leveringstarief) en wat u misloopt aan
+terugleververgoeding.
+
+Daarnaast drukt een batterij uw teruglevering, wat kan schelen in
+[terugleverkosten](/terugleverkosten/) bij leveranciers die met staffels
+werken.
+
+## Welke kosten staan daartegenover?
+
+Voor een eerlijke rekensom telt u alle kosten mee:
+
+- **Aanschaf en installatie.** Wij rekenen indicatief met
+  € {BATTERIJ_PRIJS_PER_KWH} per kWh opslagcapaciteit plus
+  € {BATTERIJ_VASTE_KOSTEN} vaste kosten voor omvormer en installatie.
+  Werkelijke prijzen verschillen per merk, capaciteit en installateur.
+- **Omzettingsverliezen.** Bij laden en ontladen gaat een deel van de
+  energie verloren. Moderne systemen zijn efficiënt, maar 100% wordt het
+  nooit.
+- **Levensduur.** Batterijen slijten met het aantal laadcycli. Fabrikanten
+  geven doorgaans garanties van vele jaren; reken er niettemin op dat de
+  capaciteit langzaam afneemt.
+
+## De terugverdientijd eerlijk berekenen
+
+De terugverdientijd is simpelweg de investering gedeeld door de jaarlijkse
+besparing. Het venijn zit in de aannames achter die besparing. Let bij elke
+berekening — ook die van verkopers — op deze punten:
+
+- **Wordt er gerekend met realistische zelfverbruikscijfers?** Niet elke
+  opgeslagen kWh vervangt gekochte stroom; in de zomer zit de batterij
+  soms al vol voordat het overschot op is.
+- **Is de terugleververgoeding meegenomen?** Elke kWh die u opslaat, had
+  ook een (kleine) vergoeding opgeleverd. Alleen het vérschil is winst.
+- **Zijn de vaste kosten en installatie meegeteld?** Een kale batterijprijs
+  zonder omvormer en montage flatteert de som.
+
+Onze rekenaar gebruikt deze eerlijke methode en toont alle tussenstappen en
+aannames. Komt er bij uw gegevens geen rendabele uitkomst uit, dan zeggen we
+dat ook gewoon.
+
+## Wanneer is een thuisbatterij (nog) niet logisch?
+
+Een batterij is geen automatische winst. Wees terughoudend als:
+
+- uw teruglevering klein is, bijvoorbeeld doordat u weinig panelen heeft of
+  overdag al veel verbruikt — er valt dan weinig te verschuiven;
+- uw verbruik zeer laag is, waardoor ook de avondvraag klein is;
+- u op korte termijn gaat verhuizen — de investering verhuist niet gratis
+  mee.
+
+In die gevallen is verbruik verschuiven naar zonne-uren vaak de betere
+eerste stap.
+
+## Bereken uw eigen terugverdientijd
+
+Elke situatie is anders: dakgrootte, verbruik, gezinssamenstelling en
+contractvorm bepalen samen of een thuisbatterij uit kan. Met onze
+onafhankelijke rekenaar weet u het binnen een minuut — inclusief aanbevolen
+capaciteit en alle gebruikte [uitgangspunten](/uitgangspunten/). Wij
+verkopen zelf niets en zijn aan geen enkele leverancier of installateur
+verbonden.

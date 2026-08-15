@@ -1,0 +1,33 @@
+# Thuisbatterijrekenaar.nl
+
+> Onafhankelijke Nederlandse rekenaar voor thuisbatterijen. Bereken wat u
+> verliest zodra de salderingsregeling op 1 januari 2027 stopt, en wat een
+> thuisbatterij u jaarlijks kan besparen.
+
+## Wie beheert deze site
+
+Thuisbatterijrekenaar wordt onafhankelijk beheerd door Sıtkı Murat Oğrak.
+Wij verkopen zelf geen thuisbatterijen en zijn niet verbonden aan een
+energieleverancier of installateur. Alle berekeningen zijn gebaseerd op
+openbare bronnen; de gebruikte uitgangspunten en hun laatste
+bijwerkdatum staan op /uitgangspunten.
+
+## Wat deze site biedt
+
+- Een gratis rekenaar die op basis van postcode, jaarverbruik,
+  zonnepaneelvermogen en huishoudsituatie berekent:
+  het jaarlijkse verlies na het einde van de salderingsregeling,
+  de besparing met een thuisbatterij, de aanbevolen capaciteit en
+  de terugverdientijd.
+- Informatiepagina's: /saldering-stopt-2027, /terugleverkosten,
+  /thuisbatterij-rendement.
+- Bezoekers kunnen vrijblijvend offertes aanvragen bij installateurs.
+
+## Belangrijke pagina's
+
+- https://thuisbatterijrekenaar.nl/ — de rekenaar
+- https://thuisbatterijrekenaar.nl/saldering-stopt-2027/
+- https://thuisbatterijrekenaar.nl/terugleverkosten/
+- https://thuisbatterijrekenaar.nl/thuisbatterij-rendement/
+- https://thuisbatterijrekenaar.nl/uitgangspunten/ — alle rekenaannames
+- https://thuisbatterijrekenaar.nl/over-ons/
