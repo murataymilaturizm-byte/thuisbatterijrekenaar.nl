@@ -37,7 +37,7 @@ import {
   DOD_BRUIKBAAR,
   AANDEEL_VERBRUIK_BUITEN_ZONUREN,
   SEIZOENSBENUTTING,
-  MAX_CYCLI_PER_DAG_ARBITRAGE,
+  MAX_CYCLI_PER_DAG,
   AANSLUITVERMOGEN_KW,
   LAADVENSTER_UREN,
 } from '../../config/constants';
@@ -156,12 +156,15 @@ export function berekenTerugverdientijd(
 
 /**
  * Arbitragewinst per jaar bij een dynamisch contract, op basis van de
- * werkelijke piek-dalspread. Het dagelijkse arbitragevolume is fysiek
- * begrensd door de kleinste van drie limieten:
- *   1. bruikbare capaciteit × maximale cycli per etmaal,
+ * werkelijke piek-dalspread.
+ *
+ * Throughput-budgetmodel: zelfverbruik (zonnecyclus overdag) en arbitrage
+ * (nachtcyclus) zijn gescheiden cycli die samen één dagelijks
+ * throughput-budget delen van bruikbareCapaciteit × MAX_CYCLI_PER_DAG.
+ * Het arbitragevolume is de kleinste van:
+ *   1. het throughput-budget dat ná zelfverbruik overblijft,
  *   2. het laadvenster × het omvormervermogen,
- *   3. de capaciteit die ná zelfverbruik nog vrij is — dezelfde kWh kan
- *      niet én voor zelfverbruik én voor arbitrage worden gebruikt.
+ *   3. de bruikbare capaciteit (meer past er in één cyclus niet in).
  */
 export function berekenArbitrage(
   capaciteitKwh: number,
@@ -169,18 +172,17 @@ export function berekenArbitrage(
   dagelijksBenutKwh: number,
 ): number {
   const bruikbareCapaciteit = capaciteitKwh * DOD_BRUIKBAAR;
-  const limietCyclus = bruikbareCapaciteit * MAX_CYCLI_PER_DAG_ARBITRAGE;
-  const limietVermogen = AANSLUITVERMOGEN_KW * LAADVENSTER_UREN;
-  const capaciteitVoorZelfverbruik = Math.min(dagelijksBenutKwh, bruikbareCapaciteit);
-  const resterendeCapaciteit = Math.max(
+  const dagelijksThroughputBudget = bruikbareCapaciteit * MAX_CYCLI_PER_DAG;
+  const resterendThroughput = Math.max(
     0,
-    bruikbareCapaciteit - capaciteitVoorZelfverbruik,
+    dagelijksThroughputBudget - dagelijksBenutKwh,
   );
+  const limietVermogen = AANSLUITVERMOGEN_KW * LAADVENSTER_UREN;
 
   const dagelijksArbitrageKwh = Math.min(
-    limietCyclus,
+    resterendThroughput,
     limietVermogen,
-    resterendeCapaciteit,
+    bruikbareCapaciteit,
   );
 
   return (

@@ -98,14 +98,21 @@ export const ONDERHOUD_PER_JAAR = 0;
 /** Jaarlijkse energieprijsstijging — conservatief: geen stijging aannemen */
 export const ENERGIEPRIJS_STIJGING = 0;
 
-/** Benutbaarheidsfactor arbitrage bij dynamisch contract (niet elke dag wordt de volle spread gehaald) */
-export const BENUTBAARHEID_DYNAMISCH = 0.6;
+/**
+ * Benutbaarheidsfactor arbitrage bij dynamisch contract — AANNAME: de
+ * spread is al een daggemiddelde; met een actief EMS is 75% daarvan
+ * realistisch (gekalibreerd tegen externe rekenvoorbeelden, zie
+ * engine.calibration.test.ts)
+ */
+export const BENUTBAARHEID_DYNAMISCH = 0.75;
 
 /**
- * Maximaal aantal arbitragecycli per etmaal — AANNAME: de day-ahead markt
- * heeft doorgaans één bruikbaar prijsdal en één piek per etmaal
+ * Maximaal aantal volledige cycli per etmaal (zelfverbruik + arbitrage
+ * sámen, één throughput-budget) — AANNAME: zonnecyclus overdag +
+ * arbitragecyclus 's nachts. LFP-cellen zijn doorgaans op 6.000-10.000
+ * cycli gespecificeerd; 1,5/dag over 15 jaar past daarbinnen.
  */
-export const MAX_CYCLI_PER_DAG_ARBITRAGE = 1.0;
+export const MAX_CYCLI_PER_DAG = 1.5;
 
 /** Gangbaar omvormervermogen van een thuisbatterij in kW — AANNAME */
 export const AANSLUITVERMOGEN_KW = 3.7;
@@ -232,16 +239,22 @@ export const UITGANGSPUNTEN: Uitgangspunt[] = [
   {
     label: 'Benutbaarheid arbitrage (dynamisch contract)',
     waarde: pct(BENUTBAARHEID_DYNAMISCH),
-    bron: 'Schatting: niet elke dag wordt de volledige piek-dalspread benut',
+    bron: 'Aanname: de spread is al een daggemiddelde; met een actief EMS is dit aandeel realistisch',
   },
   {
-    label: 'Arbitragecycli per etmaal',
-    waarde: `maximaal ${MAX_CYCLI_PER_DAG_ARBITRAGE}`,
-    bron: 'Aanname: één bruikbaar prijsdal en één piek per etmaal',
+    label: 'Cycli per etmaal (zelfverbruik + arbitrage samen)',
+    waarde: `maximaal ${MAX_CYCLI_PER_DAG}`,
+    bron: 'Aanname: zonnecyclus overdag + arbitragecyclus ’s nachts; past binnen de cyclusspecificatie van LFP-cellen',
   },
   {
     label: 'Omvormervermogen',
     waarde: `${AANSLUITVERMOGEN_KW} kW, laadvenster ${LAADVENSTER_UREN} uur`,
     bron: 'Aanname, gangbaar voor thuisbatterijen',
+  },
+  {
+    label: 'Onbalansmarkt / netdiensten (FCR)',
+    waarde: 'Niet meegerekend',
+    bron:
+      'Wij rekenen niet met opbrengsten uit de onbalansmarkt of netdiensten (FCR). Sommige aanbieders bieden dit aan en het kan extra opleveren, maar de opbrengsten dalen snel, zijn moeilijk voorspelbaar en er speelt de kwestie van dubbele energiebelasting. Onze berekening is op dit punt dus eerder aan de voorzichtige kant.',
   },
 ];

@@ -10,7 +10,7 @@ import {
   LAADVENSTER_UREN,
   LEVENSDUUR_JAAR,
   LEVERINGSTARIEF_KWH,
-  MAX_CYCLI_PER_DAG_ARBITRAGE,
+  MAX_CYCLI_PER_DAG,
   ROUND_TRIP_RENDEMENT,
   SEIZOENSBENUTTING,
   TERUGLEVERKOSTEN_JAAR,
@@ -166,10 +166,12 @@ describe('cashflow en terugverdientijd', () => {
   it('berekent arbitrage volgens de begrensde formule (dagelijks volume × 365 × spread × rendement × benutbaarheid)', () => {
     const cap = r.aanbevolenCapaciteitKwh!;
     const bruikbaar = cap * DOD_BRUIKBAAR;
+    // Throughput-budgetmodel (3.2): geen zelfverbruik in dit scenario,
+    // dus het volledige budget is beschikbaar voor arbitrage.
     const dagelijksVolume = Math.min(
-      bruikbaar * MAX_CYCLI_PER_DAG_ARBITRAGE,
+      bruikbaar * MAX_CYCLI_PER_DAG,
       AANSLUITVERMOGEN_KW * LAADVENSTER_UREN,
-      bruikbaar, // geen zelfverbruik in dit scenario
+      bruikbaar,
     );
     const verwacht =
       dagelijksVolume *
@@ -249,10 +251,11 @@ describe('capaciteitsmodel (Paket 3.0)', () => {
 
   it('4. het nieuwe model adviseert nooit groter dan de oude heuristiek (12,5 kWh)', () => {
     // Zelfde huishouden als het oude voorbeeldscenario, dynamisch contract.
-    // Sinds de arbitragebegrenzing (3.1) kan de uitkomst ook "niet rendabel" zijn.
+    // Na de kalibratie (3.2) landt de keuze precies op 12,5 kWh — nog
+    // steeds niet gróter dan de oude heuristiek, vandaar <= in plaats van <.
     const r = bereken({ ...basisInput, huidigContract: 'dynamisch' }, testMarktData);
     expect(
-      r.aanbevolenCapaciteitKwh === null || r.aanbevolenCapaciteitKwh < 12.5,
+      r.aanbevolenCapaciteitKwh === null || r.aanbevolenCapaciteitKwh <= 12.5,
     ).toBe(true);
   });
 
@@ -295,15 +298,21 @@ describe('arbitragebegrenzing (Paket 3.1)', () => {
     expect(berekenArbitrage(30, md, 0)).toBeCloseTo(berekenArbitrage(20, md, 0), 5);
   });
 
-  it('2. hoog zelfverbruik verlaagt de arbitrage (capaciteit wordt gedeeld)', () => {
+  it('2. hoog zelfverbruik verlaagt de arbitrage (gedeeld throughput-budget)', () => {
+    // Sinds het budgetmodel (3.2) kan bij grote batterijen het
+    // vermogens-/capaciteitsplafond bindend zijn in plaats van het budget;
+    // daar is het effect nul. Daarom: nooit hoger, en bij kleine
+    // batterijen strikt lager.
     for (const cap of BESCHIKBARE_CAPACITEITEN) {
       const zonderZelfverbruik = berekenArbitrage(cap, md, 0);
       const metZelfverbruik = berekenArbitrage(cap, md, 5);
-      expect(metZelfverbruik).toBeLessThan(zonderZelfverbruik);
+      expect(metZelfverbruik).toBeLessThanOrEqual(zonderZelfverbruik);
     }
+    expect(berekenArbitrage(5, md, 5)).toBeLessThan(berekenArbitrage(5, md, 0));
+    expect(berekenArbitrage(7.5, md, 5)).toBeLessThan(berekenArbitrage(7.5, md, 0));
   });
 
-  it('3. zelfverbruik + arbitrage overschrijdt samen nooit de cyclusgrens', () => {
+  it('3. zelfverbruik + arbitrage overschrijdt samen nooit het throughput-budget', () => {
     const context: ZelfverbruikContext = {
       jaarVerbruikKwh: 3500,
       terugleveringKwh: 2648.8,
@@ -315,12 +324,15 @@ describe('arbitragebegrenzing (Paket 3.1)', () => {
       const benut = berekenDagelijksBenut(cap, context);
       const dagelijksArbitrage = berekenArbitrage(cap, md, benut) / arbFactor;
       expect(benut + dagelijksArbitrage).toBeLessThanOrEqual(
-        cap * DOD_BRUIKBAAR * MAX_CYCLI_PER_DAG_ARBITRAGE + 1e-9,
+        cap * DOD_BRUIKBAAR * MAX_CYCLI_PER_DAG + 1e-9,
       );
     }
   });
 
-  it('4. scenario b adviseert na de begrenzing niet groter dan voorheen (7,5 kWh)', () => {
+  it('4. de gekozen capaciteit heeft de kortste terugverdientijd (en bij gelijke stand de kleinste)', () => {
+    // Vervangt de oude "niet groter dan 7,5"-toets: na de kalibratie (3.2)
+    // kán een grotere batterij optimaal zijn. De blijvende invariant is
+    // optimaliteit van de keuze, niet een vaste bovengrens.
     const b: CalcInput = {
       postcode: '1234 AB',
       huishoudenGrootte: null,
@@ -332,8 +344,21 @@ describe('arbitragebegrenzing (Paket 3.1)', () => {
       heeftWarmtepomp: false,
     };
     const r = bereken(b, md);
-    expect(
-      r.aanbevolenCapaciteitKwh === null || r.aanbevolenCapaciteitKwh <= 7.5,
-    ).toBe(true);
+    expect(r.aanbevolenCapaciteitKwh).not.toBeNull();
+    const gekozen = r.capaciteitVergelijking.find(
+      (o) => o.capaciteitKwh === r.aanbevolenCapaciteitKwh,
+    )!;
+    for (const optie of r.capaciteitVergelijking) {
+      if (optie.terugverdientijdJaren === null) continue;
+      expect(gekozen.terugverdientijdJaren!).toBeLessThanOrEqual(
+        optie.terugverdientijdJaren,
+      );
+      if (
+        optie.terugverdientijdJaren === gekozen.terugverdientijdJaren &&
+        optie.capaciteitKwh !== gekozen.capaciteitKwh
+      ) {
+        expect(gekozen.capaciteitKwh).toBeLessThan(optie.capaciteitKwh);
+      }
+    }
   });
 });
