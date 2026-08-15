@@ -93,15 +93,17 @@ export default function ResultScreen({
         </div>
       </div>
 
-      {result.terugverdientijdJaren === null && (
+      {result.geenRendabeleCapaciteit && (
         <p className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-700">
-          Een thuisbatterij is in uw situatie niet rendabel.{' '}
+          Bij geen enkele batterijgrootte komt deze investering binnen{' '}
+          {LEVENSDUUR_JAAR} jaar uit. Wat wél verschil maakt:{' '}
           <a
             href="/dynamisch-energiecontract-met-zonnepanelen/"
             className="font-semibold underline"
           >
-            Bekijk wat een dynamisch energiecontract voor u kan betekenen.
+            een dynamisch energiecontract
           </a>
+          .
         </p>
       )}
 
@@ -131,12 +133,21 @@ export default function ResultScreen({
       )}
 
       {/* b) Aanbevolen capaciteit */}
-      <p className="rounded-lg bg-slate-50 p-4 text-center text-lg text-slate-800">
-        Aanbevolen capaciteit:{' '}
-        <strong>{result.aanbevolenCapaciteitKwh} kWh</strong>{' '}
-        <span className="text-slate-500">
-          (indicatieve kosten: {fmtEuro(result.batterijKosten)}, geïnstalleerd)
-        </span>
+      {result.aanbevolenCapaciteitKwh !== null && (
+        <p className="rounded-lg bg-slate-50 p-4 text-center text-lg text-slate-800">
+          Aanbevolen capaciteit:{' '}
+          <strong>{result.aanbevolenCapaciteitKwh} kWh</strong>{' '}
+          <span className="text-slate-500">
+            (indicatieve kosten: {fmtEuro(result.batterijKosten)}, geïnstalleerd)
+          </span>
+        </p>
+      )}
+
+      <p className="text-center text-sm text-slate-500">
+        Wij rekenen alle beschikbare batterijgroottes door en tonen degene
+        met de kortste terugverdientijd. Grotere batterijen leveren niet
+        automatisch meer op: u kunt een batterij alleen ontladen als u
+        &rsquo;s avonds en &rsquo;s nachts genoeg verbruikt.
       </p>
 
       {/* c) CTA — het resultaat blijft altijd zichtbaar, de offerte is optioneel */}
@@ -179,6 +190,54 @@ export default function ResultScreen({
               {rij('Rendement over de levensduur', `${Math.round(result.roiPercentage)}%`)}
             </tbody>
           </table>
+          </div>
+
+          <div>
+            <h3 className="mb-2 font-semibold text-slate-800">
+              Vergelijking per batterijgrootte
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-right tabular-nums">
+                <thead>
+                  <tr className="border-b border-slate-300 text-slate-600">
+                    <th className="py-1 pr-2 text-left font-medium">Capaciteit</th>
+                    <th className="py-1 pr-2 font-medium">Kosten</th>
+                    <th className="py-1 pr-2 font-medium">Besparing/jaar</th>
+                    <th className="py-1 pr-2 font-medium">Terugverdientijd</th>
+                    <th className="py-1 font-medium">
+                      Rendement {LEVENSDUUR_JAAR} jaar
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {result.capaciteitVergelijking.map((o) => (
+                    <tr
+                      key={o.capaciteitKwh}
+                      className={
+                        result.aanbevolenCapaciteitKwh === o.capaciteitKwh
+                          ? 'border-b border-slate-100 bg-emerald-50 font-semibold'
+                          : 'border-b border-slate-100'
+                      }
+                    >
+                      <td className="py-1 pr-2 text-left">{o.capaciteitKwh} kWh</td>
+                      <td className="py-1 pr-2">{fmtEuro(o.kosten)}</td>
+                      <td className="py-1 pr-2">{fmtEuro(o.jaarlijkseBesparing)}</td>
+                      <td className="py-1 pr-2">
+                        {o.terugverdientijdJaren !== null
+                          ? `${o.terugverdientijdJaren} jaar`
+                          : `> ${LEVENSDUUR_JAAR} jaar`}
+                      </td>
+                      <td className="py-1">{Math.round(o.roiPercentage)}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-2 text-xs text-slate-500">
+              {result.aanbevolenCapaciteitKwh !== null
+                ? 'Groen gemarkeerd: de aanbevolen grootte (kortste terugverdientijd).'
+                : 'Geen enkele grootte verdient zich binnen de levensduur terug; de overige cijfers hieronder gaan uit van de minst ongunstige grootte.'}
+            </p>
           </div>
 
           <div>

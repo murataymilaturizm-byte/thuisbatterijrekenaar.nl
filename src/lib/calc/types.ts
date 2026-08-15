@@ -25,6 +25,17 @@ export interface MarktData {
   laatstBijgewerkt: string;
 }
 
+/** Doorrekening van één beschikbare batterijgrootte */
+export interface CapaciteitOptie {
+  capaciteitKwh: number;
+  kosten: number;
+  extraZelfverbruikKwh: number;
+  jaarlijkseBesparing: number;
+  /** null = verdient zich niet terug binnen de levensduur */
+  terugverdientijdJaren: number | null;
+  roiPercentage: number;
+}
+
 /** Eén jaar uit de cashflowprojectie */
 export interface CashflowJaar {
   jaar: number;
@@ -57,9 +68,23 @@ export interface CalcResult {
   arbitrageOpbrengst: number;
   /** € per jaar totale besparing dankzij de thuisbatterij */
   jaarlijkseBesparing: number;
-  /** kWh, gekozen uit BESCHIKBARE_CAPACITEITEN */
-  aanbevolenCapaciteitKwh: number;
-  /** € geïnstalleerd */
+  /**
+   * kWh, gekozen uit BESCHIKBARE_CAPACITEITEN: de grootte met de kortste
+   * terugverdientijd. null als geen enkele grootte binnen de levensduur
+   * terugverdient (zie geenRendabeleCapaciteit).
+   */
+  aanbevolenCapaciteitKwh: number | null;
+  /**
+   * Grootte waarop de detailcijfers (kosten, cashflow, besparing) betrekking
+   * hebben: gelijk aan de aanbevolen grootte, of — als niets rendabel is —
+   * de minst ongunstige grootte (hoogste ROI). Altijd gezet.
+   */
+  referentieCapaciteitKwh: number;
+  /** true als geen enkele batterijgrootte binnen de levensduur terugverdient */
+  geenRendabeleCapaciteit: boolean;
+  /** Volledige doorrekening per beschikbare batterijgrootte (transparantie) */
+  capaciteitVergelijking: CapaciteitOptie[];
+  /** € geïnstalleerd — van de aanbevolen (of, indien geen, minst ongunstige) grootte */
   batterijKosten: number;
   /** Cashflowprojectie over LEVENSDUUR_JAAR jaren */
   cashflow: CashflowJaar[];

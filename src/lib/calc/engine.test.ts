@@ -1,18 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import {
+  AANDEEL_VERBRUIK_BUITEN_ZONUREN,
   BATTERIJ_PRIJS_PER_KWH,
   BATTERIJ_VASTE_KOSTEN,
   BENUTBAARHEID_DYNAMISCH,
+  BESCHIKBARE_CAPACITEITEN,
   LEVENSDUUR_JAAR,
   LEVERINGSTARIEF_KWH,
   ROUND_TRIP_RENDEMENT,
+  SEIZOENSBENUTTING,
   TERUGLEVERKOSTEN_JAAR,
   TERUGLEVERVERGOEDING_AANDEEL,
   VERBRUIK_BASIS_HUISHOUDEN,
   VERBRUIK_PER_PERSOON,
-  ZELFVERBRUIK_CAP_MET,
 } from '../../config/constants';
-import { bereken, berekenCashflow } from './engine';
+import { bereken, berekenCashflow, berekenExtraZelfverbruik } from './engine';
+import type { ZelfverbruikContext } from './engine';
 import type { CalcInput, MarktData } from './types';
 
 const basisInput: CalcInput = {
@@ -28,10 +31,10 @@ const basisInput: CalcInput = {
 
 const testMarktData: MarktData = {
   piekDalSpreadEurPerKwh: 0.3,
-  laatstBijgewerkt: '2026-08-14',
+  laatstBijgewerkt: '2026-08-15',
 };
 
-describe('bereken — normaal scenario', () => {
+describe('bereken — normaal scenario (vast contract)', () => {
   const r = bereken(basisInput);
 
   it('rekent productie en zelfverbruik correct door', () => {
@@ -49,19 +52,23 @@ describe('bereken — normaal scenario', () => {
     expect(r.verliesNa2027).toBeGreaterThan(0);
   });
 
-  it('geeft een positieve besparing en een consistente cashflow-terugverdientijd', () => {
+  it('geeft bij een vast contract eerlijk aan dat geen grootte rendabel is', () => {
     expect(r.jaarlijkseBesparing).toBeGreaterThan(0);
-    // Bij dit scenario (kleine besparing t.o.v. investering) is de batterij
-    // binnen de levensduur niet rendabel — dat moet eerlijk null zijn.
+    expect(r.aanbevolenCapaciteitKwh).toBeNull();
+    expect(r.geenRendabeleCapaciteit).toBe(true);
     expect(r.terugverdientijdJaren).toBeNull();
-    expect(r.totaalBesparing15Jaar).toBeLessThan(r.batterijKosten);
     expect(r.roiPercentage).toBeLessThan(0);
   });
 
-  it('kiest een capaciteit uit de beschikbare reeks', () => {
-    // dagelijks overschot ≈ 2648.8 / 365 * 1.5 ≈ 10.88 → eerstvolgende: 12.5
-    expect(r.aanbevolenCapaciteitKwh).toBe(12.5);
-    expect(r.batterijKosten).toBe(12.5 * BATTERIJ_PRIJS_PER_KWH + BATTERIJ_VASTE_KOSTEN);
+  it('gebruikt als referentie de minst ongunstige grootte uit de reeks', () => {
+    expect(BESCHIKBARE_CAPACITEITEN).toContain(r.referentieCapaciteitKwh);
+    expect(r.batterijKosten).toBe(
+      r.referentieCapaciteitKwh * BATTERIJ_PRIJS_PER_KWH + BATTERIJ_VASTE_KOSTEN,
+    );
+    const beste = [...r.capaciteitVergelijking].sort(
+      (a, b) => b.roiPercentage - a.roiPercentage,
+    )[0]!;
+    expect(r.referentieCapaciteitKwh).toBe(beste.capaciteitKwh);
   });
 });
 
@@ -73,6 +80,7 @@ describe('bereken — nul teruglevering (geen productie)', () => {
     expect(r.terugleveringKwh).toBe(0);
     expect(r.jaarlijkseBesparing).toBe(0);
     expect(r.terugverdientijdJaren).toBeNull();
+    expect(r.geenRendabeleCapaciteit).toBe(true);
     expect(Number.isFinite(r.verliesNa2027)).toBe(true);
   });
 
@@ -81,23 +89,24 @@ describe('bereken — nul teruglevering (geen productie)', () => {
   });
 });
 
-describe('bereken — caps grijpen in', () => {
-  it('begrenst ratioMet op ZELFVERBRUIK_CAP_MET bij alle bonussen', () => {
+describe('bereken — grenzen', () => {
+  it('begrenst ratioZonder met bonussen en houdt ratioMet fysiek (≤ 1)', () => {
     const r = bereken({
       ...basisInput,
       overdagThuis: 'ja',
       heeftEV: true,
       heeftWarmtepomp: true,
     });
-    // zonder cap: 0.47 + 0.35 = 0.82 → moet op 0.80 blijven
+    // zonder cap: 0.30 + 0.07 + 0.05 + 0.05 = 0.47
     expect(r.ratioZonderBatterij).toBeCloseTo(0.47, 5);
-    expect(r.ratioMetBatterij).toBeCloseTo(ZELFVERBRUIK_CAP_MET, 5);
+    expect(r.ratioMetBatterij).toBeGreaterThanOrEqual(r.ratioZonderBatterij);
+    expect(r.ratioMetBatterij).toBeLessThanOrEqual(1);
   });
 
-  it('begrenst zelfverbruik op het jaarverbruik bij zeer hoog vermogen', () => {
+  it('laat het totale zelfverbruik nooit boven het jaarverbruik uitkomen', () => {
     const r = bereken({ ...basisInput, jaarVerbruikKwh: 800, wattpiek: 12000 });
-    expect(r.zelfverbruikMetBatterijKwh).toBe(800);
     expect(r.zelfverbruikKwh).toBeLessThanOrEqual(800);
+    expect(r.zelfverbruikMetBatterijKwh).toBeLessThanOrEqual(800);
   });
 
   it('schat jaarverbruik uit huishoudengrootte als kWh onbekend is', () => {
@@ -106,17 +115,17 @@ describe('bereken — caps grijpen in', () => {
   });
 });
 
-describe('round-trip rendement (nieuw)', () => {
+describe('round-trip rendement', () => {
   it('verlaagt de besparing uit zelfverbruik met het round-trip verlies', () => {
     const r = bereken(basisInput);
-    const margin = LEVERINGSTARIEF_KWH * (1 - TERUGLEVERVERGOEDING_AANDEEL);
-    const zonderVerlies = r.extraZelfverbruikKwh * margin;
+    const marge = LEVERINGSTARIEF_KWH * (1 - TERUGLEVERVERGOEDING_AANDEEL);
+    const zonderVerlies = r.extraZelfverbruikKwh * marge;
     expect(r.besparingZelfverbruik).toBeCloseTo(zonderVerlies * ROUND_TRIP_RENDEMENT, 5);
     expect(r.besparingZelfverbruik).toBeLessThan(zonderVerlies);
   });
 });
 
-describe('cashflow en terugverdientijd (nieuw)', () => {
+describe('cashflow en terugverdientijd', () => {
   const dynamischInput: CalcInput = { ...basisInput, huidigContract: 'dynamisch' };
   const r = bereken(dynamischInput, testMarktData);
 
@@ -137,17 +146,10 @@ describe('cashflow en terugverdientijd (nieuw)', () => {
     expect(r.terugverdientijdJaren!).toBeGreaterThan(oudeTerugverdientijd);
   });
 
-  it('scenario dat niet binnen de levensduur terugverdient geeft null', () => {
-    // Basisscenario (vast contract): besparing > 0 maar te klein voor de investering
-    const traag = bereken(basisInput);
-    expect(traag.jaarlijkseBesparing).toBeGreaterThan(0);
-    expect(traag.terugverdientijdJaren).toBeNull();
-  });
-
   it('berekent arbitrage volgens spread × capaciteit × 365 × rendement × benutbaarheid', () => {
     const verwacht =
       testMarktData.piekDalSpreadEurPerKwh *
-      r.aanbevolenCapaciteitKwh *
+      r.aanbevolenCapaciteitKwh! *
       365 *
       ROUND_TRIP_RENDEMENT *
       BENUTBAARHEID_DYNAMISCH;
@@ -168,5 +170,76 @@ describe('cashflow en terugverdientijd (nieuw)', () => {
     expect(flow[0]!.besparing).toBeCloseTo(1000, 5);
     expect(flow[1]!.besparing).toBeCloseTo(1000 * 0.98, 5);
     expect(flow[14]!.besparing).toBeCloseTo(1000 * Math.pow(0.98, 14), 5);
+  });
+});
+
+describe('capaciteitsmodel (Paket 3.0)', () => {
+  const context: ZelfverbruikContext = {
+    jaarVerbruikKwh: 3500,
+    terugleveringKwh: 2648.8,
+    zelfverbruikZonderKwh: 1135.2,
+  };
+
+  it('1. extra zelfverbruik stijgt met capaciteit, maar steeds langzamer (concaaf)', () => {
+    const waarden = BESCHIKBARE_CAPACITEITEN.map((cap) =>
+      berekenExtraZelfverbruik(cap, context),
+    );
+    const stappen: number[] = [];
+    for (let i = 1; i < waarden.length; i++) {
+      const stap = waarden[i]! - waarden[i - 1]!;
+      expect(stap).toBeGreaterThanOrEqual(0); // monotoon niet-dalend
+      stappen.push(stap);
+    }
+    for (let i = 1; i < stappen.length; i++) {
+      expect(stappen[i]!).toBeLessThanOrEqual(stappen[i - 1]! + 1e-9); // concaaf
+    }
+  });
+
+  it('2. avond/nachtverbruik begrenst het extra zelfverbruik', () => {
+    // Laag verbruik, hoge productie: de ontlaadgrens moet bepalend zijn
+    const laagVerbruik: ZelfverbruikContext = {
+      jaarVerbruikKwh: 2000,
+      terugleveringKwh: 8000,
+      zelfverbruikZonderKwh: 500,
+    };
+    const plafond =
+      ((2000 * AANDEEL_VERBRUIK_BUITEN_ZONUREN) / 365) * 365 * SEIZOENSBENUTTING;
+    for (const cap of BESCHIKBARE_CAPACITEITEN) {
+      expect(berekenExtraZelfverbruik(cap, laagVerbruik)).toBeLessThanOrEqual(
+        plafond + 1e-9,
+      );
+    }
+  });
+
+  it('3. het optimum is niet automatisch de grootste batterij', () => {
+    const r = bereken({ ...basisInput, huidigContract: 'dynamisch' }, testMarktData);
+    expect(r.aanbevolenCapaciteitKwh).not.toBeNull();
+    expect(r.aanbevolenCapaciteitKwh!).toBeLessThan(
+      BESCHIKBARE_CAPACITEITEN[BESCHIKBARE_CAPACITEITEN.length - 1]!,
+    );
+  });
+
+  it('4. het nieuwe model adviseert kleiner dan de oude heuristiek (12,5 kWh)', () => {
+    // Zelfde huishouden als het oude voorbeeldscenario, dynamisch contract
+    const r = bereken({ ...basisInput, huidigContract: 'dynamisch' }, testMarktData);
+    expect(r.aanbevolenCapaciteitKwh).not.toBeNull();
+    expect(r.aanbevolenCapaciteitKwh!).toBeLessThan(12.5);
+  });
+
+  it('5. als geen enkele grootte rendabel is: null + geenRendabeleCapaciteit', () => {
+    const r = bereken(basisInput); // vast contract, klein systeem
+    expect(r.aanbevolenCapaciteitKwh).toBeNull();
+    expect(r.geenRendabeleCapaciteit).toBe(true);
+    for (const optie of r.capaciteitVergelijking) {
+      expect(optie.terugverdientijdJaren).toBeNull();
+    }
+  });
+
+  it('6. capaciteitVergelijking beslaat exact de beschikbare reeks', () => {
+    const r = bereken(basisInput);
+    expect(r.capaciteitVergelijking).toHaveLength(BESCHIKBARE_CAPACITEITEN.length);
+    expect(r.capaciteitVergelijking.map((o) => o.capaciteitKwh)).toEqual([
+      ...BESCHIKBARE_CAPACITEITEN,
+    ]);
   });
 });

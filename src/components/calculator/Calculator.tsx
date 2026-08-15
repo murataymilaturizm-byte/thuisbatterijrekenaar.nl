@@ -140,7 +140,7 @@ export default function Calculator({ marktData }: CalculatorProps) {
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <LeadForm
           postcode={postcode.trim().toUpperCase()}
-          capaciteitKwh={result.aanbevolenCapaciteitKwh}
+          capaciteitKwh={result.referentieCapaciteitKwh}
           jaarVerbruikKwh={result.jaarVerbruikKwh}
           onVerzonden={() => setScherm({ fase: 'bedankt' })}
         />

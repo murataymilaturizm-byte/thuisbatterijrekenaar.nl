@@ -24,11 +24,12 @@ export const ZELFVERBRUIK_BASIS = 0.30;
 /** Bovengrens zelfverbruik zonder batterij, incl. gedragsbonussen */
 export const ZELFVERBRUIK_CAP_ZONDER = 0.55;
 
-/** Aandeel eigen verbruik mét thuisbatterij, middenwaarde (indicatief) */
+/**
+ * Aandeel eigen verbruik mét thuisbatterij, middenwaarde (indicatief).
+ * Sinds Paket 3.0 alleen nog gebruikt als illustratief cijfer in content;
+ * de rekenmodule rekent capaciteitsafhankelijk via berekenExtraZelfverbruik.
+ */
 export const ZELFVERBRUIK_MET_BATTERIJ = 0.65;
-
-/** Bovengrens zelfverbruik mét thuisbatterij */
-export const ZELFVERBRUIK_CAP_MET = 0.80;
 
 /** Bonus op zelfverbruik: overdag thuis (schatting) */
 export const BONUS_OVERDAG_THUIS = 0.07;
@@ -67,8 +68,20 @@ export const BATTERIJ_VASTE_KOSTEN = 1200;
 /** Beschikbare batterijcapaciteiten in kWh */
 export const BESCHIKBARE_CAPACITEITEN = [5, 7.5, 10, 12.5, 15] as const;
 
-/** Factor om dagelijks overschot naar aanbevolen capaciteit te vertalen */
-export const CAPACITEIT_OVERSCHOT_FACTOR = 1.5;
+/** Bruikbare fractie van de nominale capaciteit (depth of discharge, LFP) — AANNAME */
+export const DOD_BRUIKBAAR = 0.90;
+
+/**
+ * Deel van het jaarverbruik dat buiten zonuren valt — bepaalt hoeveel je
+ * 's avonds/'s nachts kunt ontladen — AANNAME
+ */
+export const AANDEEL_VERBRUIK_BUITEN_ZONUREN = 0.60;
+
+/**
+ * Fractie van de theoretisch mogelijke cycli die haalbaar is; in de winter
+ * is er nauwelijks overschot — AANNAME
+ */
+export const SEIZOENSBENUTTING = 0.65;
 
 /** Round-trip rendement (laden + ontladen), LFP indicatief */
 export const ROUND_TRIP_RENDEMENT = 0.90;
@@ -130,9 +143,19 @@ export const UITGANGSPUNTEN: Uitgangspunt[] = [
     bron: 'Milieu Centraal',
   },
   {
-    label: 'Zelfverbruik met thuisbatterij',
-    waarde: `${pct(ZELFVERBRUIK_MET_BATTERIJ)} (max. ${pct(ZELFVERBRUIK_CAP_MET)})`,
-    bron: 'Middenwaarde uit openbare bronnen, indicatief',
+    label: 'Bruikbare capaciteit batterij (DoD)',
+    waarde: pct(DOD_BRUIKBAAR),
+    bron: 'Aanname, gangbaar voor LFP-batterijen',
+  },
+  {
+    label: 'Verbruik buiten zonuren',
+    waarde: `${pct(AANDEEL_VERBRUIK_BUITEN_ZONUREN)} van het jaarverbruik`,
+    bron: 'Aanname: bepaalt hoeveel de batterij ’s avonds/’s nachts kan ontladen',
+  },
+  {
+    label: 'Seizoensbenutting batterij',
+    waarde: pct(SEIZOENSBENUTTING),
+    bron: 'Aanname: in de winter is er nauwelijks overschot om op te slaan',
   },
   {
     label: 'Einde salderingsregeling',

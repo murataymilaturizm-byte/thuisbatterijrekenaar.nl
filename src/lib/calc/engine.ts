@@ -2,16 +2,20 @@
  * Rekenmodule thuisbatterij — pure functies, geen React/Astro-imports.
  * Alle numerieke aannames komen uit src/config/constants.ts.
  *
- * Invariant: nergens deling door nul. Bij besparing <= 0 is
- * terugverdientijdJaren null (UI toont dan "niet rendabel").
+ * Capaciteitsmodel (Paket 3.0): de extra zelfverbruikwinst van een batterij
+ * is fysiek begrensd — je kunt alleen opslaan wat je overhoudt, alleen
+ * vasthouden wat de batterij kan bergen, en alleen ontladen wat je buiten
+ * zonuren verbruikt. Elke beschikbare batterijgrootte wordt daarom volledig
+ * doorgerekend; aanbevolen wordt de grootte met de kortste terugverdientijd.
+ *
+ * Invariant: nergens deling door nul. Bij besparing <= 0 is de
+ * terugverdientijd null (UI: "niet rendabel binnen levensduur").
  */
 
 import {
   SPECIFIEKE_OPBRENGST,
   ZELFVERBRUIK_BASIS,
   ZELFVERBRUIK_CAP_ZONDER,
-  ZELFVERBRUIK_MET_BATTERIJ,
-  ZELFVERBRUIK_CAP_MET,
   BONUS_OVERDAG_THUIS,
   BONUS_DEELS_THUIS,
   BONUS_EV,
@@ -22,7 +26,6 @@ import {
   BATTERIJ_PRIJS_PER_KWH,
   BATTERIJ_VASTE_KOSTEN,
   BESCHIKBARE_CAPACITEITEN,
-  CAPACITEIT_OVERSCHOT_FACTOR,
   VERBRUIK_PER_PERSOON,
   VERBRUIK_BASIS_HUISHOUDEN,
   ROUND_TRIP_RENDEMENT,
@@ -31,8 +34,17 @@ import {
   ONDERHOUD_PER_JAAR,
   ENERGIEPRIJS_STIJGING,
   BENUTBAARHEID_DYNAMISCH,
+  DOD_BRUIKBAAR,
+  AANDEEL_VERBRUIK_BUITEN_ZONUREN,
+  SEIZOENSBENUTTING,
 } from '../../config/constants';
-import type { CalcInput, CalcResult, CashflowJaar, MarktData } from './types';
+import type {
+  CalcInput,
+  CalcResult,
+  CapaciteitOptie,
+  CashflowJaar,
+  MarktData,
+} from './types';
 
 /** Stap 1: jaarverbruik — opgegeven waarde of schatting via huishoudengrootte */
 export function schatJaarVerbruik(
@@ -44,7 +56,7 @@ export function schatJaarVerbruik(
   return VERBRUIK_BASIS_HUISHOUDEN + personen * VERBRUIK_PER_PERSOON;
 }
 
-/** Stap 3: zelfverbruikratio zonder batterij, begrensd op de cap */
+/** Zelfverbruikratio zonder batterij, begrensd op de cap */
 export function berekenRatioZonder(input: CalcInput): number {
   let ratio = ZELFVERBRUIK_BASIS;
   if (input.overdagThuis === 'ja') ratio += BONUS_OVERDAG_THUIS;
@@ -54,16 +66,43 @@ export function berekenRatioZonder(input: CalcInput): number {
   return Math.min(ratio, ZELFVERBRUIK_CAP_ZONDER);
 }
 
-/** Stap 12: kleinste beschikbare capaciteit >= behoefte, begrensd op min/max van de reeks */
-export function kiesCapaciteit(dagelijksOverschotKwh: number): number {
-  const caps = BESCHIKBARE_CAPACITEITEN;
-  const min = caps[0];
-  const max = caps[caps.length - 1]!;
-  const behoefte = dagelijksOverschotKwh * CAPACITEIT_OVERSCHOT_FACTOR;
-  for (const cap of caps) {
-    if (cap >= behoefte) return cap;
-  }
-  return max ?? min;
+/** Context voor de capaciteitsafhankelijke zelfverbruikberekening */
+export interface ZelfverbruikContext {
+  jaarVerbruikKwh: number;
+  terugleveringKwh: number;
+  /** Direct zelfverbruik zónder batterij — begrenst wat er nog te winnen valt */
+  zelfverbruikZonderKwh: number;
+}
+
+/**
+ * Extra zelfverbruik (kWh/jaar) dat een batterij van deze grootte oplevert.
+ * De kleinste van drie fysieke grenzen is bepalend:
+ *   1. het dagelijkse overschot (meer valt er niet op te slaan),
+ *   2. de bruikbare batterijcapaciteit (meer past er niet in),
+ *   3. het verbruik buiten zonuren (meer valt er niet te ontladen).
+ * Extra waarborg: het totale zelfverbruik kan nooit boven het jaarverbruik
+ * uitkomen. Seizoensbenutting corrigeert voor de winter, waarin er
+ * nauwelijks overschot is.
+ */
+export function berekenExtraZelfverbruik(
+  capaciteitKwh: number,
+  context: ZelfverbruikContext,
+): number {
+  const dagelijksOverschot = context.terugleveringKwh / 365;
+  const bruikbareCapaciteit = capaciteitKwh * DOD_BRUIKBAAR;
+  const dagelijksAvondNachtVerbruik =
+    (context.jaarVerbruikKwh * AANDEEL_VERBRUIK_BUITEN_ZONUREN) / 365;
+  const dagelijksResterendVerbruik =
+    Math.max(0, context.jaarVerbruikKwh - context.zelfverbruikZonderKwh) / 365;
+
+  const dagelijksBenut = Math.min(
+    dagelijksOverschot,
+    bruikbareCapaciteit,
+    dagelijksAvondNachtVerbruik,
+    dagelijksResterendVerbruik,
+  );
+
+  return dagelijksBenut * 365 * SEIZOENSBENUTTING;
 }
 
 /**
@@ -90,7 +129,7 @@ export function berekenCashflow(jaarlijkseBesparing: number): CashflowJaar[] {
 /**
  * Terugverdientijd op basis van de cashflow: het eerste jaar waarin de
  * cumulatieve besparing de investering overstijgt. Null als dat binnen de
- * levensduur niet gebeurt ("niet rendabel binnen levensduur").
+ * levensduur niet gebeurt.
  */
 export function berekenTerugverdientijd(
   cashflow: CashflowJaar[],
@@ -121,63 +160,86 @@ export function berekenArbitrage(
  * contract mét marktdata wordt arbitragewinst meegerekend.
  */
 export function bereken(input: CalcInput, marktData?: MarktData): CalcResult {
-  // 1
+  // Verbruik, productie en teruglevering — capaciteitsonafhankelijk
   const jaarVerbruikKwh = schatJaarVerbruik(input.jaarVerbruikKwh, input.huishoudenGrootte);
-  // 2
   const jaarProductieKwh = input.wattpiek * SPECIFIEKE_OPBRENGST;
-  // 3
   const ratioZonderBatterij = berekenRatioZonder(input);
-  // 4
   const zelfverbruikKwh = Math.min(jaarProductieKwh * ratioZonderBatterij, jaarVerbruikKwh);
-  // 5
   const terugleveringKwh = Math.max(0, jaarProductieKwh - zelfverbruikKwh);
-  // 6
   const terugleververgoedingPerKwh = LEVERINGSTARIEF_KWH * TERUGLEVERVERGOEDING_AANDEEL;
-  // 7
   const verliesNa2027 =
     terugleveringKwh * (LEVERINGSTARIEF_KWH - terugleververgoedingPerKwh) +
     TERUGLEVERKOSTEN_JAAR;
-  // 8
-  const ratioMetBatterij = Math.min(
-    ratioZonderBatterij + (ZELFVERBRUIK_MET_BATTERIJ - ZELFVERBRUIK_BASIS),
-    ZELFVERBRUIK_CAP_MET,
-  );
-  // 9
-  const zelfverbruikMetBatterijKwh = Math.min(
-    jaarProductieKwh * ratioMetBatterij,
+
+  const context: ZelfverbruikContext = {
     jaarVerbruikKwh,
+    terugleveringKwh,
+    zelfverbruikZonderKwh: zelfverbruikKwh,
+  };
+  const marge = LEVERINGSTARIEF_KWH - terugleververgoedingPerKwh;
+  const dynamisch = input.huidigContract === 'dynamisch' && marktData !== undefined;
+
+  // Elke beschikbare batterijgrootte volledig doorrekenen
+  const capaciteitVergelijking: CapaciteitOptie[] = BESCHIKBARE_CAPACITEITEN.map(
+    (capaciteit) => {
+      const extra = berekenExtraZelfverbruik(capaciteit, context);
+      const besparingZelf = extra * marge * ROUND_TRIP_RENDEMENT;
+      const arbitrage = dynamisch ? berekenArbitrage(capaciteit, marktData!) : 0;
+      const besparing = besparingZelf + arbitrage;
+      const kosten = capaciteit * BATTERIJ_PRIJS_PER_KWH + BATTERIJ_VASTE_KOSTEN;
+      const flow = berekenCashflow(besparing);
+      const laatste = flow[flow.length - 1];
+      const totaal = laatste ? laatste.cumulatief : 0;
+      return {
+        capaciteitKwh: capaciteit,
+        kosten,
+        extraZelfverbruikKwh: extra,
+        jaarlijkseBesparing: besparing,
+        terugverdientijdJaren:
+          besparing > 0 ? berekenTerugverdientijd(flow, kosten) : null,
+        roiPercentage: ((totaal - kosten) / kosten) * 100,
+      };
+    },
   );
-  // 10
-  const extraZelfverbruikKwh = zelfverbruikMetBatterijKwh - zelfverbruikKwh;
-  // 11 — round-trip verlies: uit de batterij komt minder dan erin ging
-  const besparingZelfverbruik =
-    extraZelfverbruikKwh *
-    (LEVERINGSTARIEF_KWH - terugleververgoedingPerKwh) *
-    ROUND_TRIP_RENDEMENT;
-  // 12
-  const dagelijksOverschotKwh = terugleveringKwh / 365;
-  const aanbevolenCapaciteitKwh = kiesCapaciteit(dagelijksOverschotKwh);
-  // Arbitrage alleen bij dynamisch contract mét marktdata
-  const arbitrageOpbrengst =
-    input.huidigContract === 'dynamisch' && marktData
-      ? berekenArbitrage(aanbevolenCapaciteitKwh, marktData)
-      : 0;
-  const jaarlijkseBesparing = besparingZelfverbruik + arbitrageOpbrengst;
-  // 13
-  const batterijKosten =
-    aanbevolenCapaciteitKwh * BATTERIJ_PRIJS_PER_KWH + BATTERIJ_VASTE_KOSTEN;
-  // 14 — cashflow over de levensduur; terugverdientijd volgt daaruit.
-  // Geen deling door nul: bij besparing <= 0 is de cumulatief nooit positief
-  // en is de terugverdientijd null.
+
+  // Keuze: kortste terugverdientijd; bij gelijke stand de kleinste grootte
+  // (de lijst is oplopend, dus de eerste met het minimum wint).
+  const rendabele = capaciteitVergelijking.filter(
+    (o) => o.terugverdientijdJaren !== null,
+  );
+  let gekozen: CapaciteitOptie;
+  let geenRendabeleCapaciteit: boolean;
+  if (rendabele.length > 0) {
+    geenRendabeleCapaciteit = false;
+    gekozen = rendabele.reduce((beste, o) =>
+      o.terugverdientijdJaren! < beste.terugverdientijdJaren! ? o : beste,
+    );
+  } else {
+    // Geen enkele grootte rendabel: toon de minst ongunstige (hoogste ROI)
+    // als referentie, maar beveel niets aan.
+    geenRendabeleCapaciteit = true;
+    gekozen = capaciteitVergelijking.reduce((beste, o) =>
+      o.roiPercentage > beste.roiPercentage ? o : beste,
+    );
+  }
+
+  // Afgeleide waarden van de gekozen/referentiegrootte
+  const extraZelfverbruikKwh = gekozen.extraZelfverbruikKwh;
+  const besparingZelfverbruik = extraZelfverbruikKwh * marge * ROUND_TRIP_RENDEMENT;
+  const arbitrageOpbrengst = dynamisch
+    ? berekenArbitrage(gekozen.capaciteitKwh, marktData!)
+    : 0;
+  const jaarlijkseBesparing = gekozen.jaarlijkseBesparing;
+  const batterijKosten = gekozen.kosten;
   const cashflow = berekenCashflow(jaarlijkseBesparing);
   const laatsteJaar = cashflow[cashflow.length - 1];
   const totaalBesparing15Jaar = laatsteJaar ? laatsteJaar.cumulatief : 0;
-  const roiPercentage =
-    ((totaalBesparing15Jaar - batterijKosten) / batterijKosten) * 100;
-  const terugverdientijdJaren =
-    jaarlijkseBesparing > 0
-      ? berekenTerugverdientijd(cashflow, batterijKosten)
-      : null;
+  const roiPercentage = gekozen.roiPercentage;
+  const terugverdientijdJaren = gekozen.terugverdientijdJaren;
+
+  const zelfverbruikMetBatterijKwh = zelfverbruikKwh + extraZelfverbruikKwh;
+  const ratioMetBatterij =
+    jaarProductieKwh > 0 ? zelfverbruikMetBatterijKwh / jaarProductieKwh : 0;
 
   return {
     jaarVerbruikKwh,
@@ -193,7 +255,10 @@ export function bereken(input: CalcInput, marktData?: MarktData): CalcResult {
     besparingZelfverbruik,
     arbitrageOpbrengst,
     jaarlijkseBesparing,
-    aanbevolenCapaciteitKwh,
+    aanbevolenCapaciteitKwh: geenRendabeleCapaciteit ? null : gekozen.capaciteitKwh,
+    referentieCapaciteitKwh: gekozen.capaciteitKwh,
+    geenRendabeleCapaciteit,
+    capaciteitVergelijking,
     batterijKosten,
     cashflow,
     totaalBesparing15Jaar,
