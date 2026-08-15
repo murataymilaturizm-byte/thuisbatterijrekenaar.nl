@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Pagina niet gevonden | Thuisbatterijrekenaar';
+const description =
+  'Deze pagina bestaat niet (meer). Ga naar de thuisbatterij-rekenaar of bekijk de kennisbank.';
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="py-12 text-center">
+    <p class="text-6xl font-extrabold text-emerald-600">404</p>
+    <h1 class="mt-4 text-2xl font-bold text-slate-900">
+      Deze pagina bestaat niet (meer)
+    </h1>
+    <p class="mx-auto mt-3 max-w-md text-slate-600">
+      Mogelijk is de pagina verplaatst of klopt het adres niet. Deze twee
+      plekken helpen u verder:
+    </p>
+    <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+      <a
+        href="/"
+        class="rounded-lg bg-emerald-600 px-6 py-3 font-bold text-white transition hover:bg-emerald-700"
+      >
+        Naar de rekenaar
+      </a>
+      <a
+        href="/kennisbank/"
+        class="rounded-lg border border-slate-300 px-6 py-3 font-medium text-slate-700 hover:bg-slate-50"
+      >
+        Naar de kennisbank
+      </a>
+    </div>
+  </div>
+</BaseLayout>

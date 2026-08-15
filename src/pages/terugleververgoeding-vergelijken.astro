@@ -1,6 +1,22 @@
 ---
-import { LAATST_BIJGEWERKT, TERUGLEVERVERGOEDING_AANDEEL, pct } from '../config/constants';
+import {
+  LAATST_BIJGEWERKT,
+  LEVERANCIER_DATA_MAX_LEEFTIJD_DAGEN,
+  TERUGLEVERVERGOEDING_AANDEEL,
+  euro,
+  pct,
+} from '../config/constants';
+import leveranciersJson from '../data/leveranciers.json';
+import prijsDataJson from '../data/prices.json';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import type { Leverancier } from '../lib/data/leveranciers';
+import {
+  CONTRACT_TYPE_LABEL,
+  FACTURERING_LABEL,
+  TERUGLEVERKOSTEN_LABEL,
+  TYPE_VERGOEDING_LABEL,
+} from '../lib/data/leveranciers';
+import type { PrijsData } from '../lib/data/prices';
 import {
   articleSchema,
   faqPageSchema,
@@ -10,35 +26,31 @@ import type { FaqItem } from '../lib/seo/jsonld';
 
 const title = 'Terugleververgoeding vergelijken per leverancier | Thuisbatterijrekenaar';
 const description =
-  'Wat krijgt u per kWh voor teruggeleverde zonnestroom? Vergelijk de terugleververgoedingen en terugleverkosten van Nederlandse energieleveranciers.';
+  'Wat krijgt u per kWh voor teruggeleverde zonnestroom? Vergelijk terugleververgoedingen en terugleverkosten per leverancier — met verificatiedatum per rij.';
 
-/**
- * DATASTRUCTUUR — de werkelijke tarieven zijn nog niet geverifieerd.
- * REGEL: geen tarief publiceren zonder controle bij de leverancier zelf.
- * Elke null wordt in de tabel weergegeven als "wordt geverifieerd".
- * [TEYIT GEREKLI: per leverancier de actuele terugleververgoeding (€/kWh)
- * en terugleverkosten (€/jaar of staffel) opzoeken op de eigen
- * tarievenpagina en hier invullen, met peildatum per rij]
- */
-interface LeverancierRij {
-  naam: string;
-  vergoedingPerKwh: number | null;
-  terugleverkosten: string | null;
-  peildatum: string | null;
-}
+// Expliciet typen: lege JSON-arrays zouden anders never[] opleveren
+const leveranciers: Leverancier[] = leveranciersJson;
+const prijsData: PrijsData = prijsDataJson;
 
-const leveranciers: LeverancierRij[] = [
-  { naam: 'Eneco', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
-  { naam: 'Essent', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
-  { naam: 'Vattenfall', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
-  { naam: 'Greenchoice', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
-  { naam: 'Budget Energie', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
-  { naam: 'Energiedirect', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
-  { naam: 'Frank Energie', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
-  { naam: 'Tibber', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
-  { naam: 'Zonneplan', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
-  { naam: 'ANWB Energie', vergoedingPerKwh: null, terugleverkosten: null, peildatum: null },
-];
+// Bayatlıksignaal wordt op BUILD-tijd berekend; de site wordt dagelijks
+// opnieuw gebouwd (Vercel cron), dus dit blijft actueel zonder client-JS.
+const nu = Date.now();
+const isVerouderd = (gecontroleerdOp: string): boolean =>
+  (nu - new Date(gecontroleerdOp).getTime()) / 86400000 >
+  LEVERANCIER_DATA_MAX_LEEFTIJD_DAGEN;
+
+const datumFmt = (iso: string) =>
+  new Date(iso).toLocaleDateString('nl-NL', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+
+const prijsDatum = new Date(prijsData.opgehaaldOp).toLocaleDateString('nl-NL', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
 
 const faq: FaqItem[] = [
   {
@@ -47,19 +59,24 @@ const faq: FaqItem[] = [
       'Het bedrag per kWh dat uw energieleverancier betaalt voor zonnestroom die u aan het net teruglevert bovenop wat u mag salderen — en na het einde van de saldering in 2027: voor álle teruggeleverde stroom.',
   },
   {
-    vraag: 'Is er een wettelijk minimum voor de terugleververgoeding?',
+    vraag: 'Welke leverancier heeft de hoogste terugleververgoeding?',
     antwoord:
-      'Ja. Na het einde van de saldering geldt tot en met 2030 een wettelijk minimum als aandeel van het leveringstarief. In onze berekeningen hanteren wij dat minimum als conservatief uitgangspunt.',
+      'Dat wisselt: leveranciers passen hun tarieven tussentijds aan en een hoge vergoeding kan samengaan met hogere kosten elders. Daarom tonen wij per leverancier de datum waarop wij de gegevens controleerden en linken wij naar de bron, zodat u het actuele tarief zelf kunt verifiëren voordat u kiest.',
   },
   {
-    vraag: 'Waarom staan er nog geen bedragen in de tabel?',
+    vraag: 'Is er een wettelijk minimum voor de terugleververgoeding?',
     antwoord:
-      'Wij publiceren uitsluitend tarieven die wij zelf bij de leverancier hebben geverifieerd, met peildatum. Liever een lege cel dan een verouderd of verkeerd bedrag — tarieven wijzigen regelmatig.',
+      'Ja. Na het einde van de saldering geldt tot en met 2030 een wettelijk minimum als aandeel van het leveringstarief. In onze berekeningen hanteren wij dat minimum als conservatief uitgangspunt — dat is onze eigen aanname, geen leverancierstarief.',
+  },
+  {
+    vraag: 'Hoe controleren jullie de gegevens in de tabel?',
+    antwoord:
+      'Elke rij wordt handmatig gecontroleerd op de tarievenpagina van de leverancier zelf en krijgt een eigen verificatiedatum. Is een rij ouder dan 60 dagen, dan markeren wij die automatisch als mogelijk verouderd. Gegevens die wij niet konden verifiëren, publiceren wij niet.',
   },
   {
     vraag: 'Moet ik kiezen voor de leverancier met de hoogste vergoeding?',
     antwoord:
-      'Niet automatisch. Kijk naar het totaalplaatje: leveringstarief, vaste kosten, terugleverkosten én de vergoeding samen bepalen wat u per jaar kwijt bent of overhoudt.',
+      'Niet automatisch. Kijk naar het totaalplaatje: leveringstarief, vaste kosten, terugleverkosten én de vergoeding samen bepalen wat u per jaar kwijt bent of overhoudt. Een thuisbatterij verkleint bovendien de rol van de vergoeding, doordat u minder teruglevert.',
   },
 ];
 
@@ -82,76 +99,196 @@ const jsonLd = [
   </h1>
   <p class="mb-6 text-sm text-slate-500">Laatst bijgewerkt: {LAATST_BIJGEWERKT}</p>
 
-  <div class="space-y-4 leading-relaxed text-slate-700">
-    <p>
-      Zodra de <a href="/saldering-stopt-2027/" class="underline">saldering stopt</a>,
-      wordt de terugleververgoeding de belangrijkste knop in uw
-      energiecontract als zonnepaneelbezitter: het is het enige dat u nog
-      voor uw overtollige stroom krijgt. Tegelijk rekenen veel leveranciers
-      <a href="/terugleverkosten/" class="underline">terugleverkosten</a>.
-      Beide verschillen sterk per leverancier — vergelijken loont.
-    </p>
-    <p>
-      <strong>Ons uitgangspunt bij deze tabel:</strong> wij nemen alleen
-      tarieven op die wij zelf op de tarievenpagina van de leverancier
-      hebben gecontroleerd, mét peildatum. Cellen die nog niet geverifieerd
-      zijn, laten wij bewust leeg. Tot en met 2030 geldt in elk geval het
-      wettelijke minimum van {pct(TERUGLEVERVERGOEDING_AANDEEL)} van het
-      leveringstarief.
-    </p>
-  </div>
-
-  <div class="mt-6 overflow-x-auto rounded-lg border border-slate-200 bg-white">
-    <table class="w-full border-collapse text-sm">
-      <thead>
-        <tr class="border-b border-slate-200 bg-slate-50 text-left text-slate-600">
-          <th scope="col" class="px-4 py-2 font-semibold">Leverancier</th>
-          <th scope="col" class="px-4 py-2 font-semibold">Terugleververgoeding per kWh</th>
-          <th scope="col" class="px-4 py-2 font-semibold">Terugleverkosten</th>
-          <th scope="col" class="px-4 py-2 font-semibold">Peildatum</th>
-        </tr>
-      </thead>
-      <tbody>
-        {
-          leveranciers.map((l) => (
-            <tr class="border-b border-slate-100">
-              <th scope="row" class="px-4 py-2 text-left font-medium text-slate-800">
-                {l.naam}
-              </th>
-              <td class="px-4 py-2 text-slate-400 italic">
-                {l.vergoedingPerKwh ?? 'wordt geverifieerd'}
-              </td>
-              <td class="px-4 py-2 text-slate-400 italic">
-                {l.terugleverkosten ?? 'wordt geverifieerd'}
-              </td>
-              <td class="px-4 py-2 text-slate-400 italic">{l.peildatum ?? '—'}</td>
-            </tr>
-          ))
-        }
-      </tbody>
-    </table>
-  </div>
-  <p class="mt-2 text-xs text-slate-500">
-    Tarieven worden per leverancier geverifieerd voordat ze hier verschijnen.
-    Ziet u een fout of heeft u een actueel tarief met bron? Mail ons via het
-    adres in de voettekst.
+  <p class="mb-6 leading-relaxed text-slate-700">
+    Zodra de <a href="/saldering-stopt-2027/" class="underline">saldering stopt</a>,
+    wordt de terugleververgoeding de belangrijkste knop in uw
+    energiecontract als zonnepaneelbezitter. Tegelijk rekenen veel
+    leveranciers
+    <a href="/terugleverkosten/" class="underline">terugleverkosten</a>.
+    Beide verschillen sterk per leverancier — vergelijken loont.
   </p>
 
-  <section class="mt-8 space-y-4 leading-relaxed text-slate-700">
-    <h2 class="text-2xl font-bold text-slate-900">Zo vergelijkt u eerlijk</h2>
+  <!-- Bölüm A: uyarı bandı -->
+  <div class="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4">
+    <p class="font-bold text-amber-900">Let op: tarieven veranderen</p>
+    <p class="mt-1 text-sm leading-relaxed text-amber-900">
+      Onderstaande gegevens zijn handmatig gecontroleerd op de datum die per
+      leverancier in de tabel staat. Leveranciers kunnen hun tarieven
+      tussentijds wijzigen. Controleer het actuele tarief altijd op de website
+      van de leverancier zelf voordat u overstapt. Wij zijn niet
+      aansprakelijk voor tussentijdse wijzigingen.
+    </p>
+  </div>
+
+  {
+    leveranciers.length === 0 ? (
+      <p class="mb-8 rounded-lg border border-slate-200 bg-white p-5 leading-relaxed text-slate-700">
+        Wij zijn bezig met het verifiëren van de gegevens per leverancier.
+        Zodra een leverancier is gecontroleerd, verschijnt die hier — met de
+        datum van controle erbij. Tot die tijd leest u hieronder hoe u uw
+        eigen contract beoordeelt.
+      </p>
+    ) : (
+      <div class="mb-8 overflow-x-auto rounded-lg border border-slate-200 bg-white">
+        <table class="w-full border-collapse text-sm">
+          <thead>
+            <tr class="border-b border-slate-300 bg-slate-100 text-left text-xs uppercase tracking-wide text-slate-500">
+              <th scope="colgroup" colspan="5" class="px-4 py-2">
+                Model (wijzigt zelden)
+              </th>
+              <th scope="colgroup" colspan="4" class="border-l-2 border-amber-200 bg-amber-50 px-4 py-2 text-amber-800">
+                Bedragen (kunnen wijzigen)
+              </th>
+            </tr>
+            <tr class="border-b border-slate-200 bg-slate-50 text-left text-slate-600">
+              <th scope="col" class="px-4 py-2 font-semibold">Leverancier</th>
+              <th scope="col" class="px-4 py-2 font-semibold">Contracttype</th>
+              <th scope="col" class="px-4 py-2 font-semibold">Type vergoeding</th>
+              <th scope="col" class="px-4 py-2 font-semibold">Terugleverkosten</th>
+              <th scope="col" class="px-4 py-2 font-semibold">Facturering</th>
+              <th scope="col" class="border-l-2 border-amber-200 bg-amber-50/60 px-4 py-2 font-semibold">Vergoeding</th>
+              <th scope="col" class="bg-amber-50/60 px-4 py-2 font-semibold">Kosten</th>
+              <th scope="col" class="bg-amber-50/60 px-4 py-2 font-semibold">Gecontroleerd op</th>
+              <th scope="col" class="bg-amber-50/60 px-4 py-2 font-semibold">Bron</th>
+            </tr>
+          </thead>
+          <tbody>
+            {leveranciers.map((l) => (
+              <tr class="border-b border-slate-100 align-top">
+                <th scope="row" class="px-4 py-2 text-left font-medium text-slate-800">
+                  {l.naam}
+                </th>
+                <td class="px-4 py-2">{CONTRACT_TYPE_LABEL[l.contractType]}</td>
+                <td class="px-4 py-2">{TYPE_VERGOEDING_LABEL[l.typeVergoeding]}</td>
+                <td class="px-4 py-2">{TERUGLEVERKOSTEN_LABEL[l.terugleverkosten]}</td>
+                <td class="px-4 py-2">{FACTURERING_LABEL[l.facturering]}</td>
+                <td class="border-l-2 border-amber-200 bg-amber-50/40 px-4 py-2">
+                  {l.vergoedingDetail}
+                </td>
+                <td class="bg-amber-50/40 px-4 py-2">{l.terugleverkostenDetail}</td>
+                <td class="bg-amber-50/40 px-4 py-2 whitespace-nowrap">
+                  {datumFmt(l.gecontroleerdOp)}
+                  {isVerouderd(l.gecontroleerdOp) && (
+                    <span class="mt-1 block text-xs font-semibold text-amber-700">
+                      ⚠ mogelijk verouderd — controleer bij de leverancier
+                    </span>
+                  )}
+                </td>
+                <td class="bg-amber-50/40 px-4 py-2">
+                  <a
+                    href={l.bronUrl}
+                    rel="nofollow noopener"
+                    target="_blank"
+                    class="underline"
+                  >
+                    tarieven
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
+  <!-- Bölüm C -->
+  <section class="space-y-4 leading-relaxed text-slate-700">
+    <h2 class="text-2xl font-bold text-slate-900">Hoe uw vergoeding is opgebouwd</h2>
     <p>
-      Een hoge terugleververgoeding kan worden uitgehold door hoge
-      terugleverkosten of een duur leveringstarief. Zet daarom altijd vier
-      posten naast elkaar: het leveringstarief per kWh, de vaste
-      leveringskosten, de terugleverkosten en de vergoeding per
-      teruggeleverde kWh. Uw werkelijke jaarplaatje hangt af van hoeveel u
-      teruglevert — en dat kunt u drukken met een thuisbatterij, zoals we
-      uitleggen op
-      <a href="/thuisbatterij-rendement/" class="underline"
-        >het rendement van een thuisbatterij</a
-      >. De actuele marktprijzen waarop dynamische contracten zijn gebaseerd
-      ziet u op
-      <a href="/stroomprijzen-vandaag/" class="underline">stroomprijzen vandaag</a>.
+      Drie begrippen bepalen samen wat teruggeleverde zonnestroom u
+      oplevert:
+    </p>
+    <ul class="list-disc space-y-2 pl-5">
+      <li>
+        <strong>De terugleververgoeding</strong> — wat u ontvangt per
+        teruggeleverde kWh. Sommige leveranciers koppelen dit aan de
+        marktprijs, andere hanteren een vast bedrag.
+      </li>
+      <li>
+        <strong>Terugleverkosten</strong> — wat sommige leveranciers rekenen
+        voor het terugleveren zelf, als vast maandbedrag of afhankelijk van
+        uw volume. Hoe dat werkt leest u op
+        <a href="/terugleverkosten/" class="underline">terugleverkosten</a>.
+      </li>
+      <li>
+        <strong>Het verschil met het leveringstarief</strong> — dit is wat u
+        misloopt zodra saldering wegvalt: elke kWh die u teruglevert in
+        plaats van zelf verbruikt, levert de vergoeding op in plaats van het
+        volle leveringstarief.
+      </li>
+    </ul>
+    <p>
+      In onze <a href="/" class="underline">rekenaar</a> hanteren wij als
+      conservatief uitgangspunt het wettelijke minimum:
+      {pct(TERUGLEVERVERGOEDING_AANDEEL)} van het leveringstarief.
+      <strong>Dat is onze eigen aanname</strong> — geen tarief van een
+      leverancier. Krijgt u bij uw leverancier meer, dan valt uw werkelijke
+      vergoeding hoger uit dan onze berekening.
+    </p>
+  </section>
+
+  <!-- Bölüm D -->
+  <section class="mt-8 space-y-4 leading-relaxed text-slate-700">
+    <h2 class="text-2xl font-bold text-slate-900">
+      Wat u in uw eigen contract opzoekt
+    </h2>
+    <ol class="list-decimal space-y-2 pl-5">
+      <li>
+        Staat er een <strong>terugleververgoeding per kWh</strong> — vast of
+        marktgekoppeld?
+      </li>
+      <li>
+        Rekent uw leverancier <strong>terugleverkosten</strong> — vast per
+        maand of afhankelijk van volume?
+      </li>
+      <li>Zijn er <strong>drempels of maxima</strong> per jaar?</li>
+      <li>
+        Wat is uw <strong>opzegtermijn</strong> en zit u vast aan een
+        contractperiode?
+      </li>
+      <li>
+        Wat gebeurt er in uw contract <strong>per 1 januari 2027</strong>?
+      </li>
+    </ol>
+    <p>
+      Overweegt u over te stappen op uurprijzen, lees dan eerst
+      <a href="/dynamisch-energiecontract-met-zonnepanelen/" class="underline"
+        >wanneer een dynamisch contract verstandig is</a
+      > — en wanneer niet.
+    </p>
+  </section>
+
+  <!-- Bölüm E -->
+  <section class="mt-8 space-y-4 leading-relaxed text-slate-700">
+    <h2 class="text-2xl font-bold text-slate-900">
+      Wat de markt op dit moment doet
+    </h2>
+    <p>
+      Op basis van onze marktdata van {prijsDatum} (bron:
+      <a href="/stroomprijzen-vandaag/" class="underline">stroomprijzen vandaag</a>):
+    </p>
+    <ul class="list-disc space-y-1 pl-5">
+      <li>
+        Gemiddelde uurprijs, afgelopen 30 dagen:
+        <strong>{euro(prijsData.gemiddeldeDagprijs30d)} per kWh</strong>
+      </li>
+      <li>
+        Gemiddelde dagelijkse piek-dalspread, afgelopen 90 dagen:
+        <strong>{euro(prijsData.piekDalSpread90d)} per kWh</strong>
+      </li>
+      <li>
+        Uren met negatieve prijs, afgelopen 30 dagen:
+        <strong>{prijsData.negatieveUren30d}</strong>
+      </li>
+    </ul>
+    <p>
+      Die negatieve uren vallen vrijwel altijd midden op de dag — precies
+      wanneer zonnepanelen het meest produceren. Bij contracten met een
+      marktgekoppelde vergoeding is teruglevering op die uren niet alleen
+      waardeloos, maar kan die zelfs geld kosten. Dat maakt het verschuiven
+      van verbruik en het opslaan van middagoverschot steeds waardevoller —
+      <a href="/" class="underline">reken uit wat dat voor u betekent</a>.
     </p>
   </section>
 

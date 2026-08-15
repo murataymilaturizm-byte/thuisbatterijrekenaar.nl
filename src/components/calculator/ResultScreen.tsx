@@ -154,6 +154,7 @@ export default function ResultScreen({
           Bekijk de volledige berekening
         </summary>
         <div className="mt-3 space-y-5 text-sm text-slate-700">
+          <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <tbody>
               {rij('Jaarverbruik', fmtKwh(result.jaarVerbruikKwh))}
@@ -178,6 +179,7 @@ export default function ResultScreen({
               {rij('Rendement over de levensduur', `${Math.round(result.roiPercentage)}%`)}
             </tbody>
           </table>
+          </div>
 
           <div>
             <h3 className="mb-2 font-semibold text-slate-800">

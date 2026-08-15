@@ -93,6 +93,9 @@ export const BENUTBAARHEID_DYNAMISCH = 0.6;
 /** Maximale leeftijd van de marktprijsdata voordat de UI een waarschuwing toont, in uren */
 export const PRIJS_DATA_MAX_LEEFTIJD_UUR = 48;
 
+/** Maximale leeftijd van een geverifieerde leveranciersrij voordat de tabel "mogelijk verouderd" toont, in dagen */
+export const LEVERANCIER_DATA_MAX_LEEFTIJD_DAGEN = 60;
+
 // ── Verbruiksschatting ──────────────────────────────────────────────────────
 
 /** kWh/jaar per persoon in het huishouden (schatting) */
