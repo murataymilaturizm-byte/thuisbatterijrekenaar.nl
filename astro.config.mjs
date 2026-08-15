@@ -10,7 +10,12 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   site: 'https://thuisbatterijrekenaar.nl',
   output: 'static',
-  integrations: [react(), mdx(), sitemap()],
+  integrations: [
+    react(),
+    mdx(),
+    // Interne werkpagina's horen niet in de sitemap
+    sitemap({ filter: (page) => !page.includes('/concepten') }),
+  ],
 
   vite: {
     plugins: [tailwindcss()]

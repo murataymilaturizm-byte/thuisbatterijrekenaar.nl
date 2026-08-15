@@ -144,6 +144,15 @@ export interface Uitgangspunt {
 export const euro = (n: number) => `€ ${n.toFixed(2).replace('.', ',')}`;
 export const pct = (n: number) => `${Math.round(n * 100)}%`;
 
+/** ISO-datum → "1 januari 2027" (nl-NL), zodat data uit één bron komen */
+export const datumNl = (iso: string) =>
+  new Date(`${iso}T00:00:00Z`).toLocaleDateString('nl-NL', {
+    timeZone: 'UTC',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
 export const UITGANGSPUNTEN: Uitgangspunt[] = [
   {
     label: 'Opbrengst zonnepanelen',
@@ -172,7 +181,7 @@ export const UITGANGSPUNTEN: Uitgangspunt[] = [
   },
   {
     label: 'Einde salderingsregeling',
-    waarde: '1 januari 2027',
+    waarde: datumNl(SALDERING_EINDDATUM),
     bron: 'Wetgeving afbouw salderingsregeling',
   },
   {

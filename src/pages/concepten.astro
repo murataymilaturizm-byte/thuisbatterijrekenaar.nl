@@ -1,0 +1,224 @@
+---
+/**
+ * INTERNE pagina: gegenereerde concepten ter beoordeling.
+ *
+ * Geen goedkeurknop — goedkeuren gebeurt in GitHub door de PR te mergen
+ * (zie README, "Contentpijplijn"). Deze pagina is alleen om te lezen.
+ *
+ * Afscherming: noindex/nofollow, Disallow in robots.txt, uitgesloten van
+ * de sitemap. Dat is géén authenticatie — zie het rapport.
+ */
+import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
+import { beoordeelConcept, isPubliceerbaar } from '../lib/content/quality';
+import type { PoortResultaat } from '../lib/content/quality';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+interface ConceptFrontmatter {
+  title?: string;
+  h1?: string;
+  cluster?: string;
+  gegenereerd?: string;
+  published?: boolean;
+  aiGegenereerd?: boolean;
+  faq?: { vraag: string; antwoord: string }[];
+}
+
+// Alle MDX-pagina's: concepten renderen we, de rest gebruiken we als linkdoelen.
+const alleModules = import.meta.glob<{
+  frontmatter: ConceptFrontmatter;
+  Content: AstroComponentFactory;
+}>('../content/pages/*.mdx', { eager: true });
+const ruweBronnen = import.meta.glob('../content/pages/*.mdx', {
+  eager: true,
+  query: '?raw',
+  import: 'default',
+}) as Record<string, string>;
+
+// Bestaande (gepubliceerde) pagina's — linkdoelen voor de kwaliteitspoorten
+const gepubliceerd: { url: string; cluster: string }[] = [];
+for (const [pad, mod] of Object.entries(alleModules)) {
+  const fm = mod.frontmatter;
+  if (fm.published === false) continue;
+  const slug = pad.split('/').pop()!.replace('.mdx', '');
+  if (slug.startsWith('_')) continue;
+  gepubliceerd.push({ url: `/${slug}/`, cluster: fm.cluster ?? 'overig' });
+}
+const astroPaginas = [
+  '/',
+  '/uitgangspunten/',
+  '/stroomprijzen-vandaag/',
+  '/terugleververgoeding-vergelijken/',
+  '/kennisbank/',
+  '/over-ons/',
+  '/privacyverklaring/',
+  '/algemene-voorwaarden/',
+];
+const bestaandeUrls = [...gepubliceerd.map((p) => p.url), ...astroPaginas];
+
+interface ConceptWeergave {
+  bestand: string;
+  titel: string;
+  cluster: string;
+  gegenereerd: string;
+  aiGegenereerd: boolean;
+  Content: AstroComponentFactory;
+  faq: { vraag: string; antwoord: string }[];
+  teyitAantal: number;
+  poorten: PoortResultaat[];
+  publiceerbaar: boolean;
+}
+
+const concepten: ConceptWeergave[] = [];
+for (const [pad, mod] of Object.entries(alleModules)) {
+  const bestand = pad.split('/').pop()!;
+  const fm = mod.frontmatter;
+  const isConcept = bestand.startsWith('_') || fm.published === false;
+  if (!isConcept) continue;
+
+  const ruw = ruweBronnen[pad] ?? '';
+  const body = ruw.replace(/^---[\s\S]*?\n---\n/, '');
+  const cluster = fm.cluster ?? 'overig';
+  const clusterUrls = gepubliceerd
+    .filter((p) => p.cluster === cluster)
+    .map((p) => p.url);
+
+  const poorten = beoordeelConcept({
+    body,
+    ruw,
+    faqAantal: fm.faq?.length ?? 0,
+    cluster,
+    bestaandeUrls,
+    clusterUrls,
+  });
+
+  concepten.push({
+    bestand,
+    titel: fm.h1 ?? fm.title ?? bestand,
+    cluster,
+    gegenereerd: fm.gegenereerd ?? 'onbekend',
+    aiGegenereerd: fm.aiGegenereerd === true,
+    Content: mod.Content,
+    faq: fm.faq ?? [],
+    teyitAantal: (ruw.match(/TEYIT GEREKLI/g) ?? []).length,
+    poorten,
+    publiceerbaar: isPubliceerbaar(poorten),
+  });
+}
+concepten.sort((a, b) => b.gegenereerd.localeCompare(a.gegenereerd));
+---
+
+<BaseLayout
+  title="Concepten (intern) | Thuisbatterijrekenaar"
+  description="Interne werkpagina met gegenereerde concepten. Niet gepubliceerd."
+  noindex={true}
+>
+  <p class="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 font-semibold text-amber-900">
+    Interne pagina — niet gepubliceerd. De concepten hieronder staan niet online
+    en verschijnen niet in de sitemap. Goedkeuren gebeurt via de pull request in
+    GitHub, niet hier.
+  </p>
+
+  <h1 class="mb-6 text-3xl font-extrabold tracking-tight text-slate-900">
+    Concepten ter beoordeling
+  </h1>
+
+  {
+    concepten.length === 0 ? (
+      <p class="rounded-lg border border-slate-200 bg-white p-5 text-slate-700">
+        Geen concepten open. De generator draait wekelijks op maandag; zet een
+        onderwerp in <code>content-queue.json</code> om er een klaar te zetten.
+      </p>
+    ) : (
+      concepten.map((c) => (
+        <article class="mb-10 rounded-xl border border-slate-200 bg-white p-6">
+          <header class="mb-4 border-b border-slate-200 pb-4">
+            <h2 class="text-2xl font-bold text-slate-900">{c.titel}</h2>
+            <p class="mt-1 text-sm text-slate-500">
+              {c.bestand} · cluster: {c.cluster} · gegenereerd: {c.gegenereerd} ·{' '}
+              {c.aiGegenereerd ? 'AI-concept' : 'handmatig'} ·{' '}
+              <span class={c.teyitAantal > 0 ? 'font-semibold text-amber-700' : ''}>
+                {c.teyitAantal} × TEYIT GEREKLI
+              </span>
+            </p>
+            <p
+              class={
+                c.publiceerbaar
+                  ? 'mt-2 font-semibold text-emerald-700'
+                  : 'mt-2 font-semibold text-red-700'
+              }
+            >
+              {c.publiceerbaar
+                ? 'Alle blokkerende poorten geslaagd — klaar voor menselijke eindcontrole.'
+                : 'Blokkerende poorten niet geslaagd — nog niet publiceren.'}
+            </p>
+          </header>
+
+          <section class="mb-6">
+            <h3 class="mb-2 font-semibold text-slate-800">Kwaliteitscontrole</h3>
+            <ul class="space-y-1 text-sm">
+              {c.poorten.map((p) => (
+                <li class="flex gap-2">
+                  <span
+                    class={
+                      p.geslaagd
+                        ? 'font-bold text-emerald-600'
+                        : p.niveau === 'rood'
+                          ? 'font-bold text-red-600'
+                          : 'font-bold text-amber-600'
+                    }
+                  >
+                    {p.geslaagd ? '✓' : p.niveau === 'rood' ? '✗' : '!'}
+                  </span>
+                  <span>
+                    <strong class="text-slate-800">{p.label}</strong>{' '}
+                    <span class="text-slate-500">— {p.toelichting}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section class="mb-6">
+            <h3 class="mb-2 font-semibold text-slate-800">
+              FAQ ({c.faq.length})
+            </h3>
+            <ul class="list-disc space-y-1 pl-5 text-sm text-slate-700">
+              {c.faq.map((f) => (
+                <li>{f.vraag}</li>
+              ))}
+            </ul>
+          </section>
+
+          <section>
+            <h3 class="mb-2 font-semibold text-slate-800">Volledige tekst</h3>
+            <div class="concept-body space-y-3 leading-relaxed text-slate-700">
+              <c.Content />
+            </div>
+          </section>
+        </article>
+      ))
+    )
+  }
+</BaseLayout>
+
+<style>
+  .concept-body :global(h2) {
+    margin-top: 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  .concept-body :global(h3) {
+    margin-top: 1rem;
+    font-weight: 600;
+    color: #0f172a;
+  }
+  .concept-body :global(ul),
+  .concept-body :global(ol) {
+    list-style: disc;
+    padding-left: 1.5rem;
+  }
+  .concept-body :global(a) {
+    text-decoration: underline;
+  }
+</style>

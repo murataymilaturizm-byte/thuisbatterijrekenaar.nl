@@ -1,0 +1,58 @@
+name: Wekelijks concept genereren
+
+on:
+  schedule:
+    # Elke maandag 06:00 UTC
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  concept:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - run: npm ci
+
+      - name: Concept genereren
+        id: genereer
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          node scripts/generate-draft.mjs | tee uitvoer.log
+          echo "slug=$(grep -oP '(?<=^\[generate-draft\] SLUG=).*' uitvoer.log || true)" >> "$GITHUB_OUTPUT"
+          echo "titel=$(grep -oP '(?<=^\[generate-draft\] TITEL=).*' uitvoer.log || true)" >> "$GITHUB_OUTPUT"
+          rm uitvoer.log
+
+      # Lege wachtrij of overgeslagen onderwerp: geen slug, dus stil stoppen.
+      - name: Pull request openen
+        if: steps.genereer.outputs.slug != ''
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: concept/${{ steps.genereer.outputs.slug }}
+          title: 'Concept: ${{ steps.genereer.outputs.titel }}'
+          commit-message: 'Concept: ${{ steps.genereer.outputs.titel }}'
+          body: |
+            Automatisch gegenereerd concept — **nog niet gepubliceerd**
+            (`published: false`, bestandsnaam begint met `_`).
+
+            Ter beoordeling:
+            1. Lees het concept op `/concepten` (draai `npm run dev` lokaal, of
+               bekijk de Vercel-preview van deze PR).
+            2. Controleer de kwaliteitspoorten op diezelfde pagina — rode
+               punten moeten opgelost zijn vóór publicatie.
+            3. Controleer elke `[TEYIT GEREKLI]`-markering en vervang die door
+               geverifieerde tekst óf een eerlijke formulering.
+
+            Publiceren (zie README, "Contentpijplijn"):
+            `published: true`, `_`-prefix uit de bestandsnaam halen,
+            routepagina in `src/pages/` aanmaken, dan pas mergen.
+          labels: concept

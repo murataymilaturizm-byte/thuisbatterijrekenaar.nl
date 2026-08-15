@@ -10,9 +10,11 @@ interface Props {
   description: string;
   /** JSON-LD-objecten; worden server-side in de <head> gerenderd */
   jsonLd?: object[];
+  /** Interne pagina's: uitsluiten van indexering (ook uit de sitemap houden) */
+  noindex?: boolean;
 }
 
-const { title, description, jsonLd = [] } = Astro.props;
+const { title, description, jsonLd = [], noindex = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL('/og-image.png', Astro.site);
 ---
@@ -25,6 +27,7 @@ const ogImage = new URL('/og-image.png', Astro.site);
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />

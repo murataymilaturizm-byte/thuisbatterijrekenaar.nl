@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "astro dev",
     "fetch-prices": "node scripts/fetch-prices.mjs",
+    "generate-draft": "node scripts/generate-draft.mjs",
     "prebuild": "node scripts/fetch-prices.mjs",
     "build": "astro build",
     "preview": "astro preview",
@@ -27,6 +28,7 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.117.1",
     "@astrojs/check": "^0.9.10",
     "typescript": "^6.0.3",
     "vitest": "^4.1.10"
