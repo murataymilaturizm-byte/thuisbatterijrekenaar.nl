@@ -93,19 +93,36 @@ export default function ResultScreen({
         </div>
       </div>
 
-      {result.geenRendabeleCapaciteit && (
-        <p className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-700">
-          Bij geen enkele batterijgrootte komt deze investering binnen{' '}
-          {LEVENSDUUR_JAAR} jaar uit. Wat wél verschil maakt:{' '}
-          <a
-            href="/dynamisch-energiecontract-met-zonnepanelen/"
-            className="font-semibold underline"
-          >
-            een dynamisch energiecontract
-          </a>
-          .
-        </p>
-      )}
+      {result.geenRendabeleCapaciteit &&
+        (wasDynamisch ? (
+          <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-700">
+            <p>
+              Bij geen enkele batterijgrootte komt deze investering binnen{' '}
+              {LEVENSDUUR_JAAR} jaar uit — ook niet met uw dynamische
+              contract. Dat komt meestal doordat uw overschot of uw verbruik
+              buiten zonuren te klein is om een batterij vol te benutten.
+            </p>
+            <p>
+              Wat u wél kunt doen zonder investering: uw verbruik verschuiven
+              naar de goedkoopste uren.{' '}
+              <a href="/stroomprijzen-vandaag/" className="font-semibold underline">
+                Bekijk de actuele uurprijzen.
+              </a>
+            </p>
+          </div>
+        ) : (
+          <p className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-700">
+            Bij geen enkele batterijgrootte komt deze investering binnen{' '}
+            {LEVENSDUUR_JAAR} jaar uit. Wat wél verschil maakt:{' '}
+            <a
+              href="/dynamisch-energiecontract-met-zonnepanelen/"
+              className="font-semibold underline"
+            >
+              een dynamisch energiecontract
+            </a>
+            .
+          </p>
+        ))}
 
       {/* Marktprijszin — ons onderscheid */}
       <p className="text-center text-sm text-slate-600">
@@ -150,14 +167,18 @@ export default function ResultScreen({
         &rsquo;s avonds en &rsquo;s nachts genoeg verbruikt.
       </p>
 
-      {/* c) CTA — het resultaat blijft altijd zichtbaar, de offerte is optioneel */}
-      <button
-        type="button"
-        onClick={onOfferteClick}
-        className="w-full rounded-lg bg-emerald-600 px-6 py-4 text-lg font-bold text-white transition hover:bg-emerald-700"
-      >
-        Vraag 3 offertes aan
-      </button>
+      {/* c) CTA — het resultaat blijft altijd zichtbaar, de offerte is optioneel.
+          Bij dynamisch + niet rendabel tonen wij de batterij-CTA niet: wij
+          hebben zojuist gezegd dat een batterij hier niet past. */}
+      {!(result.geenRendabeleCapaciteit && wasDynamisch) && (
+        <button
+          type="button"
+          onClick={onOfferteClick}
+          className="w-full rounded-lg bg-emerald-600 px-6 py-4 text-lg font-bold text-white transition hover:bg-emerald-700"
+        >
+          Vraag 3 offertes aan
+        </button>
+      )}
 
       {/* Volledige berekening — transparantie als onderscheid */}
       <details className="rounded-lg border border-slate-200 bg-white p-4">

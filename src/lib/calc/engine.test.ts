@@ -1,12 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import {
   AANDEEL_VERBRUIK_BUITEN_ZONUREN,
+  AANSLUITVERMOGEN_KW,
   BATTERIJ_PRIJS_PER_KWH,
   BATTERIJ_VASTE_KOSTEN,
   BENUTBAARHEID_DYNAMISCH,
   BESCHIKBARE_CAPACITEITEN,
+  DOD_BRUIKBAAR,
+  LAADVENSTER_UREN,
   LEVENSDUUR_JAAR,
   LEVERINGSTARIEF_KWH,
+  MAX_CYCLI_PER_DAG_ARBITRAGE,
   ROUND_TRIP_RENDEMENT,
   SEIZOENSBENUTTING,
   TERUGLEVERKOSTEN_JAAR,
@@ -14,7 +18,13 @@ import {
   VERBRUIK_BASIS_HUISHOUDEN,
   VERBRUIK_PER_PERSOON,
 } from '../../config/constants';
-import { bereken, berekenCashflow, berekenExtraZelfverbruik } from './engine';
+import {
+  bereken,
+  berekenArbitrage,
+  berekenCashflow,
+  berekenDagelijksBenut,
+  berekenExtraZelfverbruik,
+} from './engine';
 import type { ZelfverbruikContext } from './engine';
 import type { CalcInput, MarktData } from './types';
 
@@ -126,10 +136,17 @@ describe('round-trip rendement', () => {
 });
 
 describe('cashflow en terugverdientijd', () => {
-  const dynamischInput: CalcInput = { ...basisInput, huidigContract: 'dynamisch' };
-  const r = bereken(dynamischInput, testMarktData);
+  // Puur-arbitragescenario (geen panelen): batterij volledig vrij voor
+  // handel op uurprijzen — met deze testspread rendabel.
+  const arbitrageInput: CalcInput = {
+    ...basisInput,
+    wattpiek: 0,
+    huidigContract: 'dynamisch',
+  };
+  const r = bereken(arbitrageInput, testMarktData);
 
   it('cashflow heeft precies LEVENSDUUR_JAAR elementen met monotoon stijgende cumulatief', () => {
+    expect(r.jaarlijkseBesparing).toBeGreaterThan(0);
     expect(r.cashflow).toHaveLength(LEVENSDUUR_JAAR);
     for (let i = 1; i < r.cashflow.length; i++) {
       expect(r.cashflow[i]!.cumulatief).toBeGreaterThan(r.cashflow[i - 1]!.cumulatief);
@@ -146,11 +163,18 @@ describe('cashflow en terugverdientijd', () => {
     expect(r.terugverdientijdJaren!).toBeGreaterThan(oudeTerugverdientijd);
   });
 
-  it('berekent arbitrage volgens spread × capaciteit × 365 × rendement × benutbaarheid', () => {
+  it('berekent arbitrage volgens de begrensde formule (dagelijks volume × 365 × spread × rendement × benutbaarheid)', () => {
+    const cap = r.aanbevolenCapaciteitKwh!;
+    const bruikbaar = cap * DOD_BRUIKBAAR;
+    const dagelijksVolume = Math.min(
+      bruikbaar * MAX_CYCLI_PER_DAG_ARBITRAGE,
+      AANSLUITVERMOGEN_KW * LAADVENSTER_UREN,
+      bruikbaar, // geen zelfverbruik in dit scenario
+    );
     const verwacht =
-      testMarktData.piekDalSpreadEurPerKwh *
-      r.aanbevolenCapaciteitKwh! *
+      dagelijksVolume *
       365 *
+      testMarktData.piekDalSpreadEurPerKwh *
       ROUND_TRIP_RENDEMENT *
       BENUTBAARHEID_DYNAMISCH;
     expect(r.arbitrageOpbrengst).toBeCloseTo(verwacht, 5);
@@ -212,18 +236,24 @@ describe('capaciteitsmodel (Paket 3.0)', () => {
   });
 
   it('3. het optimum is niet automatisch de grootste batterij', () => {
-    const r = bereken({ ...basisInput, huidigContract: 'dynamisch' }, testMarktData);
+    // Puur-arbitragescenario: rendabel, maar het optimum ligt niet bij 15 kWh
+    const r = bereken(
+      { ...basisInput, wattpiek: 0, huidigContract: 'dynamisch' },
+      testMarktData,
+    );
     expect(r.aanbevolenCapaciteitKwh).not.toBeNull();
     expect(r.aanbevolenCapaciteitKwh!).toBeLessThan(
       BESCHIKBARE_CAPACITEITEN[BESCHIKBARE_CAPACITEITEN.length - 1]!,
     );
   });
 
-  it('4. het nieuwe model adviseert kleiner dan de oude heuristiek (12,5 kWh)', () => {
-    // Zelfde huishouden als het oude voorbeeldscenario, dynamisch contract
+  it('4. het nieuwe model adviseert nooit groter dan de oude heuristiek (12,5 kWh)', () => {
+    // Zelfde huishouden als het oude voorbeeldscenario, dynamisch contract.
+    // Sinds de arbitragebegrenzing (3.1) kan de uitkomst ook "niet rendabel" zijn.
     const r = bereken({ ...basisInput, huidigContract: 'dynamisch' }, testMarktData);
-    expect(r.aanbevolenCapaciteitKwh).not.toBeNull();
-    expect(r.aanbevolenCapaciteitKwh!).toBeLessThan(12.5);
+    expect(
+      r.aanbevolenCapaciteitKwh === null || r.aanbevolenCapaciteitKwh < 12.5,
+    ).toBe(true);
   });
 
   it('5. als geen enkele grootte rendabel is: null + geenRendabeleCapaciteit', () => {
@@ -241,5 +271,69 @@ describe('capaciteitsmodel (Paket 3.0)', () => {
     expect(r.capaciteitVergelijking.map((o) => o.capaciteitKwh)).toEqual([
       ...BESCHIKBARE_CAPACITEITEN,
     ]);
+  });
+});
+
+describe('arbitragebegrenzing (Paket 3.1)', () => {
+  const md: MarktData = testMarktData;
+
+  it('1. arbitrage groeit niet onbegrensd lineair met capaciteit (verzadiging)', () => {
+    // Puur-arbitrageregime (geen zelfverbruik): tot het vermogensplafond
+    // stijgt de winst hooguit lineair, daarna niet meer.
+    const caps = [5, 7.5, 10, 12.5, 15, 20, 30];
+    const waarden = caps.map((c) => berekenArbitrage(c, md, 0));
+    const stappen: number[] = [];
+    for (let i = 1; i < waarden.length; i++) {
+      const stapPerKwh = (waarden[i]! - waarden[i - 1]!) / (caps[i]! - caps[i - 1]!);
+      expect(stapPerKwh).toBeGreaterThanOrEqual(0);
+      stappen.push(stapPerKwh);
+    }
+    for (let i = 1; i < stappen.length; i++) {
+      expect(stappen[i]!).toBeLessThanOrEqual(stappen[i - 1]! + 1e-9); // concaaf
+    }
+    // Boven het vermogensplafond levert extra capaciteit niets meer op
+    expect(berekenArbitrage(30, md, 0)).toBeCloseTo(berekenArbitrage(20, md, 0), 5);
+  });
+
+  it('2. hoog zelfverbruik verlaagt de arbitrage (capaciteit wordt gedeeld)', () => {
+    for (const cap of BESCHIKBARE_CAPACITEITEN) {
+      const zonderZelfverbruik = berekenArbitrage(cap, md, 0);
+      const metZelfverbruik = berekenArbitrage(cap, md, 5);
+      expect(metZelfverbruik).toBeLessThan(zonderZelfverbruik);
+    }
+  });
+
+  it('3. zelfverbruik + arbitrage overschrijdt samen nooit de cyclusgrens', () => {
+    const context: ZelfverbruikContext = {
+      jaarVerbruikKwh: 3500,
+      terugleveringKwh: 2648.8,
+      zelfverbruikZonderKwh: 1135.2,
+    };
+    const arbFactor =
+      365 * md.piekDalSpreadEurPerKwh * ROUND_TRIP_RENDEMENT * BENUTBAARHEID_DYNAMISCH;
+    for (const cap of BESCHIKBARE_CAPACITEITEN) {
+      const benut = berekenDagelijksBenut(cap, context);
+      const dagelijksArbitrage = berekenArbitrage(cap, md, benut) / arbFactor;
+      expect(benut + dagelijksArbitrage).toBeLessThanOrEqual(
+        cap * DOD_BRUIKBAAR * MAX_CYCLI_PER_DAG_ARBITRAGE + 1e-9,
+      );
+    }
+  });
+
+  it('4. scenario b adviseert na de begrenzing niet groter dan voorheen (7,5 kWh)', () => {
+    const b: CalcInput = {
+      postcode: '1234 AB',
+      huishoudenGrootte: null,
+      jaarVerbruikKwh: 5000,
+      wattpiek: 6000,
+      huidigContract: 'dynamisch',
+      overdagThuis: 'ja',
+      heeftEV: true,
+      heeftWarmtepomp: false,
+    };
+    const r = bereken(b, md);
+    expect(
+      r.aanbevolenCapaciteitKwh === null || r.aanbevolenCapaciteitKwh <= 7.5,
+    ).toBe(true);
   });
 });

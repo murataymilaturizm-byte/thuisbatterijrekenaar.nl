@@ -101,6 +101,18 @@ export const ENERGIEPRIJS_STIJGING = 0;
 /** Benutbaarheidsfactor arbitrage bij dynamisch contract (niet elke dag wordt de volle spread gehaald) */
 export const BENUTBAARHEID_DYNAMISCH = 0.6;
 
+/**
+ * Maximaal aantal arbitragecycli per etmaal — AANNAME: de day-ahead markt
+ * heeft doorgaans één bruikbaar prijsdal en één piek per etmaal
+ */
+export const MAX_CYCLI_PER_DAG_ARBITRAGE = 1.0;
+
+/** Gangbaar omvormervermogen van een thuisbatterij in kW — AANNAME */
+export const AANSLUITVERMOGEN_KW = 3.7;
+
+/** Duur van het bruikbare laadvenster (prijsdal) in uren — AANNAME */
+export const LAADVENSTER_UREN = 4;
+
 // ── Marktdata ───────────────────────────────────────────────────────────────
 
 /** Maximale leeftijd van de marktprijsdata voordat de UI een waarschuwing toont, in uren */
@@ -221,5 +233,15 @@ export const UITGANGSPUNTEN: Uitgangspunt[] = [
     label: 'Benutbaarheid arbitrage (dynamisch contract)',
     waarde: pct(BENUTBAARHEID_DYNAMISCH),
     bron: 'Schatting: niet elke dag wordt de volledige piek-dalspread benut',
+  },
+  {
+    label: 'Arbitragecycli per etmaal',
+    waarde: `maximaal ${MAX_CYCLI_PER_DAG_ARBITRAGE}`,
+    bron: 'Aanname: één bruikbaar prijsdal en één piek per etmaal',
+  },
+  {
+    label: 'Omvormervermogen',
+    waarde: `${AANSLUITVERMOGEN_KW} kW, laadvenster ${LAADVENSTER_UREN} uur`,
+    bron: 'Aanname, gangbaar voor thuisbatterijen',
   },
 ];

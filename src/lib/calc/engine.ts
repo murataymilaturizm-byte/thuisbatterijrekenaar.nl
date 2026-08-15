@@ -37,6 +37,9 @@ import {
   DOD_BRUIKBAAR,
   AANDEEL_VERBRUIK_BUITEN_ZONUREN,
   SEIZOENSBENUTTING,
+  MAX_CYCLI_PER_DAG_ARBITRAGE,
+  AANSLUITVERMOGEN_KW,
+  LAADVENSTER_UREN,
 } from '../../config/constants';
 import type {
   CalcInput,
@@ -84,7 +87,12 @@ export interface ZelfverbruikContext {
  * uitkomen. Seizoensbenutting corrigeert voor de winter, waarin er
  * nauwelijks overschot is.
  */
-export function berekenExtraZelfverbruik(
+/**
+ * Dagelijks voor zelfverbruik benutte opslag (kWh/dag) — de kleinste van de
+ * fysieke grenzen. Wordt ook gebruikt om te bepalen welk deel van de
+ * batterij nog vrij is voor arbitrage (dezelfde kWh kan niet twee keer).
+ */
+export function berekenDagelijksBenut(
   capaciteitKwh: number,
   context: ZelfverbruikContext,
 ): number {
@@ -95,14 +103,19 @@ export function berekenExtraZelfverbruik(
   const dagelijksResterendVerbruik =
     Math.max(0, context.jaarVerbruikKwh - context.zelfverbruikZonderKwh) / 365;
 
-  const dagelijksBenut = Math.min(
+  return Math.min(
     dagelijksOverschot,
     bruikbareCapaciteit,
     dagelijksAvondNachtVerbruik,
     dagelijksResterendVerbruik,
   );
+}
 
-  return dagelijksBenut * 365 * SEIZOENSBENUTTING;
+export function berekenExtraZelfverbruik(
+  capaciteitKwh: number,
+  context: ZelfverbruikContext,
+): number {
+  return berekenDagelijksBenut(capaciteitKwh, context) * 365 * SEIZOENSBENUTTING;
 }
 
 /**
@@ -141,15 +154,39 @@ export function berekenTerugverdientijd(
   return null;
 }
 
-/** Arbitragewinst per jaar bij een dynamisch contract, op basis van de werkelijke piek-dalspread */
+/**
+ * Arbitragewinst per jaar bij een dynamisch contract, op basis van de
+ * werkelijke piek-dalspread. Het dagelijkse arbitragevolume is fysiek
+ * begrensd door de kleinste van drie limieten:
+ *   1. bruikbare capaciteit × maximale cycli per etmaal,
+ *   2. het laadvenster × het omvormervermogen,
+ *   3. de capaciteit die ná zelfverbruik nog vrij is — dezelfde kWh kan
+ *      niet én voor zelfverbruik én voor arbitrage worden gebruikt.
+ */
 export function berekenArbitrage(
   capaciteitKwh: number,
   marktData: MarktData,
+  dagelijksBenutKwh: number,
 ): number {
+  const bruikbareCapaciteit = capaciteitKwh * DOD_BRUIKBAAR;
+  const limietCyclus = bruikbareCapaciteit * MAX_CYCLI_PER_DAG_ARBITRAGE;
+  const limietVermogen = AANSLUITVERMOGEN_KW * LAADVENSTER_UREN;
+  const capaciteitVoorZelfverbruik = Math.min(dagelijksBenutKwh, bruikbareCapaciteit);
+  const resterendeCapaciteit = Math.max(
+    0,
+    bruikbareCapaciteit - capaciteitVoorZelfverbruik,
+  );
+
+  const dagelijksArbitrageKwh = Math.min(
+    limietCyclus,
+    limietVermogen,
+    resterendeCapaciteit,
+  );
+
   return (
-    marktData.piekDalSpreadEurPerKwh *
-    capaciteitKwh *
+    dagelijksArbitrageKwh *
     365 *
+    marktData.piekDalSpreadEurPerKwh *
     ROUND_TRIP_RENDEMENT *
     BENUTBAARHEID_DYNAMISCH
   );
@@ -182,9 +219,12 @@ export function bereken(input: CalcInput, marktData?: MarktData): CalcResult {
   // Elke beschikbare batterijgrootte volledig doorrekenen
   const capaciteitVergelijking: CapaciteitOptie[] = BESCHIKBARE_CAPACITEITEN.map(
     (capaciteit) => {
-      const extra = berekenExtraZelfverbruik(capaciteit, context);
+      const dagelijksBenut = berekenDagelijksBenut(capaciteit, context);
+      const extra = dagelijksBenut * 365 * SEIZOENSBENUTTING;
       const besparingZelf = extra * marge * ROUND_TRIP_RENDEMENT;
-      const arbitrage = dynamisch ? berekenArbitrage(capaciteit, marktData!) : 0;
+      const arbitrage = dynamisch
+        ? berekenArbitrage(capaciteit, marktData!, dagelijksBenut)
+        : 0;
       const besparing = besparingZelf + arbitrage;
       const kosten = capaciteit * BATTERIJ_PRIJS_PER_KWH + BATTERIJ_VASTE_KOSTEN;
       const flow = berekenCashflow(besparing);
@@ -226,9 +266,7 @@ export function bereken(input: CalcInput, marktData?: MarktData): CalcResult {
   // Afgeleide waarden van de gekozen/referentiegrootte
   const extraZelfverbruikKwh = gekozen.extraZelfverbruikKwh;
   const besparingZelfverbruik = extraZelfverbruikKwh * marge * ROUND_TRIP_RENDEMENT;
-  const arbitrageOpbrengst = dynamisch
-    ? berekenArbitrage(gekozen.capaciteitKwh, marktData!)
-    : 0;
+  const arbitrageOpbrengst = gekozen.jaarlijkseBesparing - besparingZelfverbruik;
   const jaarlijkseBesparing = gekozen.jaarlijkseBesparing;
   const batterijKosten = gekozen.kosten;
   const cashflow = berekenCashflow(jaarlijkseBesparing);
