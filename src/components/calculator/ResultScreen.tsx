@@ -93,6 +93,15 @@ export default function ResultScreen({
         </div>
       </div>
 
+      <p className="text-center text-xs text-slate-500">
+        Berekend op basis van{' '}
+        <a href="/uitgangspunten/" className="underline">
+          onze uitgangspunten
+        </a>{' '}
+        en de marktprijzen van de afgelopen 90 dagen. Uw werkelijke opbrengst
+        hangt af van uw verbruikspatroon en de energiemarkt.
+      </p>
+
       {result.geenRendabeleCapaciteit &&
         (wasDynamisch ? (
           <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-700">
@@ -166,6 +175,21 @@ export default function ResultScreen({
         automatisch meer op: u kunt een batterij alleen ontladen als u
         &rsquo;s avonds en &rsquo;s nachts genoeg verbruikt.
       </p>
+
+      {/* 5b: wat is robuust, wat is schatting — vóór de capaciteitstabel */}
+      <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-700">
+        <p className="font-semibold text-slate-800">Wat is zeker en wat niet?</p>
+        <p className="mt-2">
+          Het exacte bedrag in euro&rsquo;s is een schatting. Wij rekenen met
+          marktprijzen van de afgelopen 90 dagen; die veranderen.
+        </p>
+        <p className="mt-2">
+          Wat wél robuust is, is de conclusie. Of een thuisbatterij bij u
+          binnen de levensduur uitkomt, hangt vooral af van uw contracttype
+          en van hoeveel u buiten zonuren verbruikt. Die uitkomst verandert
+          niet als de marktprijzen wat hoger of lager uitvallen.
+        </p>
+      </div>
 
       {/* Vergelijking per batterijgrootte — bewust zichtbaar, niet in een
           uitklapblok: dit is het antwoord op "waarom deze grootte" */}

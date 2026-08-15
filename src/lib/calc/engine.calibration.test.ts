@@ -1,8 +1,17 @@
 // Externe ankers, geraadpleegd 15 augustus 2026 (10 kWh, dynamisch
 // contract, huishouden met zonnepanelen):
-//   salderingswijzer.nl/calculator   : € 360 - 470 per jaar
-//   batterijenplan.nl (20 profielen) : gewogen gemiddelde € 750
-//   clyma.nl                         : € 350 - 600 uit handel
+//
+//   batterijenplan.nl — simulatie over 20 zonprofielen, marktjaar 2025,
+//     vergeleken met gerealiseerde vlootdata: gewogen gemiddelde € 750
+//     [sterkste anker: gebaseerd op werkelijke data]
+//
+//   salderingswijzer.nl/calculator : € 360 - 470 per jaar
+//   clyma.nl                       : € 350 - 600 uit handel
+//     [zwakkere ankers: dit zijn zelf ook modelschattingen,
+//      geen metingen]
+//
+// Ons model komt uit op € 611 — binnen de band, onder het sterkste
+// anker. Bij herijking weegt batterijenplan zwaarder.
 //
 // Ons model hoort binnen deze band te vallen. Valt het erbuiten,
 // dan klopt het model niet — pas het model aan, niet deze test.
