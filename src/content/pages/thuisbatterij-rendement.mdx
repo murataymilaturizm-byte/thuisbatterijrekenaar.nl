@@ -25,23 +25,24 @@ faq:
       verbruikte stroom.
   - vraag: 'Welke capaciteit heb ik nodig?'
     antwoord: >-
-      Vuistregel: genoeg om uw gemiddelde dagelijkse middagoverschot op te
-      slaan, met wat marge voor zonnige dagen. Een te grote batterij wordt
-      zelden vol benut en verlengt de terugverdientijd. Onze rekenaar
-      adviseert een capaciteit op basis van uw teruglevering.
+      Dat hangt af van drie grenzen: uw dagelijkse overschot, de bruikbare
+      capaciteit van de batterij en uw verbruik buiten zonuren. Een te
+      grote batterij wordt zelden vol benut en verlengt de
+      terugverdientijd. Onze rekenaar rekent elke beschikbare grootte
+      volledig door en adviseert degene met de kortste terugverdientijd.
   - vraag: 'Kan ik met een dynamisch contract extra verdienen?'
     antwoord: >-
       Ja, met een dynamisch contract kan een batterij ook laden bij lage
-      uurprijzen en ontladen bij hoge. Dat kan het rendement verhogen, maar
-      vraagt goede aansturing. Onze rekenaar rekent conservatief en neemt
-      dit extra voordeel niet mee.
+      uurprijzen en ontladen bij hoge. Onze rekenaar rekent dit mee
+      wanneer u bij stap 4 "dynamisch contract" kiest — op basis van de
+      werkelijke piek-dalspread van de afgelopen 90 dagen, met begrensde
+      dagelijkse cycli en een conservatieve benuttingsfactor.
 ---
 
 import {
   BATTERIJ_PRIJS_PER_KWH,
   BATTERIJ_VASTE_KOSTEN,
   ZELFVERBRUIK_BASIS,
-  ZELFVERBRUIK_MET_BATTERIJ,
   pct,
 } from '../../config/constants';
 
@@ -62,11 +63,36 @@ telt elke kWh die u teruglevert nog maar voor een fractie van het
 leveringstarief.
 
 Een thuisbatterij verschuift stroom in de tijd: het overschot van de middag
-wordt opgeslagen en 's avonds en 's nachts gebruikt. Daarmee stijgt het
-zelfverbruik naar indicatief {pct(ZELFVERBRUIK_MET_BATTERIJ)} — afhankelijk
-van uw verbruikspatroon. De besparing per opgeslagen kWh is het verschil
-tussen wat u níet hoeft te kopen (het leveringstarief) en wat u misloopt aan
-terugleververgoeding.
+wordt opgeslagen en 's avonds en 's nachts gebruikt. De besparing per
+opgeslagen kWh is het verschil tussen wat u níet hoeft te kopen (het
+leveringstarief) en wat u misloopt aan terugleververgoeding.
+
+## Drie grenzen bepalen uw opbrengst
+
+Hoeveel een thuisbatterij oplevert, hangt niet af van de capaciteit
+alleen. Drie grenzen bepalen wat u er dagelijks werkelijk mee doet, en
+de kleinste van de drie is bepalend:
+
+1. **Hoeveel overschot u heeft** — u kunt niet meer opslaan dan u
+   teruglevert.
+2. **Hoeveel de batterij bruikbaar vasthoudt** — niet de volledige
+   nominale capaciteit is bruikbaar.
+3. **Hoeveel u buiten zonuren verbruikt** — een batterij die u niet
+   leegmaakt, levert niets op.
+
+Die derde grens wordt vaak vergeten. Verbruikt u 's avonds en 's nachts
+weinig, dan levert een grotere batterij u niets extra's op — u betaalt
+wel voor de extra capaciteit.
+
+Daarnaast geldt een grens aan het aantal laad- en ontlaadcycli per dag.
+Bij een dynamisch contract kan de batterij naast zonne-opslag ook
+handelen op het prijsverschil tussen goedkope en dure uren, maar het
+totale dagelijkse doorzet blijft begrensd.
+
+Onze [rekenmachine](/) rekent daarom elke beschikbare batterijgrootte
+volledig door en toont degene met de kortste terugverdientijd. Groter
+is niet automatisch beter. Alle aannames achter deze grenzen vindt u op
+[uitgangspunten](/uitgangspunten/).
 
 Daarnaast drukt een batterij uw teruglevering, wat kan schelen in
 [terugleverkosten](/terugleverkosten/) bij leveranciers die met staffels

@@ -167,6 +167,54 @@ export default function ResultScreen({
         &rsquo;s avonds en &rsquo;s nachts genoeg verbruikt.
       </p>
 
+      {/* Vergelijking per batterijgrootte — bewust zichtbaar, niet in een
+          uitklapblok: dit is het antwoord op "waarom deze grootte" */}
+      <div>
+        <h3 className="mb-2 font-semibold text-slate-800">
+          Wij hebben alle batterijgroottes voor u doorgerekend
+        </h3>
+        <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white p-3">
+          <table className="w-full border-collapse text-right text-sm tabular-nums">
+            <thead>
+              <tr className="border-b border-slate-300 text-slate-600">
+                <th className="py-1 pr-2 text-left font-medium">Capaciteit</th>
+                <th className="py-1 pr-2 font-medium">Kosten</th>
+                <th className="py-1 pr-2 font-medium">Besparing/jaar</th>
+                <th className="py-1 pr-2 font-medium">Terugverdientijd</th>
+                <th className="py-1 font-medium">Rendement {LEVENSDUUR_JAAR} jaar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {result.capaciteitVergelijking.map((o) => (
+                <tr
+                  key={o.capaciteitKwh}
+                  className={
+                    result.aanbevolenCapaciteitKwh === o.capaciteitKwh
+                      ? 'border-b border-slate-100 bg-emerald-50 font-semibold'
+                      : 'border-b border-slate-100'
+                  }
+                >
+                  <td className="py-1 pr-2 text-left">{o.capaciteitKwh} kWh</td>
+                  <td className="py-1 pr-2">{fmtEuro(o.kosten)}</td>
+                  <td className="py-1 pr-2">{fmtEuro(o.jaarlijkseBesparing)}</td>
+                  <td className="py-1 pr-2">
+                    {o.terugverdientijdJaren !== null
+                      ? `${o.terugverdientijdJaren} jaar`
+                      : `> ${LEVENSDUUR_JAAR} jaar`}
+                  </td>
+                  <td className="py-1">{Math.round(o.roiPercentage)}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2 text-xs text-slate-500">
+          {result.aanbevolenCapaciteitKwh !== null
+            ? 'Groen gemarkeerd: de aanbevolen grootte (kortste terugverdientijd).'
+            : 'Geen enkele grootte verdient zich binnen de levensduur terug; de overige cijfers gaan uit van de minst ongunstige grootte.'}
+        </p>
+      </div>
+
       {/* c) CTA — het resultaat blijft altijd zichtbaar, de offerte is optioneel.
           Bij dynamisch + niet rendabel tonen wij de batterij-CTA niet: wij
           hebben zojuist gezegd dat een batterij hier niet past. */}
@@ -211,54 +259,6 @@ export default function ResultScreen({
               {rij('Rendement over de levensduur', `${Math.round(result.roiPercentage)}%`)}
             </tbody>
           </table>
-          </div>
-
-          <div>
-            <h3 className="mb-2 font-semibold text-slate-800">
-              Vergelijking per batterijgrootte
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-right tabular-nums">
-                <thead>
-                  <tr className="border-b border-slate-300 text-slate-600">
-                    <th className="py-1 pr-2 text-left font-medium">Capaciteit</th>
-                    <th className="py-1 pr-2 font-medium">Kosten</th>
-                    <th className="py-1 pr-2 font-medium">Besparing/jaar</th>
-                    <th className="py-1 pr-2 font-medium">Terugverdientijd</th>
-                    <th className="py-1 font-medium">
-                      Rendement {LEVENSDUUR_JAAR} jaar
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {result.capaciteitVergelijking.map((o) => (
-                    <tr
-                      key={o.capaciteitKwh}
-                      className={
-                        result.aanbevolenCapaciteitKwh === o.capaciteitKwh
-                          ? 'border-b border-slate-100 bg-emerald-50 font-semibold'
-                          : 'border-b border-slate-100'
-                      }
-                    >
-                      <td className="py-1 pr-2 text-left">{o.capaciteitKwh} kWh</td>
-                      <td className="py-1 pr-2">{fmtEuro(o.kosten)}</td>
-                      <td className="py-1 pr-2">{fmtEuro(o.jaarlijkseBesparing)}</td>
-                      <td className="py-1 pr-2">
-                        {o.terugverdientijdJaren !== null
-                          ? `${o.terugverdientijdJaren} jaar`
-                          : `> ${LEVENSDUUR_JAAR} jaar`}
-                      </td>
-                      <td className="py-1">{Math.round(o.roiPercentage)}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="mt-2 text-xs text-slate-500">
-              {result.aanbevolenCapaciteitKwh !== null
-                ? 'Groen gemarkeerd: de aanbevolen grootte (kortste terugverdientijd).'
-                : 'Geen enkele grootte verdient zich binnen de levensduur terug; de overige cijfers hieronder gaan uit van de minst ongunstige grootte.'}
-            </p>
           </div>
 
           <div>

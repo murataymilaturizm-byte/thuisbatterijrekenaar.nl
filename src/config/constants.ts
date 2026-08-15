@@ -24,12 +24,6 @@ export const ZELFVERBRUIK_BASIS = 0.30;
 /** Bovengrens zelfverbruik zonder batterij, incl. gedragsbonussen */
 export const ZELFVERBRUIK_CAP_ZONDER = 0.55;
 
-/**
- * Aandeel eigen verbruik mét thuisbatterij, middenwaarde (indicatief).
- * Sinds Paket 3.0 alleen nog gebruikt als illustratief cijfer in content;
- * de rekenmodule rekent capaciteitsafhankelijk via berekenExtraZelfverbruik.
- */
-export const ZELFVERBRUIK_MET_BATTERIJ = 0.65;
 
 /** Bonus op zelfverbruik: overdag thuis (schatting) */
 export const BONUS_OVERDAG_THUIS = 0.07;

@@ -1,10 +1,15 @@
-// Externe ankers voor kalibratie (10 kWh, dynamisch contract,
-// huishouden met zonnepanelen):
-//   salderingswijzer.nl/calculator  : € 360 - 470 per jaar
-//   batterijenplan.nl (20 profielen): gewogen gemiddelde € 750
-//   clyma.nl                        : € 350 - 600 uit handel
+// Externe ankers, geraadpleegd 15 augustus 2026 (10 kWh, dynamisch
+// contract, huishouden met zonnepanelen):
+//   salderingswijzer.nl/calculator   : € 360 - 470 per jaar
+//   batterijenplan.nl (20 profielen) : gewogen gemiddelde € 750
+//   clyma.nl                         : € 350 - 600 uit handel
+//
 // Ons model hoort binnen deze band te vallen. Valt het erbuiten,
 // dan klopt het model niet — pas het model aan, niet deze test.
+//
+// Deze band hoort periodiek opnieuw gecontroleerd te worden.
+// Marktomstandigheden (spread, prijzen, verzadiging onbalansmarkt)
+// veranderen; als de ankers verschuiven, verschuift de band mee.
 //
 // Referentiescenario: 3.500 kWh verbruik, 4.300 Wp, dynamisch contract,
 // overdag deels thuis, geen EV, geen warmtepomp, 10 kWh batterij.
