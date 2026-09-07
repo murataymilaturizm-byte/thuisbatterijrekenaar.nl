@@ -15,6 +15,8 @@ export const SITE = {
   },
   // PLACEHOLDER: contact-e-mailadres nog niet bevestigd door eigenaar
   contactEmail: 'info@thuisbatterijrekenaar.nl',
+  // Google Search Console-verificatie (openbaar, geen geheim)
+  googleSiteVerification: 'Vlej5eWe44v-KxJo-YMTD9jaNo7U621ILKwn20F1YLw',
   social: {
     // PLACEHOLDER: nog geen socialmediaprofielen
   },
