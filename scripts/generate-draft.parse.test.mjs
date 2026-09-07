@@ -5,7 +5,11 @@
  * frontmattervalidatie moet ontbrekende velden bij naam noemen.
  */
 import { describe, expect, it } from 'vitest';
-import { normaliseerAntwoord, valideerFrontmatter } from './generate-draft.mjs';
+import {
+  normaliseerAntwoord,
+  tekstUitContent,
+  valideerFrontmatter,
+} from './generate-draft.mjs';
 
 const schoneMdx = `---
 title: 'Testpagina | Thuisbatterijrekenaar'
@@ -59,6 +63,34 @@ describe('normaliseerAntwoord', () => {
   it('laat een antwoord zonder frontmatter herkenbaar ongeldig', () => {
     const zonder = 'Sorry, ik kan hier geen artikel over schrijven.';
     expect(normaliseerAntwoord(zonder).startsWith('---')).toBe(false);
+  });
+});
+
+describe('tekstUitContent', () => {
+  it('slaat thinking-blokken over en pakt de tekst — nooit positioneel', () => {
+    const content = [
+      { type: 'thinking', thinking: 'interne denkstappen…' },
+      { type: 'text', text: '---\ntitle: x\n---\n\nBody.' },
+    ];
+    expect(tekstUitContent(content)).toBe('---\ntitle: x\n---\n\nBody.');
+  });
+
+  it('voegt meerdere tekstblokken in volgorde samen', () => {
+    const content = [
+      { type: 'thinking', thinking: '…' },
+      { type: 'text', text: 'deel een ' },
+      { type: 'redacted_thinking', data: '…' },
+      { type: 'text', text: 'deel twee' },
+    ];
+    expect(tekstUitContent(content)).toBe('deel een deel twee');
+  });
+
+  it('geeft lege string terug wanneer er alleen thinking-blokken zijn — main stopt daar met een eigen foutmelding (exit 1), niet met "geen frontmatter"', () => {
+    const content = [
+      { type: 'thinking', thinking: '…' },
+      { type: 'redacted_thinking', data: '…' },
+    ];
+    expect(tekstUitContent(content)).toBe('');
   });
 });
 

@@ -195,6 +195,18 @@ export function normaliseerAntwoord(ruw) {
 }
 
 /**
+ * Alle tekstblokken uit een antwoord, in volgorde samengevoegd.
+ * Nooit positioneel (content[0]) lezen: met extended thinking staan er
+ * eerst thinking-/redacted_thinking-blokken vóór de tekst.
+ */
+export function tekstUitContent(content) {
+  return content
+    .filter((blok) => blok.type === 'text')
+    .map((blok) => blok.text)
+    .join('');
+}
+
+/**
  * Controleert de verplichte frontmattervelden van een concept.
  * Retourneert de lijst ontbrekende velden (leeg = in orde).
  */
@@ -279,22 +291,49 @@ async function main() {
   // de HTTP-timeout van de SDK aan.
   const stream = client.messages.stream({
     model: MODEL,
-    max_tokens: 16000,
+    // Thinking en tekst delen dit budget; bij 16000 kan de tekst in de
+    // verdrukking komen wanneer het model lang nadenkt.
+    max_tokens: 24000,
     thinking: { type: 'adaptive' },
     output_config: { effort: 'high' },
     messages: [{ role: 'user', content: prompt }],
   });
   const bericht = await stream.finalMessage();
 
+  const blokTypes = bericht.content.map((blok) => blok.type).join(', ');
+  console.log(`[generate-draft] stop_reason: ${bericht.stop_reason}`);
+  console.log(`[generate-draft] content blokken: ${bericht.content.length}`);
+  console.log(`[generate-draft] blok types: ${blokTypes}`);
+  console.log(
+    `[generate-draft] usage: ${bericht.usage.input_tokens}/${bericht.usage.output_tokens}`,
+  );
+
   if (bericht.stop_reason === 'refusal') {
     console.error('[generate-draft] Model weigerde het verzoek — geen concept geschreven.');
     process.exit(1);
   }
 
-  const ruw = bericht.content
-    .filter((blok) => blok.type === 'text')
-    .map((blok) => blok.text)
-    .join('');
+  const ruw = tekstUitContent(bericht.content);
+
+  if (ruw.trim() === '') {
+    console.error('[generate-draft] Geen tekstblok in het antwoord.');
+    console.error(`  stop_reason: ${bericht.stop_reason}`);
+    console.error(`  blok types: ${blokTypes}`);
+    console.error(
+      '[generate-draft] Mogelijke oorzaken: max_tokens te laag (thinking verbruikt budget), ' +
+        'of alleen thinking-blokken teruggekomen.',
+    );
+    process.exit(1);
+  }
+
+  if (bericht.stop_reason === 'max_tokens') {
+    // Er ís tekst, maar het artikel is halverwege afgekapt: zo'n concept
+    // lijkt geldig en glipt door de checks — daarom hard stoppen.
+    console.error(
+      '[generate-draft] Antwoord afgekapt (stop_reason: max_tokens) — onvolledig concept niet weggeschreven.',
+    );
+    process.exit(1);
+  }
 
   const mdx = normaliseerAntwoord(ruw);
 
