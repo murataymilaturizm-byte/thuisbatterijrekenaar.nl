@@ -108,6 +108,7 @@ description: '<meta description, 140-160 tekens>'
 h1: '<H1 van de pagina>'
 gepubliceerd: '${vandaag}'
 cluster: '${onderwerp.cluster}'
+zoekintentie: '${onderwerp.zoekintentie}'
 published: false
 gegenereerd: '${vandaag}'
 aiGegenereerd: true
@@ -147,7 +148,76 @@ frontmatter).
 - Beweren dat een thuisbatterij altijd rendabel is.
 
 Geef uitsluitend de inhoud van het MDX-bestand terug, zonder codeblok-hekjes
-eromheen en zonder begeleidende tekst.`;
+eromheen en zonder begeleidende tekst.
+
+BELANGRIJK — uitvoerformaat:
+Begin je antwoord direct met de regel \`---\` (het begin van de
+frontmatter). Geen inleiding, geen uitleg, geen codeblok-fences,
+geen afsluitende opmerking. Het volledige antwoord is het
+MDX-bestand zelf en niets anders.`;
+}
+
+/**
+ * Modeluitvoer → schone MDX. Modellen verpakken het antwoord soms in een
+ * codeblok of zetten er een inleidende zin boven; dat is verpakking, geen
+ * inhoud. Volgorde bewust: eerst fences strippen, dán de aanloop wegsnijden —
+ * anders blijft een fence-regel vóór de frontmatter staan.
+ */
+export function normaliseerAntwoord(ruw) {
+  let tekst = ruw.trim();
+
+  // 1) Codeblok-fences: ```markdown / ```mdx / ``` aan het begin,
+  //    bijbehorende ``` aan het eind (indien aanwezig).
+  const fence = /^```[a-z]*[ \t]*\r?\n/i.exec(tekst);
+  if (fence) {
+    tekst = tekst.slice(fence[0].length);
+    tekst = tekst.replace(/\r?\n```[ \t]*$/, '');
+    tekst = tekst.trim();
+  }
+
+  // 2) Aanloop: begint het antwoord nog niet met frontmatter, snijd dan
+  //    alles weg vóór de eerste regel die met --- begint. Bevatte de
+  //    weggesneden aanloop zelf een openende fence ("Hier is het artikel:"
+  //    gevolgd door ```markdown), verwijder dan ook de bijbehorende
+  //    sluitende fence aan het eind.
+  if (!tekst.startsWith('---')) {
+    const m = /^---/m.exec(tekst);
+    if (m) {
+      const aanloop = tekst.slice(0, m.index);
+      tekst = tekst.slice(m.index);
+      if (/```/.test(aanloop)) {
+        tekst = tekst.replace(/\r?\n```[ \t]*$/, '');
+      }
+    }
+  }
+
+  return tekst.trim();
+}
+
+/**
+ * Controleert de verplichte frontmattervelden van een concept.
+ * Retourneert de lijst ontbrekende velden (leeg = in orde).
+ */
+export function valideerFrontmatter(mdx) {
+  const blok = /^---\r?\n([\s\S]*?)\r?\n---/.exec(mdx);
+  if (!blok) return ['frontmatter-blok (--- … ---)'];
+  const fm = blok[1];
+
+  const ontbreekt = [];
+  for (const veld of [
+    'title',
+    'description',
+    'cluster',
+    'gegenereerd',
+    'aiGegenereerd',
+    'zoekintentie',
+  ]) {
+    if (!new RegExp(`^${veld}:`, 'm').test(fm)) ontbreekt.push(veld);
+  }
+  // published moet niet alleen bestaan, maar expliciet false zijn:
+  // nooit automatisch publiceren.
+  if (!/^published:\s*false\s*$/m.test(fm)) ontbreekt.push('published: false');
+  return ontbreekt;
 }
 
 async function main() {
@@ -221,14 +291,27 @@ async function main() {
     process.exit(1);
   }
 
-  const mdx = bericht.content
+  const ruw = bericht.content
     .filter((blok) => blok.type === 'text')
     .map((blok) => blok.text)
-    .join('')
-    .trim();
+    .join('');
+
+  const mdx = normaliseerAntwoord(ruw);
 
   if (!mdx.startsWith('---')) {
     console.error('[generate-draft] Antwoord begint niet met frontmatter — niet weggeschreven.');
+    console.error('[generate-draft] Eerste 500 tekens van het antwoord:');
+    console.error(ruw.slice(0, 500));
+    process.exit(1);
+  }
+
+  const ontbrekend = valideerFrontmatter(mdx);
+  if (ontbrekend.length > 0) {
+    console.error(
+      `[generate-draft] Frontmatter onvolledig — niet weggeschreven. Ontbreekt: ${ontbrekend.join(', ')}`,
+    );
+    console.error('[generate-draft] Eerste 500 tekens van het antwoord:');
+    console.error(ruw.slice(0, 500));
     process.exit(1);
   }
 
@@ -250,4 +333,9 @@ async function main() {
   console.log(`[generate-draft] TITEL=${onderwerp.titel}`);
 }
 
-await main();
+// Alleen draaien bij directe aanroep (node scripts/generate-draft.mjs);
+// bij import (parser-tests) draait main() niet.
+const directGestart =
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (directGestart) await main();
