@@ -6,5 +6,77 @@
     "zoekintentie": "Is een thuisbatterij brandveilig, en waar moet ik op letten bij plaatsing?",
     "informatiewinst": "Installateurs schrijven hier nauwelijks over omdat het een verkoopnadeel is. Wij benoemen de risico's, leggen uit wat wel en niet vaststaat, en zeggen expliciet in welke situaties plaatsing onverstandig is.",
     "status": "concept"
+  },
+  {
+    "slug": "welke-capaciteit-thuisbatterij",
+    "titel": "Welke capaciteit thuisbatterij past bij mijn huishouden?",
+    "cluster": "basis",
+    "zoekintentie": "Hoeveel kWh heb ik nodig, en levert een grotere batterij meer op?",
+    "informatiewinst": "Wij rekenen alle beschikbare groottes volledig door en tonen de vergelijking. Concurrenten gebruiken een vuistregel (dagverbruik x factor). Wij leggen de derde grens uit die zij weglaten: u kunt een batterij alleen ontladen als u buiten zonuren genoeg verbruikt. Grotere batterij is vaak slechter.",
+    "status": "wachtrij"
+  },
+  {
+    "slug": "thuisbatterij-bij-vast-contract",
+    "titel": "Thuisbatterij met een vast energiecontract: waarom het meestal niet uitkomt",
+    "cluster": "dynamisch",
+    "zoekintentie": "Ik heb een vast contract — is een thuisbatterij dan zinvol?",
+    "informatiewinst": "Geen enkele verkopende partij schrijft deze pagina, want het antwoord is meestal nee. Onze rekenmotor komt bij een vast contract bij geen enkele capaciteit uit binnen 15 jaar. Wij tonen dat met de opbouw erbij, en leggen uit welke stap wel verschil maakt.",
+    "status": "wachtrij"
+  },
+  {
+    "slug": "energiemanagementsysteem-ems",
+    "titel": "Wat is een EMS en waarom hebt u het nodig?",
+    "cluster": "regelgeving",
+    "zoekintentie": "Wat doet een energiemanagementsysteem en heb ik het verplicht nodig?",
+    "informatiewinst": "De Belastingdienst stelt een EMS waarmee in stroom gehandeld kan worden als expliciete voorwaarde voor btw-teruggaaf. Vrijwel geen enkele pagina over EMS legt dat fiscale verband. Wij koppelen de techniek aan de fiscale voorwaarde.",
+    "status": "wachtrij"
+  },
+  {
+    "slug": "thuisbatterij-levensduur-en-degradatie",
+    "titel": "Levensduur en degradatie: hoeveel capaciteit verliest een thuisbatterij?",
+    "cluster": "basis",
+    "zoekintentie": "Hoe lang gaat een thuisbatterij mee en wat betekent capaciteitsverlies voor mijn opbrengst?",
+    "informatiewinst": "Wij rekenen degradatie expliciet mee in een cashflow over 15 jaar en tonen per jaar wat er overblijft. Veel rekenhulpen delen simpelweg investering door jaarbesparing en negeren degradatie volledig — dat geeft een te rooskleurige terugverdientijd.",
+    "status": "wachtrij"
+  },
+  {
+    "slug": "onbalansmarkt-en-netdiensten",
+    "titel": "Onbalansmarkt en netdiensten: waarom wij er niet mee rekenen",
+    "cluster": "dynamisch",
+    "zoekintentie": "Kan ik extra verdienen door mijn batterij aan de onbalansmarkt aan te bieden?",
+    "informatiewinst": "Aanbieders noemen dit als extra opbrengst. Wij leggen uit waarom wij het bewust NIET meerekenen: de opbrengsten dalen jaar op jaar, ze zijn niet voorspelbaar, u hebt een aggregator nodig, en er speelt de kwestie van dubbele energiebelasting. Transparantie over wat wij weglaten is zelf de informatiewinst.",
+    "status": "wachtrij"
+  },
+  {
+    "slug": "thuisbatterij-en-elektrische-auto",
+    "titel": "Thuisbatterij en elektrische auto: versterken of beconcurreren ze elkaar?",
+    "cluster": "segment",
+    "zoekintentie": "Heb ik nog een thuisbatterij nodig als ik een EV thuis laad?",
+    "informatiewinst": "Een EV verhoogt uw verbruik buiten zonuren en maakt een batterij dus kansrijker — maar de auto concurreert ook om hetzelfde overschot. Wij laten met de rekenmachine zien hoe de aanbevolen capaciteit verandert met en zonder EV. Die wisselwerking staat nergens uitgerekend.",
+    "status": "wachtrij"
+  },
+  {
+    "slug": "netcongestie-en-thuisbatterijen",
+    "titel": "Helpen thuisbatterijen tegen netcongestie, of maken ze het erger?",
+    "cluster": "regelgeving",
+    "zoekintentie": "Draagt mijn thuisbatterij bij aan een stabieler net?",
+    "informatiewinst": "Het kabinet wijst er zelf op dat batterijen die massaal tegelijk reageren op een lage stroomprijs lokale congestie juist kunnen verergeren. Verkooppagina's noemen alleen het positieve verhaal. Wij brengen beide kanten en leggen uit wat dat voor toekomstig beleid kan betekenen.",
+    "status": "wachtrij"
+  },
+  {
+    "slug": "garantie-thuisbatterij",
+    "titel": "Garantie op een thuisbatterij: waar u op moet letten",
+    "cluster": "regelgeving",
+    "zoekintentie": "Wat dekt de garantie op mijn thuisbatterij en wanneer vervalt die?",
+    "informatiewinst": "Garantie wordt bijna altijd uitgedrukt in cycli of behouden capaciteit na X jaar, niet in kalenderjaren — dat verschil bepaalt of uw garantie meegaat met uw gebruik. Wij koppelen dit aan onze degradatieaanname en aan de eis van een correct installatiecertificaat.",
+    "status": "wachtrij"
+  },
+  {
+    "slug": "thuisbatterij-en-warmtepomp",
+    "titel": "Thuisbatterij en warmtepomp: wat betekent de winter voor uw rendement?",
+    "cluster": "segment",
+    "zoekintentie": "Werkt een thuisbatterij samen met mijn warmtepomp?",
+    "informatiewinst": "Een warmtepomp verbruikt het meest in de winter, precies wanneer er nauwelijks zonneoverschot is. Wij leggen die seizoensmismatch uit en laten zien waarom onze berekening een seizoensfactor toepast — een correctie die de meeste rekenhulpen niet maken.",
+    "status": "wachtrij"
   }
 ]

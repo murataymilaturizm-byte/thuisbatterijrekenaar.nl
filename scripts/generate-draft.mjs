@@ -64,7 +64,7 @@ async function constantenSamenvatting() {
   return regels.join('\n');
 }
 
-function bouwPrompt({ onderwerp, paginas, constanten, vandaag }) {
+function bouwPrompt({ onderwerp, paginas, constanten, vandaag, vandaagNl }) {
   const paginalijst = paginas
     .map((p) => `- ${p.url} — ${p.titel} (cluster: ${p.cluster})`)
     .join('\n');
@@ -130,7 +130,9 @@ frontmatter).
 4. Minstens twee links naar andere bestaande pagina's uit de lijst hierboven,
    bij voorkeur uit hetzelfde cluster.
 5. Sluit af met een sectie "### Bronnen" met de bronnen die je noemt, en
-   daaronder de zin: "Deze pagina is voor het laatst gecontroleerd op ${vandaag}."
+   daaronder de zin: "Deze pagina is voor het laatst gecontroleerd op ${vandaagNl}."
+   (In zichtbare tekst altijd de Nederlandse datumnotatie; ISO-datums horen
+   alleen in de frontmatter.)
 
 ## Absoluut verboden
 - Statistieken, percentages, tarieven of bedragen verzinnen. Noem alleen
@@ -184,11 +186,20 @@ async function main() {
   }
 
   const vandaag = new Date().toISOString().slice(0, 10);
+  // Zichtbare datum in Nederlandse notatie ("15 augustus 2026"); ISO alleen
+  // voor frontmatter-velden.
+  const vandaagNl = new Date().toLocaleDateString('nl-NL', {
+    timeZone: 'Europe/Amsterdam',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
   const prompt = bouwPrompt({
     onderwerp,
     paginas: await bestaandePaginas(),
     constanten: await constantenSamenvatting(),
     vandaag,
+    vandaagNl,
   });
 
   const client = new Anthropic({ apiKey });
