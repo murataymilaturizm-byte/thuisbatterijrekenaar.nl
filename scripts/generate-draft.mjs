@@ -195,6 +195,18 @@ export function normaliseerAntwoord(ruw) {
 }
 
 /**
+ * Assistant-prefill: het model gaat verder ná deze tekens en kan dus geen
+ * inleiding of fence meer vóór de frontmatter zetten. Het vervolg mist deze
+ * tekens; herstelPrefill() plakt ze terug (met een gegarandeerde regelbreuk,
+ * zodat '---' + 'title:' nooit aan elkaar kleeft).
+ */
+export const PREFILL = '---';
+
+export function herstelPrefill(vervolg) {
+  return PREFILL + (/^\r?\n/.test(vervolg) ? '' : '\n') + vervolg;
+}
+
+/**
  * Alle tekstblokken uit een antwoord, in volgorde samengevoegd.
  * Nooit positioneel (content[0]) lezen: met extended thinking staan er
  * eerst thinking-/redacted_thinking-blokken vóór de tekst.
@@ -289,14 +301,20 @@ async function main() {
 
   // Streamen: een artikel van 1200 woorden met denkstappen loopt anders tegen
   // de HTTP-timeout van de SDK aan.
+  // Zonder extended thinking: artikelproductie is geen diepe redeneertaak,
+  // en in de praktijk at het denken het volledige tokenbudget op
+  // (stop_reason max_tokens bij 24000, artikel alsnog afgekapt).
+  // De assistant-prefill ('---') dwingt het antwoord direct in de
+  // frontmatter: geen inleiding, geen codeblok-fences mogelijk.
   const stream = client.messages.stream({
     model: MODEL,
-    // Thinking en tekst delen dit budget; bij 16000 kan de tekst in de
-    // verdrukking komen wanneer het model lang nadenkt.
-    max_tokens: 24000,
-    thinking: { type: 'adaptive' },
-    output_config: { effort: 'high' },
-    messages: [{ role: 'user', content: prompt }],
+    // 1200 woorden Nederlands + frontmatter + FAQ ≈ 2000-2500 tokens;
+    // 8000 is ruim zonder een afgekapt artikel te riskeren.
+    max_tokens: 8000,
+    messages: [
+      { role: 'user', content: prompt },
+      { role: 'assistant', content: PREFILL },
+    ],
   });
   const bericht = await stream.finalMessage();
 
@@ -313,9 +331,9 @@ async function main() {
     process.exit(1);
   }
 
-  const ruw = tekstUitContent(bericht.content);
+  const vervolg = tekstUitContent(bericht.content);
 
-  if (ruw.trim() === '') {
+  if (vervolg.trim() === '') {
     console.error('[generate-draft] Geen tekstblok in het antwoord.');
     console.error(`  stop_reason: ${bericht.stop_reason}`);
     console.error(`  blok types: ${blokTypes}`);
@@ -335,6 +353,8 @@ async function main() {
     process.exit(1);
   }
 
+  // De prefill-tekens terugplakken; normaliseren blijft als vangnet staan.
+  const ruw = herstelPrefill(vervolg);
   const mdx = normaliseerAntwoord(ruw);
 
   if (!mdx.startsWith('---')) {
