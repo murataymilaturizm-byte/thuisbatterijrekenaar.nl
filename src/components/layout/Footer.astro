@@ -1,5 +1,5 @@
 ---
-import { LAATST_BIJGEWERKT } from '../../config/constants';
+import { datumNl, LAATST_BIJGEWERKT } from '../../config/constants';
 import { SITE } from '../../config/site';
 
 const jaar = new Date().getFullYear();
@@ -10,7 +10,7 @@ const jaar = new Date().getFullYear();
     <p class="mb-4">
       {SITE.naam} wordt onafhankelijk beheerd door {SITE.eigenaar.naam}. Wij
       verkopen zelf geen thuisbatterijen en zijn niet verbonden aan een
-      energieleverancier of installateur. Cijfers laatst bijgewerkt op {LAATST_BIJGEWERKT}.
+      energieleverancier of installateur. Cijfers laatst bijgewerkt op {datumNl(LAATST_BIJGEWERKT)}.
     </p>
     <nav aria-label="Voettekstnavigatie">
       <ul class="flex flex-wrap gap-x-5 gap-y-2">

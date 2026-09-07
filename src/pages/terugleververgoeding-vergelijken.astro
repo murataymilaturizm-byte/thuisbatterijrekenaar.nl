@@ -3,6 +3,7 @@ import {
   LAATST_BIJGEWERKT,
   LEVERANCIER_DATA_MAX_LEEFTIJD_DAGEN,
   TERUGLEVERVERGOEDING_AANDEEL,
+  datumNl,
   euro,
   pct,
 } from '../config/constants';
@@ -105,14 +106,15 @@ const jsonLd = [
   <h1 class="mb-2 text-3xl font-extrabold tracking-tight text-slate-900">
     Terugleververgoeding vergelijken per leverancier
   </h1>
-  <p class="mb-6 text-sm text-slate-500">Laatst bijgewerkt: {LAATST_BIJGEWERKT}</p>
+  <p class="mb-6 text-sm text-slate-500">Laatst bijgewerkt: {datumNl(LAATST_BIJGEWERKT)}</p>
 
   <p class="mb-6 leading-relaxed text-slate-700">
     Zodra de <a href="/saldering-stopt-2027/" class="underline">saldering stopt</a>,
     wordt de terugleververgoeding de belangrijkste knop in uw
     energiecontract als zonnepaneelbezitter. Tegelijk rekenen veel
-    leveranciers
-    <a href="/terugleverkosten/" class="underline">terugleverkosten</a>.
+    leveranciers <a
+      href="/terugleverkosten/"
+      class="underline">terugleverkosten</a>.
     Beide verschillen sterk per leverancier — vergelijken loont.
   </p>
 
@@ -216,8 +218,9 @@ const jsonLd = [
       <li>
         <strong>Terugleverkosten</strong> — wat sommige leveranciers rekenen
         voor het terugleveren zelf, als vast maandbedrag of afhankelijk van
-        uw volume. Hoe dat werkt leest u op
-        <a href="/terugleverkosten/" class="underline">terugleverkosten</a>.
+        uw volume. Hoe dat werkt leest u op <a
+          href="/terugleverkosten/"
+          class="underline">terugleverkosten</a>.
       </li>
       <li>
         <strong>Het verschil met het leveringstarief</strong> — dit is wat u
@@ -260,8 +263,9 @@ const jsonLd = [
       </li>
     </ol>
     <p>
-      Overweegt u over te stappen op uurprijzen, lees dan eerst
-      <a href="/dynamisch-energiecontract-met-zonnepanelen/" class="underline"
+      Overweegt u over te stappen op uurprijzen, lees dan eerst <a
+        href="/dynamisch-energiecontract-met-zonnepanelen/"
+        class="underline"
         >wanneer een dynamisch contract verstandig is</a
       > — en wanneer niet.
     </p>

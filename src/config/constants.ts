@@ -144,6 +144,10 @@ export interface Uitgangspunt {
 export const euro = (n: number) => `€ ${n.toFixed(2).replace('.', ',')}`;
 export const pct = (n: number) => `${Math.round(n * 100)}%`;
 
+/** Getal → Nederlandse notatie met decimale komma ("0,88", "1,5", "1.200") */
+export const getalNl = (n: number) =>
+  n.toLocaleString('nl-NL', { maximumFractionDigits: 3 });
+
 /** ISO-datum → "1 januari 2027" (nl-NL), zodat data uit één bron komen */
 export const datumNl = (iso: string) =>
   new Date(`${iso}T00:00:00Z`).toLocaleDateString('nl-NL', {
@@ -156,7 +160,7 @@ export const datumNl = (iso: string) =>
 export const UITGANGSPUNTEN: Uitgangspunt[] = [
   {
     label: 'Opbrengst zonnepanelen',
-    waarde: `${SPECIFIEKE_OPBRENGST} kWh per Wp per jaar`,
+    waarde: `${getalNl(SPECIFIEKE_OPBRENGST)} kWh per Wp per jaar`,
     bron: 'Nederlands gemiddelde (o.a. Milieu Centraal)',
   },
   {
@@ -196,22 +200,22 @@ export const UITGANGSPUNTEN: Uitgangspunt[] = [
   },
   {
     label: 'Terugleverkosten',
-    waarde: `€ ${TERUGLEVERKOSTEN_JAAR} per jaar`,
+    waarde: `€ ${getalNl(TERUGLEVERKOSTEN_JAAR)} per jaar`,
     bron: 'Indicatief gemiddelde over energieleveranciers',
   },
   {
     label: 'Prijs thuisbatterij',
-    waarde: `€ ${BATTERIJ_PRIJS_PER_KWH} per kWh + € ${BATTERIJ_VASTE_KOSTEN} vaste kosten, geïnstalleerd`,
+    waarde: `€ ${getalNl(BATTERIJ_PRIJS_PER_KWH)} per kWh + € ${getalNl(BATTERIJ_VASTE_KOSTEN)} vaste kosten, geïnstalleerd`,
     bron: 'Indicatieve marktprijs',
   },
   {
     label: 'Verbruiksschatting',
-    waarde: `${VERBRUIK_BASIS_HUISHOUDEN} kWh basis + ${VERBRUIK_PER_PERSOON} kWh per persoon`,
+    waarde: `${getalNl(VERBRUIK_BASIS_HUISHOUDEN)} kWh basis + ${getalNl(VERBRUIK_PER_PERSOON)} kWh per persoon`,
     bron: 'Schatting op basis van openbare verbruikscijfers',
   },
   {
     label: 'Vermogen per zonnepaneel',
-    waarde: `${WATTPIEK_PER_PANEEL} Wp`,
+    waarde: `${getalNl(WATTPIEK_PER_PANEEL)} Wp`,
     bron: 'Gangbaar modern paneel, indicatief',
   },
   {
@@ -246,12 +250,12 @@ export const UITGANGSPUNTEN: Uitgangspunt[] = [
   },
   {
     label: 'Cycli per etmaal (zelfverbruik + arbitrage samen)',
-    waarde: `maximaal ${MAX_CYCLI_PER_DAG}`,
+    waarde: `maximaal ${getalNl(MAX_CYCLI_PER_DAG)}`,
     bron: 'Aanname: zonnecyclus overdag + arbitragecyclus ’s nachts; past binnen de cyclusspecificatie van LFP-cellen',
   },
   {
     label: 'Omvormervermogen',
-    waarde: `${AANSLUITVERMOGEN_KW} kW, laadvenster ${LAADVENSTER_UREN} uur`,
+    waarde: `${getalNl(AANSLUITVERMOGEN_KW)} kW, laadvenster ${getalNl(LAADVENSTER_UREN)} uur`,
     bron: 'Aanname, gangbaar voor thuisbatterijen',
   },
   {

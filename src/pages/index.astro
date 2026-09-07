@@ -29,12 +29,12 @@ const faq: FaqItem[] = [
   {
     vraag: 'Wat gebeurt er met mijn gegevens?',
     antwoord:
-      'De rekenaar draait volledig in uw browser; uw invoer wordt niet opgeslagen. Alleen als u zelf een offerte aanvraagt, worden de gegevens uit het formulier gedeeld met maximaal drie installateurs — uitsluitend met uw toestemming.',
+      'De rekenaar draait volledig in uw browser; uw invoer wordt niet opgeslagen en niet naar ons verstuurd.\n\nWij werken op dit moment nog niet samen met installateurs of energieleveranciers. Zodra dat verandert, staat op deze site precies vermeld met welke partij uw gegevens worden gedeeld en waarvoor — en gebeurt dat uitsluitend nadat u daar zelf toestemming voor geeft.',
   },
   {
-    vraag: 'Wat kost het aanvragen van offertes?',
+    vraag: 'Verdient u geld aan deze rekenaar?',
     antwoord:
-      'Niets. De offerteaanvraag is gratis en vrijblijvend. Wij ontvangen een vergoeding van de deelnemende installateurs; dat heeft geen invloed op de uitkomst van de berekening.',
+      'Op dit moment niet. Wij hebben nog geen samenwerking met installateurs of energieleveranciers. Als dat er komt, vermelden wij dat openlijk op deze pagina en in onze uitgangspunten. Onze rekenmethode staat volledig openbaar en verandert daar niet door.',
   },
 ];
 
@@ -65,8 +65,9 @@ const marktData: MarktData = {
       Op 1 januari 2027 stopt de salderingsregeling. Vanaf dat moment mag u
       teruggeleverde zonnestroom niet meer wegstrepen tegen uw verbruik en
       krijgt u er alleen nog een beperkte terugleververgoeding voor. Daarnaast
-      rekenen steeds meer energieleveranciers
-      <a href="/terugleverkosten/" class="underline">terugleverkosten</a> voor
+      rekenen steeds meer energieleveranciers <a
+        href="/terugleverkosten/"
+        class="underline">terugleverkosten</a> voor
       huishoudens die stroom invoeden. Beide ontwikkelingen drukken het
       rendement van zonnepanelen — vooral voor wie overdag weinig thuis is.
     </p>
@@ -78,6 +79,23 @@ const marktData: MarktData = {
       besparing mét batterij, inclusief terugverdientijd. Komt er geen
       rendabele uitkomst uit, dan zeggen we dat gewoon.
     </p>
+    <h2 class="text-2xl font-bold text-slate-900">
+      Het contracttype weegt vaak zwaarder dan de batterij
+    </h2>
+    <p>
+      Uit onze berekeningen komt telkens hetzelfde beeld naar voren: bij een
+      vast energiecontract komt een thuisbatterij in veel situaties niet uit
+      binnen vijftien jaar. Bij een dynamisch contract verandert dat, omdat er
+      dan een tweede opbrengststroom bij komt — het prijsverschil tussen
+      goedkope en dure uren.
+    </p>
+    <p>
+      Overweegt u een batterij, kijk dan eerst naar uw contract. Dat is
+      gratis, omkeerbaar, en bepaalt of de rest van de rekensom überhaupt
+      uitkomt. Lees meer over <a
+        href="/dynamisch-energiecontract-met-zonnepanelen/"
+        class="underline">een dynamisch energiecontract met zonnepanelen</a>.
+    </p>
     <h2 class="text-2xl font-bold text-slate-900">Hoe werkt de rekenaar?</h2>
     <p>
       U beantwoordt zes korte vragen over uw postcode, verbruik,
@@ -85,14 +103,13 @@ const marktData: MarktData = {
       jaarproductie, uw zelfverbruik en uw teruglevering, en rekenen wij uit
       wat het einde van de saldering u kost en wat een thuisbatterij u
       bespaart. Alle aannames — van het leveringstarief tot de batterijprijs —
-      staan volledig openbaar op de pagina
-      <a href="/uitgangspunten/" class="underline">uitgangspunten</a>, inclusief
+      staan volledig openbaar op de pagina <a
+        href="/uitgangspunten/"
+        class="underline">uitgangspunten</a>, inclusief
       de datum van de laatste update. Meer achtergrond leest u in onze
-      artikelen over het
-      <a href="/saldering-stopt-2027/" class="underline"
+      artikelen over het <a href="/saldering-stopt-2027/" class="underline"
         >einde van de saldering</a
-      > en het
-      <a href="/thuisbatterij-rendement/" class="underline"
+      > en het <a href="/thuisbatterij-rendement/" class="underline"
         >rendement van een thuisbatterij</a
       >.
     </p>
@@ -109,7 +126,7 @@ const marktData: MarktData = {
             <summary class="cursor-pointer font-semibold text-slate-800">
               {item.vraag}
             </summary>
-            <p class="mt-2 text-slate-700">{item.antwoord}</p>
+            <p class="mt-2 whitespace-pre-line text-slate-700">{item.antwoord}</p>
           </details>
         ))
       }

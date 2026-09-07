@@ -20,9 +20,11 @@ Wat wij NIET doen — dit bepaalt de betrouwbaarheid van onze cijfers:
   letterlijk in de tekst in plaats van een schatting.
 - Wij beweren nergens dat een thuisbatterij altijd rendabel is.
 
-Inkomsten komen uit vrijblijvende offerteaanvragen die bezoekers zelf starten
-ná de berekening. Dat beïnvloedt de uitkomst van de rekenaar niet: iedereen
-krijgt dezelfde berekening.
+Op dit moment verdienen wij niets aan deze site: er is nog geen
+samenwerking met installateurs of energieleveranciers en de offerteservice
+is nog niet actief. Komt die samenwerking er, dan vermelden wij dat
+openlijk op de site. Dat beïnvloedt de uitkomst van de rekenaar niet:
+iedereen krijgt dezelfde berekening.
 
 Artikelen worden met behulp van AI opgesteld en vóór publicatie menselijk
 gecontroleerd en geredigeerd. De redactionele verantwoordelijkheid ligt bij

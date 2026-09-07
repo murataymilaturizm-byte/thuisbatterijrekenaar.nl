@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { fmtCapaciteit } from './format';
 import { submitLead } from '../../lib/lead/adapter';
 import type { LeadPayload } from '../../lib/lead/adapter';
 
@@ -66,10 +67,13 @@ export default function LeadForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-      <h3 className="text-xl font-bold text-slate-900">Vraag 3 offertes aan</h3>
+      <h3 className="text-xl font-bold text-slate-900">Offerte aanvragen</h3>
       <p className="text-sm text-slate-600">
-        Wij zijn onafhankelijk en verkopen zelf geen batterijen. Uw aanvraag
-        wordt doorgestuurd naar maximaal drie installateurs.
+        Wij zijn onafhankelijk en verkopen zelf geen batterijen. De
+        offerteservice is nog niet actief: wij werken op dit moment nog niet
+        samen met installateurs. Uw gegevens worden daarom nog niet verstuurd
+        of opgeslagen. Zodra dat verandert, staat hier precies met welke
+        partij gegevens worden gedeeld.
       </p>
 
       <div className="grid grid-cols-1 gap-3 rounded-lg bg-slate-50 p-4 text-sm text-slate-700 sm:grid-cols-3">
@@ -79,7 +83,7 @@ export default function LeadForm({
         </div>
         <div>
           <span className="block font-semibold">Capaciteit</span>
-          {capaciteitKwh} kWh
+          {fmtCapaciteit(capaciteitKwh)}
         </div>
         <div>
           <span className="block font-semibold">Jaarverbruik</span>
@@ -151,7 +155,7 @@ export default function LeadForm({
           <a href="/privacyverklaring" className="underline" target="_blank">
             privacyverklaring
           </a>{' '}
-          en met het delen van mijn gegevens met maximaal drie installateurs.
+          en wil een offerte zodra de offerteservice actief is.
         </span>
       </label>
 

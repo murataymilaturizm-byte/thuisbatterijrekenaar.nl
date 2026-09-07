@@ -1,5 +1,5 @@
 ---
-import { LAATST_BIJGEWERKT, PRIJS_DATA_MAX_LEEFTIJD_UUR, euro } from '../config/constants';
+import { LAATST_BIJGEWERKT, PRIJS_DATA_MAX_LEEFTIJD_UUR, datumNl, euro } from '../config/constants';
 import prijsDataJson from '../data/prices.json';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import type { PrijsData } from '../lib/data/prices';
@@ -150,7 +150,7 @@ const prijsKleur = (prijs: number) =>
 
   <section class="mb-8">
     <h2 class="mb-3 text-2xl font-bold text-slate-900">
-      Vandaag ({prijsData.datumVandaag})
+      Vandaag ({datumNl(prijsData.datumVandaag)})
     </h2>
     <p class="mb-3 text-sm text-slate-600">
       De drie goedkoopste uren van vandaag zijn groen gemarkeerd:{' '}
@@ -251,8 +251,10 @@ const prijsKleur = (prijs: number) =>
       De negatieve uren laten zien hoe vaak stroom "gratis" was in de
       afgelopen 30 dagen. Voor zonnepaneelbezitters zijn dat de uren waarop
       terugleveren niets oplevert of zelfs geld kost — een van de redenen
-      waarom <a href="/terugleverkosten/" class="underline">terugleverkosten</a>
-      bestaan en opslag aantrekkelijker wordt.
+      waarom <a
+        href="/terugleverkosten/"
+        class="underline">terugleverkosten</a> bestaan en opslag
+      aantrekkelijker wordt.
     </p>
   </section>
 

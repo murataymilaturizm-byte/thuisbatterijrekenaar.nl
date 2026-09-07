@@ -6,7 +6,7 @@ import {
   UITGANGSPUNTEN,
 } from '../../config/constants';
 import type { CalcResult, MarktData } from '../../lib/calc/types';
-import { fmtEuro, fmtKwh } from './format';
+import { fmtCapaciteit, fmtEuro, fmtKwh } from './format';
 
 interface Props {
   result: CalcResult;
@@ -162,7 +162,7 @@ export default function ResultScreen({
       {result.aanbevolenCapaciteitKwh !== null && (
         <p className="rounded-lg bg-slate-50 p-4 text-center text-lg text-slate-800">
           Aanbevolen capaciteit:{' '}
-          <strong>{result.aanbevolenCapaciteitKwh} kWh</strong>{' '}
+          <strong>{fmtCapaciteit(result.aanbevolenCapaciteitKwh)}</strong>{' '}
           <span className="text-slate-500">
             (indicatieve kosten: {fmtEuro(result.batterijKosten)}, geïnstalleerd)
           </span>
@@ -218,7 +218,7 @@ export default function ResultScreen({
                       : 'border-b border-slate-100'
                   }
                 >
-                  <td className="py-1 pr-2 text-left">{o.capaciteitKwh} kWh</td>
+                  <td className="py-1 pr-2 text-left">{fmtCapaciteit(o.capaciteitKwh)}</td>
                   <td className="py-1 pr-2">{fmtEuro(o.kosten)}</td>
                   <td className="py-1 pr-2">{fmtEuro(o.jaarlijkseBesparing)}</td>
                   <td className="py-1 pr-2">
@@ -248,7 +248,7 @@ export default function ResultScreen({
           onClick={onOfferteClick}
           className="w-full rounded-lg bg-emerald-600 px-6 py-4 text-lg font-bold text-white transition hover:bg-emerald-700"
         >
-          Vraag 3 offertes aan
+          Offerte aanvragen
         </button>
       )}
 
@@ -333,7 +333,7 @@ export default function ResultScreen({
         <div className="mt-3 space-y-2 text-sm text-slate-600">
           <p>
             Alle aannames zijn gebaseerd op openbare bronnen. Laatst bijgewerkt:{' '}
-            <strong>{LAATST_BIJGEWERKT}</strong>. Zie ook{' '}
+            <strong>{fmtDatum(LAATST_BIJGEWERKT)}</strong>. Zie ook{' '}
             <a href="/uitgangspunten" className="underline">
               de volledige toelichting
             </a>

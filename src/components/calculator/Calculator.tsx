@@ -126,10 +126,12 @@ export default function Calculator({ marktData }: CalculatorProps) {
   if (scherm.fase === 'bedankt') {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-8">
-        <h2 className="text-2xl font-bold text-slate-900">Bedankt voor uw aanvraag!</h2>
+        <h2 className="text-2xl font-bold text-slate-900">Bedankt voor uw interesse!</h2>
         <p className="mt-3 text-slate-600">
-          U ontvangt binnen enkele werkdagen maximaal drie offertes van
-          installateurs uit uw regio. U zit nergens aan vast.
+          De offerteservice is nog niet actief: wij nemen deze functie
+          binnenkort in gebruik. Uw gegevens zijn niet verstuurd en niet
+          opgeslagen. Zodra wij samenwerken met installateurs, leest u dat
+          op deze site.
         </p>
       </div>
     );

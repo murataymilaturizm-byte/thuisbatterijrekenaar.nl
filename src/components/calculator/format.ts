@@ -10,6 +10,10 @@ export const fmtEuro = (n: number): string =>
 export const fmtKwh = (n: number): string =>
   `${new Intl.NumberFormat('nl-NL', { maximumFractionDigits: 0 }).format(n)} kWh`;
 
+/** Batterijcapaciteit: decimale komma, geen afronding weg ("7,5 kWh") */
+export const fmtCapaciteit = (n: number): string =>
+  `${new Intl.NumberFormat('nl-NL', { maximumFractionDigits: 1 }).format(n)} kWh`;
+
 export const fmtJaren = (n: number): string =>
   `${new Intl.NumberFormat('nl-NL', { maximumFractionDigits: 1 }).format(n)} jaar`;
 
