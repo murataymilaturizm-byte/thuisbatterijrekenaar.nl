@@ -13,7 +13,7 @@
     "cluster": "basis",
     "zoekintentie": "Hoeveel kWh heb ik nodig, en levert een grotere batterij meer op?",
     "informatiewinst": "Wij rekenen alle beschikbare groottes volledig door en tonen de vergelijking. Concurrenten gebruiken een vuistregel (dagverbruik x factor). Wij leggen de derde grens uit die zij weglaten: u kunt een batterij alleen ontladen als u buiten zonuren genoeg verbruikt. Grotere batterij is vaak slechter.",
-    "status": "wachtrij"
+    "status": "concept"
   },
   {
     "slug": "thuisbatterij-bij-vast-contract",
