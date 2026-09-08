@@ -232,6 +232,9 @@ export default function ResultScreen({
             </tbody>
           </table>
         </div>
+        <p className="mt-1 text-xs text-slate-400 sm:hidden">
+          Schuif de tabel opzij voor alle kolommen.
+        </p>
         <p className="mt-2 text-xs text-slate-500">
           {result.aanbevolenCapaciteitKwh !== null
             ? 'Groen gemarkeerd: de aanbevolen grootte (kortste terugverdientijd).'

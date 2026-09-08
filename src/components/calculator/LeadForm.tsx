@@ -159,7 +159,11 @@ export default function LeadForm({
         </span>
       </label>
 
-      {fout && <p className="text-sm font-medium text-red-600">{fout}</p>}
+      {fout && (
+        <p role="alert" className="text-sm font-medium text-red-600">
+          {fout}
+        </p>
+      )}
 
       <button
         type="submit"

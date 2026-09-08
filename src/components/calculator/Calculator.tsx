@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { WATTPIEK_PER_PANEEL } from '../../config/constants';
 import { bereken } from '../../lib/calc/engine';
 import type {
@@ -33,6 +33,30 @@ type Scherm =
  */
 export default function Calculator({ marktData }: CalculatorProps) {
   const [scherm, setScherm] = useState<Scherm>({ fase: 'vraag', stap: 1 });
+
+  // Schermwissels vervangen de complete inhoud van het island. Wordt een
+  // lang scherm (offerteformulier) vervangen door een kort scherm
+  // (bedankt-kaart), dan wijst de bewaarde scrollpositie ineens naar
+  // content vér onder het island — op mobiel "springt" de pagina dan naar
+  // de FAQ of de footer. Daarom bij elke wissel: focus op de container
+  // (zonder scroll) en daarna gecontroleerd in beeld scrollen.
+  const containerRef = useRef<HTMLDivElement>(null);
+  const eersteWeergave = useRef(true);
+  const schermSleutel = scherm.fase === 'vraag' ? `vraag-${scherm.stap}` : scherm.fase;
+  useEffect(() => {
+    if (eersteWeergave.current) {
+      eersteWeergave.current = false;
+      return;
+    }
+    const el = containerRef.current;
+    if (!el) return;
+    el.focus({ preventScroll: true });
+    el.scrollIntoView({
+      // De korte bedankt-kaart gecentreerd; vraag-/resultaatschermen met
+      // de bovenkant in beeld, zodat de vraag zelf zichtbaar is.
+      block: schermSleutel === 'bedankt' ? 'center' : 'start',
+    });
+  }, [schermSleutel]);
 
   // Antwoorden
   const [postcode, setPostcode] = useState('');
@@ -125,7 +149,13 @@ export default function Calculator({ marktData }: CalculatorProps) {
 
   if (scherm.fase === 'bedankt') {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-8">
+      <div
+        ref={containerRef}
+        tabIndex={-1}
+        role="status"
+        aria-live="polite"
+        className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm outline-none sm:p-8"
+      >
         <h2 className="text-2xl font-bold text-slate-900">Bedankt voor uw interesse!</h2>
         <p className="mt-3 text-slate-600">
           De offerteservice is nog niet actief: wij nemen deze functie
@@ -139,7 +169,11 @@ export default function Calculator({ marktData }: CalculatorProps) {
 
   if (scherm.fase === 'offerte' && result) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      <div
+        ref={containerRef}
+        tabIndex={-1}
+        className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm outline-none sm:p-8"
+      >
         <LeadForm
           postcode={postcode.trim().toUpperCase()}
           capaciteitKwh={result.referentieCapaciteitKwh}
@@ -152,7 +186,11 @@ export default function Calculator({ marktData }: CalculatorProps) {
 
   if (scherm.fase === 'resultaat' && result) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      <div
+        ref={containerRef}
+        tabIndex={-1}
+        className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm outline-none sm:p-8"
+      >
         <ResultScreen
           result={result}
           marktData={marktData}
@@ -166,7 +204,11 @@ export default function Calculator({ marktData }: CalculatorProps) {
   const stap = scherm.fase === 'vraag' ? scherm.stap : 1;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+    <div
+      ref={containerRef}
+      tabIndex={-1}
+      className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm outline-none sm:p-8"
+    >
       <ProgressBar huidigeStap={stap} totaalStappen={TOTAAL_STAPPEN} />
 
       {stap === 1 && (
@@ -213,6 +255,7 @@ export default function Calculator({ marktData }: CalculatorProps) {
           {verbruikBekend ? (
             <input
               type="number"
+              inputMode="numeric"
               min={1}
               placeholder="Bijv. 3500"
               value={jaarVerbruik}
@@ -266,6 +309,7 @@ export default function Calculator({ marktData }: CalculatorProps) {
             <div className="space-y-1">
               <input
                 type="number"
+                inputMode="numeric"
                 min={1}
                 placeholder="Bijv. 10"
                 value={aantalPanelen}
@@ -279,6 +323,7 @@ export default function Calculator({ marktData }: CalculatorProps) {
           ) : (
             <input
               type="number"
+              inputMode="numeric"
               min={1}
               placeholder="Bijv. 4300"
               value={wattpiek}
@@ -360,7 +405,11 @@ export default function Calculator({ marktData }: CalculatorProps) {
         </fieldset>
       )}
 
-      {fout && <p className="mt-4 text-sm font-medium text-red-600">{fout}</p>}
+      {fout && (
+        <p role="alert" className="mt-4 text-sm font-medium text-red-600">
+          {fout}
+        </p>
+      )}
 
       <div className="mt-6 flex gap-3">
         {stap > 1 && (
