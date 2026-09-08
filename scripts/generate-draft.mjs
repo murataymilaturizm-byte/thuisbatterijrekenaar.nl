@@ -96,6 +96,39 @@ Gebruik uitsluitend deze waarden wanneer je een getal uit onze berekening noemt.
 Verzin er geen bij en herhaal ze alleen waar ze de tekst echt helpen.
 ${constanten}
 
+## REGELS VOOR HET GEBRUIK VAN ONZE CONSTANTEN
+
+De constanten hierboven zijn invoer voor de rekenmotor. Je mag ze
+noemen en uitleggen, maar je mag er GEEN eigen conclusies uit
+afleiden en GEEN eigen vuistregels van maken.
+
+Verboden:
+- Zelf uitrekenen welke capaciteit "meestal" of "vaak" het beste is.
+  De rekenmotor rekent alle groottes door en kiest per situatie.
+  Elke uitspraak als "5 of 7,5 kWh is voor de meeste huishoudens
+  het beste" is fout — dat is precies de vuistregel die wij hebben
+  afgeschaft.
+- Een constante gebruiken voor iets anders dan waarvoor die is
+  gedefinieerd. LAADVENSTER_UREN is het laadvenster voor arbitrage,
+  NIET het aantal zonuren per dag.
+- Zelf rekenvoorbeelden verzinnen met afgeleide getallen
+  (dagopbrengst, gemiddelden per dag). Gebruik alleen getallen die
+  letterlijk in de constantenlijst staan.
+- Een aanname presenteren als marktfeit. Schrijf altijd
+  "in onze berekening rekenen wij met X" — nooit "X bedraagt".
+
+Verplicht bij elke capaciteitsvraag:
+Verwijs naar de rekenaar. De uitkomst hangt af van de individuele
+situatie en wij doen daar geen algemene uitspraak over.
+
+## Verboden formuleringen
+
+Deze formuleringen mag je NIET gebruiken:
+- "vuistregel", "als vuistregel", "een goede vuistregel"
+- "in veel gevallen beter" / "meestal het beste" gekoppeld aan
+  een specifieke capaciteit
+- "gemiddeld ... per dag" als je dat zelf hebt uitgerekend
+
 ## Bestaande pagina's (voor interne links en om herhaling te vermijden)
 ${paginalijst}
 
@@ -145,6 +178,9 @@ frontmatter).
   bent, schrijf je de bewering NIET als feit, maar zet je op die plek:
   [TEYIT GEREKLI: <precies wat er geverifieerd moet worden>]
   Dat markeringspatroon is bewust; laat het letterlijk zo staan.
+  [TEYIT GEREKLI: ...] hoort in de lopende tekst, direct bij de
+  bewering waar de onzekerheid over gaat. Nooit in het Bronnen-blok —
+  daar staan alleen echte bronnen.
 - Beweren dat een thuisbatterij altijd rendabel is.
 
 Geef uitsluitend de inhoud van het MDX-bestand terug, zonder codeblok-hekjes

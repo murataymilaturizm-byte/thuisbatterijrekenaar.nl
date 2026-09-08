@@ -135,3 +135,60 @@ describe('FAQ-antwoorden spreken de rekenmotor niet tegen', () => {
     expect(overtreders).toEqual([]);
   });
 });
+
+describe('volledige tekst spreekt de rekenmotor niet tegen (pagina’s én concepten)', () => {
+  // Aanleiding: het eerste gegenereerde concept (welke-capaciteit) bevatte
+  // een "vuistregel"-FAQ, een "5 of 7,5 kWh is in veel gevallen beter"-zin
+  // en gebruikte het arbitrage-laadvenster als aantal zonuren.
+
+  /** Hele tekst opgeknipt in zinnen, whitespace genormaliseerd. */
+  function zinnen(tekst: string): string[] {
+    return tekst.replace(/\s+/g, ' ').split(/(?<=[.!?])\s+/);
+  }
+
+  it('4a. het woord "vuistregel" komt nergens voor', () => {
+    const overtreders = mdxBestanden()
+      .filter(({ inhoud }) => /vuistregel/i.test(inhoud))
+      .map(({ naam }) => naam);
+    expect(overtreders).toEqual([]);
+  });
+
+  it('4b. geen capaciteit in kWh gekoppeld aan "beter"/"beste"/"meestal" in één zin', () => {
+    // "7,5 kWh is meestal het beste" is precies de afgeschafte vuistregel
+    // in andere woorden: de motor kiest per situatie, niet in het algemeen.
+    const overtreders: string[] = [];
+    for (const { naam, inhoud } of mdxBestanden()) {
+      for (const zin of zinnen(inhoud)) {
+        if (
+          /\d+(?:[.,]\d+)?\s*kwh/i.test(zin) &&
+          /\b(beter|beste|meestal)\b/i.test(zin)
+        ) {
+          overtreders.push(`${naam}: "${zin.slice(0, 120)}"`);
+        }
+      }
+    }
+    expect(overtreders).toEqual([]);
+  });
+
+  it('4c. waarschuwing (niet blokkerend): laadvenster/"4 uur" in zonuren-context', () => {
+    // LAADVENSTER_UREN is het arbitrage-laadvenster, geen aantal zonuren.
+    // Alleen een waarschuwing: de combinatie kan legitiem zijn.
+    const verdacht: string[] = [];
+    for (const { naam, inhoud } of mdxBestanden()) {
+      for (const zin of zinnen(inhoud)) {
+        if (
+          /laadvenster|\b4 uur\b/i.test(zin) &&
+          /zonuren|zonne|\bzon\b|panelen/i.test(zin)
+        ) {
+          verdacht.push(`${naam}: "${zin.slice(0, 120)}"`);
+        }
+      }
+    }
+    if (verdacht.length > 0) {
+      console.warn(
+        `[consistency] Controleer handmatig — laadvenster/zonuren mogelijk verward:\n${verdacht.join('\n')}`,
+      );
+    }
+    expect(true).toBe(true);
+  });
+});

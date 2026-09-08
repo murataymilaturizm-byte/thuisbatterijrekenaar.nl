@@ -12,7 +12,14 @@ import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
 import { beoordeelConcept, isPubliceerbaar } from '../lib/content/quality';
 import type { PoortResultaat } from '../lib/content/quality';
 import type { PaginaFrontmatter } from '../lib/content/frontmatter';
+import * as alleConstanten from '../config/constants';
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+// Alle numerieke waarden uit constants.ts (arrays zoals de capaciteitenreeks
+// uitgevouwen) — voedt de poort "alle getallen komen uit constants.ts".
+const bekendeWaarden = Object.values(alleConstanten)
+  .flatMap((v) => (Array.isArray(v) ? v : [v]))
+  .filter((v): v is number => typeof v === 'number');
 
 // Frontmatter-schema staat in lib/content/frontmatter.ts. Hier alles
 // optioneel: een concept kan halverwege het schrijven nog velden missen.
@@ -84,6 +91,7 @@ for (const [pad, mod] of Object.entries(alleModules)) {
     cluster,
     bestaandeUrls,
     clusterUrls,
+    bekendeWaarden,
   });
 
   concepten.push({

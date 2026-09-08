@@ -28,6 +28,12 @@ export interface ConceptInvoer {
   bestaandeUrls: string[];
   /** URL's van pagina's in hetzelfde cluster */
   clusterUrls: string[];
+  /**
+   * Alle numerieke waarden uit constants.ts. Voedt de poort die getallen
+   * signaleert die NIET uit onze constanten komen (afgeleide of verzonnen
+   * cijfers). Optioneel: zonder deze lijst wordt die poort overgeslagen.
+   */
+  bekendeWaarden?: number[];
 }
 
 export const MIN_WOORDEN = 800;
@@ -55,13 +61,41 @@ export function interneLinks(body: string): string[] {
   return [...links];
 }
 
-/** Getallen in de lopende tekst — heuristisch, voor de gele bronpoort. */
+/** Getallen in de lopende tekst — heuristisch, voor de bronpoorten. */
 export function losseGetallen(body: string): string[] {
   const zonderImports = body.replace(/^import .+$/gm, '');
   // Getallen binnen {…} komen uit constants.ts en tellen niet mee.
   const zonderExpressies = zonderImports.replace(/\{[^}]*\}/g, '');
-  const treffers = zonderExpressies.match(/(?<![\w/-])\d+(?:[.,]\d+)?\s*(?:%|kWh|kW|Wp|euro|jaar)/gi);
+  const treffers = zonderExpressies.match(
+    /(?<![\w/-])\d+(?:[.,]\d+)*\s*(?:%|kWh|kW|Wp|euro|procent|jaar)/gi,
+  );
   return treffers ? [...new Set(treffers.map((t) => t.trim()))] : [];
+}
+
+/** "3.784" → 3784 (duizendtal), "0,88" → 0.88, "7.5" → 7.5. */
+export function parseGetalNl(token: string): number {
+  let t = token.replace(/[^\d.,]/g, '');
+  if (t.includes(',')) {
+    t = t.replace(/\./g, '').replace(',', '.');
+  } else if (/^\d{1,3}(\.\d{3})+$/.test(t)) {
+    t = t.replace(/\./g, '');
+  }
+  return Number(t);
+}
+
+/**
+ * Getal-plus-eenheidcombinaties waarvan de waarde NIET in constants.ts
+ * voorkomt — het kenmerk van zelf uitgerekende of verzonnen cijfers
+ * ("3.784 kWh", "10 kWh per dag"). Heuristiek: fracties (0,9) tellen ook
+ * als hun percentage (90), zodat "90 procent" DOD_BRUIKBAAR matcht.
+ */
+export function onbekendeGetallen(body: string, bekendeWaarden: number[]): string[] {
+  const bekend = new Set<number>();
+  for (const w of bekendeWaarden) {
+    bekend.add(w);
+    if (w > 0 && w < 1) bekend.add(Math.round(w * 100));
+  }
+  return losseGetallen(body).filter((token) => !bekend.has(parseGetalNl(token)));
 }
 
 const EERLIJKHEIDSSIGNALEN = [
@@ -75,7 +109,7 @@ const EERLIJKHEIDSSIGNALEN = [
 ];
 
 export function beoordeelConcept(invoer: ConceptInvoer): PoortResultaat[] {
-  const { body, ruw, faqAantal, bestaandeUrls, clusterUrls } = invoer;
+  const { body, ruw, faqAantal, bestaandeUrls, clusterUrls, bekendeWaarden } = invoer;
   const woorden = telWoorden(body);
   const links = interneLinks(body);
   const lower = body.toLowerCase();
@@ -87,8 +121,27 @@ export function beoordeelConcept(invoer: ConceptInvoer): PoortResultaat[] {
   const clusterLinks = links.filter((l) => clusterSet.has(l));
   const getallen = losseGetallen(body);
   const eerlijkheid = EERLIJKHEIDSSIGNALEN.filter((s) => lower.includes(s));
+  const onbekend = bekendeWaarden ? onbekendeGetallen(body, bekendeWaarden) : [];
+
+  const poorten: PoortResultaat[] = [];
+  if (bekendeWaarden) {
+    // Rood: een getal+eenheid dat niet uit constants.ts komt, is vrijwel
+    // altijd een afgeleide berekening of een verzonnen cijfer — precies wat
+    // de schrijfregels verbieden. Heuristisch; de mens beslist in de PR.
+    poorten.push({
+      id: 'onbekende-getallen',
+      label: 'Alle getallen komen uit constants.ts',
+      niveau: 'rood',
+      geslaagd: onbekend.length === 0,
+      toelichting:
+        onbekend.length === 0
+          ? 'Geen afwijkende getal+eenheidcombinaties gevonden.'
+          : `Niet in constants.ts: ${onbekend.join(', ')}`,
+    });
+  }
 
   return [
+    ...poorten,
     {
       id: 'woorden',
       label: `Lengte ${MIN_WOORDEN}–${MAX_WOORDEN} woorden`,
