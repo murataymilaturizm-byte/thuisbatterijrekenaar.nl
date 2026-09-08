@@ -6,9 +6,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
-  herstelPrefill,
   normaliseerAntwoord,
-  PREFILL,
   tekstUitContent,
   valideerFrontmatter,
 } from './generate-draft.mjs';
@@ -65,23 +63,6 @@ describe('normaliseerAntwoord', () => {
   it('laat een antwoord zonder frontmatter herkenbaar ongeldig', () => {
     const zonder = 'Sorry, ik kan hier geen artikel over schrijven.';
     expect(normaliseerAntwoord(zonder).startsWith('---')).toBe(false);
-  });
-});
-
-describe('herstelPrefill', () => {
-  it('gesimuleerd prefill-antwoord → volledige, geldige frontmatter', () => {
-    // Het model gaat verder ná de prefill '---'; het vervolg mist die tekens.
-    const vervolg = schoneMdx.slice(PREFILL.length);
-    const hersteld = herstelPrefill(vervolg);
-    expect(hersteld).toBe(schoneMdx);
-    expect(normaliseerAntwoord(hersteld)).toBe(schoneMdx);
-    expect(valideerFrontmatter(normaliseerAntwoord(hersteld))).toEqual([]);
-  });
-
-  it('dwingt een regelbreuk af als het vervolg er geen heeft', () => {
-    expect(herstelPrefill("title: 'x'\n---\n\nBody.")).toBe(
-      "---\ntitle: 'x'\n---\n\nBody.",
-    );
   });
 });
 

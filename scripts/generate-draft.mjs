@@ -195,18 +195,6 @@ export function normaliseerAntwoord(ruw) {
 }
 
 /**
- * Assistant-prefill: het model gaat verder ná deze tekens en kan dus geen
- * inleiding of fence meer vóór de frontmatter zetten. Het vervolg mist deze
- * tekens; herstelPrefill() plakt ze terug (met een gegarandeerde regelbreuk,
- * zodat '---' + 'title:' nooit aan elkaar kleeft).
- */
-export const PREFILL = '---';
-
-export function herstelPrefill(vervolg) {
-  return PREFILL + (/^\r?\n/.test(vervolg) ? '' : '\n') + vervolg;
-}
-
-/**
  * Alle tekstblokken uit een antwoord, in volgorde samengevoegd.
  * Nooit positioneel (content[0]) lezen: met extended thinking staan er
  * eerst thinking-/redacted_thinking-blokken vóór de tekst.
@@ -304,17 +292,15 @@ async function main() {
   // Zonder extended thinking: artikelproductie is geen diepe redeneertaak,
   // en in de praktijk at het denken het volledige tokenbudget op
   // (stop_reason max_tokens bij 24000, artikel alsnog afgekapt).
-  // De assistant-prefill ('---') dwingt het antwoord direct in de
-  // frontmatter: geen inleiding, geen codeblok-fences mogelijk.
+  // Assistant-prefill wordt door dit model niet ondersteund (API 400);
+  // normaliseerAntwoord() is daarom de enige verdediging tegen inleidingen
+  // en codeblok-fences.
   const stream = client.messages.stream({
     model: MODEL,
     // 1200 woorden Nederlands + frontmatter + FAQ ≈ 2000-2500 tokens;
     // 8000 is ruim zonder een afgekapt artikel te riskeren.
     max_tokens: 8000,
-    messages: [
-      { role: 'user', content: prompt },
-      { role: 'assistant', content: PREFILL },
-    ],
+    messages: [{ role: 'user', content: prompt }],
   });
   const bericht = await stream.finalMessage();
 
@@ -331,9 +317,9 @@ async function main() {
     process.exit(1);
   }
 
-  const vervolg = tekstUitContent(bericht.content);
+  const ruw = tekstUitContent(bericht.content);
 
-  if (vervolg.trim() === '') {
+  if (ruw.trim() === '') {
     console.error('[generate-draft] Geen tekstblok in het antwoord.');
     console.error(`  stop_reason: ${bericht.stop_reason}`);
     console.error(`  blok types: ${blokTypes}`);
@@ -353,8 +339,6 @@ async function main() {
     process.exit(1);
   }
 
-  // De prefill-tekens terugplakken; normaliseren blijft als vangnet staan.
-  const ruw = herstelPrefill(vervolg);
   const mdx = normaliseerAntwoord(ruw);
 
   if (!mdx.startsWith('---')) {
