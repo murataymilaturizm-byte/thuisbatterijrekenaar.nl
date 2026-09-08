@@ -21,6 +21,12 @@ const bekendeWaarden = Object.values(alleConstanten)
   .flatMap((v) => (Array.isArray(v) ? v : [v]))
   .filter((v): v is number => typeof v === 'number');
 
+// Constantennamen (HOOFDLETTERS_MET_UNDERSCORE) — afgeleid uit de exports,
+// geen handmatige lijst.
+const constanteNamen = Object.keys(alleConstanten).filter((n) =>
+  /^[A-Z][A-Z0-9_]*$/.test(n),
+);
+
 // Frontmatter-schema staat in lib/content/frontmatter.ts. Hier alles
 // optioneel: een concept kan halverwege het schrijven nog velden missen.
 type ConceptFrontmatter = Partial<PaginaFrontmatter>;
@@ -92,6 +98,7 @@ for (const [pad, mod] of Object.entries(alleModules)) {
     bestaandeUrls,
     clusterUrls,
     bekendeWaarden,
+    constanteNamen,
   });
 
   concepten.push({

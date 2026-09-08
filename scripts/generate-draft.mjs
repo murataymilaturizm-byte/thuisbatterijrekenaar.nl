@@ -121,6 +121,38 @@ Verplicht bij elke capaciteitsvraag:
 Verwijs naar de rekenaar. De uitkomst hangt af van de individuele
 situatie en wij doen daar geen algemene uitspraak over.
 
+Noem NOOIT de programmatische naam van een constante in de lopende
+tekst. Namen als AANDEEL_VERBRUIK_BUITEN_ZONUREN, ROUND_TRIP_RENDEMENT
+of SEIZOENSBENUTTING zijn interne variabelen; voor de lezer betekenen
+ze niets en ze maken de tekst onprofessioneel.
+
+Fout:  "wij rekenen met 60 procent (AANDEEL_VERBRUIK_BUITEN_ZONUREN = 0,60)"
+Goed:  "in onze berekening rekenen wij ermee dat 60 procent van het
+        verbruik buiten de zonuren valt"
+
+De volledige lijst met waarden staat al op /uitgangspunten/ — verwijs
+daarheen in plaats van variabelenamen te noemen.
+
+## DE DRIE GRENZEN — dit model ligt vast, verzin er geen eigen versie van
+
+Onze rekenmotor begrenst de dagelijkse benutting door de KLEINSTE van
+deze drie:
+
+1. Het dagelijkse zonne-overschot — u kunt niet meer opslaan dan u
+   overhoudt
+2. De bruikbare capaciteit van de batterij — niet de volledige
+   nominale capaciteit is bruikbaar
+3. Het verbruik buiten zonuren — u kunt een batterij alleen ontladen
+   als u die energie ook gebruikt
+
+Het round-trip rendement is GEEN vierde grens en ook geen vervanging
+voor grens 3. Het is een verliesfactor die op de opbrengst wordt
+toegepast, niet op het volume.
+
+Deze drie grenzen staan ook op /thuisbatterij-rendement/ beschreven.
+Wijk er niet van af — twee pagina's die een ander model beschrijven
+ondermijnen onze geloofwaardigheid.
+
 ## Verboden formuleringen
 
 Deze formuleringen mag je NIET gebruiken:
@@ -182,6 +214,24 @@ frontmatter).
   bewering waar de onzekerheid over gaat. Nooit in het Bronnen-blok —
   daar staan alleen echte bronnen.
 - Beweren dat een thuisbatterij altijd rendabel is.
+- Beschrijf geen technische mechanismen die niet in onze rekenmotor
+  zitten. Voorbeeld van wat NIET mag: beweren dat een batterij die
+  's ochtends nog halfvol is, ertoe leidt dat zonnestroom naar het net
+  wordt teruggeleverd en dat dit extra kosten oplevert. Dat klinkt
+  logisch, maar onze rekenmotor modelleert geen carry-over tussen
+  dagen. Wat je niet in de constantenlijst of in de beschrijving van
+  de drie grenzen terugvindt, bestaat voor deze site niet.
+  Bij twijfel: beschrijf het niet, of markeer het met [TEYIT GEREKLI].
+
+## Onzekerheid benoemen
+
+Onze aannames zijn geen gemeten waarden. Waar je een aanname noemt
+die per merk, model of situatie verschilt — bijvoorbeeld de
+ontladingsdiepte of de prijs per kWh — markeer die met
+[TEYIT GEREKLI: ...] in de lopende tekst.
+
+Een concept zonder enkele markering is verdacht: het betekent
+meestal dat je onzekerheid hebt weggeschreven in plaats van benoemd.
 
 Geef uitsluitend de inhoud van het MDX-bestand terug, zonder codeblok-hekjes
 eromheen en zonder begeleidende tekst.

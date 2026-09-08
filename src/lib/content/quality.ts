@@ -34,6 +34,13 @@ export interface ConceptInvoer {
    * cijfers). Optioneel: zonder deze lijst wordt die poort overgeslagen.
    */
   bekendeWaarden?: number[];
+  /**
+   * Exportnamen van de constanten (HOOFDLETTERS_MET_UNDERSCORE) uit
+   * constants.ts. Voedt de poort die programmatische constantennamen in de
+   * lopende tekst signaleert. Optioneel: zonder lijst wordt de poort
+   * overgeslagen.
+   */
+  constanteNamen?: string[];
 }
 
 export const MIN_WOORDEN = 800;
@@ -89,6 +96,19 @@ export function parseGetalNl(token: string): number {
  * ("3.784 kWh", "10 kWh per dag"). Heuristiek: fracties (0,9) tellen ook
  * als hun percentage (90), zodat "90 procent" DOD_BRUIKBAAR matcht.
  */
+/**
+ * Programmatische constantennamen (ROUND_TRIP_RENDEMENT) in de lopende
+ * tekst. Importregels en {…}-expressies tellen niet mee: dáár horen de
+ * namen juist — dat is het single-source-mechanisme.
+ */
+export function constantenInTekst(body: string, constanteNamen: string[]): string[] {
+  const proza = body
+    // Ook meerregelige imports (import {\n  NAAM,\n} from '…';) volledig weg.
+    .replace(/^import\s[\s\S]*?from\s*'[^']*';?/gm, '')
+    .replace(/\{[^}]*\}/g, '');
+  return constanteNamen.filter((naam) => new RegExp(`\\b${naam}\\b`).test(proza));
+}
+
 export function onbekendeGetallen(body: string, bekendeWaarden: number[]): string[] {
   const bekend = new Set<number>();
   for (const w of bekendeWaarden) {
@@ -109,7 +129,8 @@ const EERLIJKHEIDSSIGNALEN = [
 ];
 
 export function beoordeelConcept(invoer: ConceptInvoer): PoortResultaat[] {
-  const { body, ruw, faqAantal, bestaandeUrls, clusterUrls, bekendeWaarden } = invoer;
+  const { body, ruw, faqAantal, bestaandeUrls, clusterUrls, bekendeWaarden, constanteNamen } =
+    invoer;
   const woorden = telWoorden(body);
   const links = interneLinks(body);
   const lower = body.toLowerCase();
@@ -124,6 +145,19 @@ export function beoordeelConcept(invoer: ConceptInvoer): PoortResultaat[] {
   const onbekend = bekendeWaarden ? onbekendeGetallen(body, bekendeWaarden) : [];
 
   const poorten: PoortResultaat[] = [];
+  if (constanteNamen) {
+    const gevonden = constantenInTekst(body, constanteNamen);
+    poorten.push({
+      id: 'constantenaam',
+      label: 'Geen programmatische constantennaam in lopende tekst',
+      niveau: 'rood',
+      geslaagd: gevonden.length === 0,
+      toelichting:
+        gevonden.length === 0
+          ? 'Geen interne variabelenamen gevonden.'
+          : `In de tekst: ${gevonden.join(', ')}`,
+    });
+  }
   if (bekendeWaarden) {
     // Rood: een getal+eenheid dat niet uit constants.ts komt, is vrijwel
     // altijd een afgeleide berekening of een verzonnen cijfer — precies wat
