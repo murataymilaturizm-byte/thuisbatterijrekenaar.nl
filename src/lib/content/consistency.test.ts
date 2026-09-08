@@ -156,12 +156,16 @@ describe('volledige tekst spreekt de rekenmotor niet tegen (pagina’s én conce
   it('4b. geen capaciteit in kWh gekoppeld aan "beter"/"beste"/"meestal" in één zin', () => {
     // "7,5 kWh is meestal het beste" is precies de afgeschafte vuistregel
     // in andere woorden: de motor kiest per situatie, niet in het algemeen.
+    // Zinnen die zélf naar de individuele situatie verwijzen ("op basis van
+    // uw situatie … welke het beste rendeert") zijn het eerlijke tegendeel
+    // van een vuistregel en tellen niet mee (vals positief, 2026-09-08).
     const overtreders: string[] = [];
     for (const { naam, inhoud } of mdxBestanden()) {
       for (const zin of zinnen(inhoud)) {
         if (
           /\d+(?:[.,]\d+)?\s*kwh/i.test(zin) &&
-          /\b(beter|beste|meestal)\b/i.test(zin)
+          /\b(beter|beste|meestal)\b/i.test(zin) &&
+          !/situatie|per huishouden/i.test(zin)
         ) {
           overtreders.push(`${naam}: "${zin.slice(0, 120)}"`);
         }

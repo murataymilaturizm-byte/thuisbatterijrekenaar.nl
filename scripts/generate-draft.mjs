@@ -153,6 +153,14 @@ Deze drie grenzen staan ook op /thuisbatterij-rendement/ beschreven.
 Wijk er niet van af — twee pagina's die een ander model beschrijven
 ondermijnen onze geloofwaardigheid.
 
+## Terminologie
+
+- Terugleverkosten worden in rekening gebracht door de
+  ENERGIELEVERANCIER, niet door de netbeheerder.
+- De netbeheerder beheert het net en de aansluiting; daar meldt u
+  ook uw batterij aan.
+Verwar deze twee partijen nooit.
+
 ## Verboden formuleringen
 
 Deze formuleringen mag je NIET gebruiken:
