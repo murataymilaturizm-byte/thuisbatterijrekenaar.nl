@@ -1,11 +1,11 @@
 ---
-title: 'Terugleverkosten: wat zijn het en hoe beperkt u ze? | Thuisbatterijrekenaar'
-description: 'Steeds meer energieleveranciers rekenen terugleverkosten voor zonnepaneelbezitters. Lees waarom deze kosten bestaan, hoe hoog ze zijn en hoe u ze kunt beperken.'
+title: 'Terugleverkosten en terugleververgoeding: wat u betaalt en ontvangt | Thuisbatterijrekenaar'
+description: 'Terugleverkosten betaalt u, terugleververgoeding ontvangt u. Wat het verschil is, hoe de kosten worden berekend en waarom ze per leverancier verschillen.'
 h1: 'Terugleverkosten: waarom u betaalt om stroom terug te leveren'
 zoekintentie: 'Wat zijn terugleverkosten, waarom rekent mijn leverancier die, en hoeveel scheelt dat mij?'
 gepubliceerd: '2026-08-14'
 cluster: 'basis'
-gecontroleerd: '2026-08-14'
+gecontroleerd: '2026-09-17'
 kortAntwoord: >-
       Terugleverkosten zijn een vast bedrag dat sommige energieleveranciers
       rekenen omdat u stroom aan het net teruglevert; ze staan los van de
@@ -36,6 +36,13 @@ faq:
       verrekenen dit vaak in andere tarieven. Vergelijk daarom altijd het
       totaalplaatje: leveringstarief, terugleververgoeding, vaste kosten én
       terugleverkosten samen.
+  - vraag: 'Bestaat er zoiets als een terugleverboete?'
+    antwoord: >-
+      Nee, niet als officiële term. "Terugleverboete" en
+      "terugleverheffing" zijn woorden uit de volksmond voor wat formeel
+      terugleverkosten heet: kosten die uw energieleverancier in rekening
+      brengt omdat u stroom teruglevert. Het is geen sanctie en geen
+      overheidsheffing.
   - vraag: 'Verlagen thuisbatterijen de terugleverkosten?'
     antwoord: >-
       Indirect wel: een batterij verlaagt de hoeveelheid stroom die u
@@ -45,10 +52,22 @@ faq:
 ---
 
 import {
+  LEVERINGSTARIEF_KWH,
   TERUGLEVERKOSTEN_JAAR,
   TERUGLEVERVERGOEDING_AANDEEL,
+  euro,
   pct,
 } from '../../config/constants';
+
+**Twee begrippen die vaak door elkaar lopen**
+
+| | Wat het is | Richting |
+|---|---|---|
+| Terugleverkosten | Een bedrag dat uw energieleverancier u in rekening brengt omdat u stroom teruglevert | U betaalt |
+| Terugleververgoeding | Het bedrag dat u ontvangt per teruggeleverde kilowattuur | U ontvangt |
+
+Deze pagina gaat over beide, want samen bepalen zij wat teruglevering u per
+saldo oplevert of kost.
 
 Naast het naderende [einde van de salderingsregeling](/saldering-stopt-2027/)
 is er een tweede ontwikkeling die het rendement van zonnepanelen drukt:
@@ -74,6 +93,34 @@ maandbedrag. In onze rekenaar gebruiken wij een indicatief gemiddelde van
 € {TERUGLEVERKOSTEN_JAAR} per jaar; het werkelijke bedrag verschilt per
 leverancier en per situatie.
 
+## Hoe worden terugleverkosten berekend?
+
+Er bestaat geen landelijke formule: elke leverancier kiest zijn eigen
+opzet. De rekenstappen zijn wel steeds dezelfde.
+
+1. **Bepaal hoeveel u teruglevert.** Dat is uw jaarproductie min de stroom
+   die u direct zelf verbruikt. Alleen dat overschot telt mee.
+2. **Zoek op welk model uw leverancier hanteert.** Dat is meestal een vast
+   bedrag per maand, of een staffel waarin het maandbedrag meestijgt met
+   het aantal teruggeleverde kilowattuur per jaar.
+3. **Reken om naar een jaarbedrag.** Een maandbedrag vermenigvuldigt u met
+   twaalf; een staffelbedrag geldt pas vanaf de grens van uw staffel.
+4. **Zet er tegenover wat u ontvangt.** Voor elke teruggeleverde kilowattuur
+   krijgt u een terugleververgoeding. In onze berekening is dat
+   {pct(TERUGLEVERVERGOEDING_AANDEEL)} van het leveringstarief van
+   {euro(LEVERINGSTARIEF_KWH)} per kWh. Wat teruglevering u per saldo
+   oplevert, is die vergoeding min de terugleverkosten.
+
+Het verschil met een gewone kostenpost zit in stap 1: terugleverkosten
+hangen niet af van hoeveel u verbruikt, maar van hoeveel u overhoudt. Wie
+meer van de eigen zonnestroom zelf gebruikt, levert minder terug en zakt
+mogelijk naar een lagere staffel.
+
+In onze rekenaar zit een indicatief gemiddelde van
+€ {TERUGLEVERKOSTEN_JAAR} per jaar. Wilt u weten wat uw eigen situatie
+oplevert, inclusief het einde van de saldering? Reken het door met
+[de rekenaar](/).
+
 ## Waarom bestaan deze kosten?
 
 Toen alleen een kleine groep huishoudens zonnepanelen had, viel de invoeding
@@ -93,6 +140,63 @@ Leveranciers kiezen er steeds vaker voor om deze kosten niet meer over alle
 klanten uit te smeren, maar neer te leggen bij de huishoudens die ze
 veroorzaken. Dat voelt onrechtvaardig voor wie juist verduurzaamd heeft,
 maar het maakt de kosten van teruglevering wel zichtbaar — en beïnvloedbaar.
+
+## Terugleverboete of terugleverheffing — bestaat dat?
+
+U komt deze woorden veel tegen, maar het zijn geen officiële termen. In de
+tarievenbladen van energieleveranciers en in de wet komt u ze niet tegen:
+waar mensen "terugleverboete" of "terugleverheffing" zeggen, gaat het om
+terugleverkosten.
+
+Dat het als een boete voelt, is begrijpelijk. U heeft geïnvesteerd in
+zonnepanelen, u levert stroom aan het net, en waar daar eerst een vergoeding
+tegenover stond, staat nu ook een rekening. Die omslag is groot.
+
+Toch is het iets anders dan een boete. Een boete is een sanctie voor iets
+wat niet mag — en terugleveren mag gewoon. Wat uw leverancier doet, is
+kosten doorberekenen die hij maakt bij het afnemen en verhandelen van uw
+teruggeleverde stroom, zoals hierboven beschreven.
+
+Ook "heffing" wijst de verkeerde kant op: een heffing wordt door de overheid
+opgelegd en geldt voor iedereen gelijk. Terugleverkosten komen van uw
+energieleverancier zelf. Dat is geen semantisch detail, maar praktisch
+belangrijk: aan een overheidsheffing valt niets te veranderen, aan een
+leverancierstarief wel — door te vergelijken, over te stappen of minder
+terug te leveren.
+
+De officiële term is dus **terugleverkosten**. Zoekt u in uw contract of
+tarievenblad, gebruik dan dat woord of "kosten voor teruglevering"; op
+"boete" of "heffing" vindt u niets.
+
+## Verschilt dit per leverancier?
+
+Ja, en sterk. Dit is geen vast landelijk tarief maar een commerciële keuze
+van elke leverancier afzonderlijk, en die keuze verandert ook nog eens door
+de tijd. Wat wij zien terugkomen:
+
+- **Geen terugleverkosten**, maar de kosten verwerkt in het leveringstarief
+  of het vastrecht.
+- **Een vast bedrag per maand**, ongeacht hoeveel u teruglevert.
+- **Een staffel**: het maandbedrag stijgt met het aantal kilowattuur dat u
+  per jaar teruglevert.
+
+Wat u in uw eigen contract nakijkt:
+
+- het tarievenblad of de leveringsovereenkomst, op het woord
+  "terugleverkosten" of "kosten voor teruglevering";
+- of het bedrag **per maand of per jaar** geldt;
+- of er een **staffel** is, en bij welk aantal kilowattuur de volgende
+  grens ligt;
+- of het bedrag tijdens uw looptijd kan wijzigen, of pas bij verlenging.
+
+[TEYIT GEREKLI: tarieven en staffels per leverancier hebben wij niet bij de
+bron geverifieerd en noemen wij daarom niet met naam en bedrag.]
+
+Wat u wél naast elkaar kunt leggen, staat op
+[terugleververgoeding vergelijken](/terugleververgoeding-vergelijken/). Let
+bij het vergelijken op het totaalplaatje: een leverancier zonder
+terugleverkosten kan alsnog ongunstiger uitpakken via een lagere vergoeding
+per kilowattuur.
 
 ## Wat betekent dit voor uw rendement?
 

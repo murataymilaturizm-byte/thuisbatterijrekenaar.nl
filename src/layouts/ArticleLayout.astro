@@ -171,6 +171,30 @@ const jsonLd = [
   .article-body :global(a) {
     text-decoration: underline;
   }
+  /* Tabellen in MDX-content; zelfde visuele taal als de tabel op
+     /uitgangspunten/ (dunne scheidingslijn, vette koprij, links uitgelijnd). */
+  .article-body :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.95rem;
+  }
+  .article-body :global(thead tr) {
+    border-bottom: 2px solid var(--color-slate-300, #cbd5e1);
+  }
+  .article-body :global(tbody tr) {
+    border-bottom: 1px solid var(--color-slate-200, #e2e8f0);
+  }
+  .article-body :global(th),
+  .article-body :global(td) {
+    padding: 0.75rem 0.75rem 0.75rem 0;
+    text-align: left;
+    vertical-align: top;
+  }
+  .article-body :global(th) {
+    font-weight: 700;
+    color: var(--color-slate-900, #0f172a);
+  }
   .article-body :global(strong) {
     color: var(--color-slate-900, #0f172a);
   }
