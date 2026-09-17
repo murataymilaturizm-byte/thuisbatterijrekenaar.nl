@@ -40,6 +40,10 @@ function internePaginas() {
 export default defineConfig({
   site: 'https://thuisbatterijrekenaar.nl',
   output: 'static',
+  // Eén canonieke URL-vorm. Zonder deze regel is de standaard 'ignore' en
+  // serveert Vercel zowel /pagina als /pagina/ met 200 — Search Console zag
+  // die als twee URL's en splitste het signaal.
+  trailingSlash: 'always',
   integrations: [
     react(),
     mdx(),

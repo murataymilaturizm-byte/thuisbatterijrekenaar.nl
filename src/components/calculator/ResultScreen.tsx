@@ -337,7 +337,7 @@ export default function ResultScreen({
           <p>
             Alle aannames zijn gebaseerd op openbare bronnen. Laatst bijgewerkt:{' '}
             <strong>{fmtDatum(LAATST_BIJGEWERKT)}</strong>. Zie ook{' '}
-            <a href="/uitgangspunten" className="underline">
+            <a href="/uitgangspunten/" className="underline">
               de volledige toelichting
             </a>
             .

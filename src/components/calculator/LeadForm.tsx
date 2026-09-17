@@ -152,7 +152,7 @@ export default function LeadForm({
         />
         <span className="text-sm text-slate-600">
           Ik ga akkoord met de{' '}
-          <a href="/privacyverklaring" className="underline" target="_blank">
+          <a href="/privacyverklaring/" className="underline" target="_blank">
             privacyverklaring
           </a>{' '}
           en wil een offerte zodra de offerteservice actief is.
