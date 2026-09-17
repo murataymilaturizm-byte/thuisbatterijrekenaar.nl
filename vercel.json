@@ -1,6 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "trailingSlash": true,
+  "redirects": [
+    {
+      "source": "/:pad((?!api/)(?:[^/.]+/)*[^/.]+(?!/))",
+      "destination": "/:pad/",
+      "permanent": true
+    }
+  ],
   "crons": [
     {
       "path": "/api/trigger-rebuild",
