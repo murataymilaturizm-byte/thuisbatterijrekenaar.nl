@@ -1,0 +1,31 @@
+---
+/**
+ * De enige manier waarop een affiliatelink op een .astro/.mdx-pagina komt.
+ * Handmatige <a>-tags zouden rel="sponsored" kunnen missen; deze niet.
+ * Is de partner niet (meer) actief, dan rendert er niets.
+ */
+import { AFFILIATE_REL, partnerLink } from '../../config/partners';
+
+interface Props {
+  partnerId: string;
+  /** Sub ID (ws): vertelt ons welke plaatsing de overstap opleverde. */
+  subId: string;
+}
+
+const { partnerId, subId } = Astro.props;
+const href = partnerLink(partnerId, subId);
+---
+
+{
+  href && (
+    <a
+      href={href}
+      rel={AFFILIATE_REL}
+      target="_blank"
+      class="inline-block rounded-lg bg-emerald-600 px-5 py-3 font-semibold text-white no-underline transition hover:bg-emerald-700"
+      data-affiliate={partnerId}
+    >
+      <slot />
+    </a>
+  )
+}

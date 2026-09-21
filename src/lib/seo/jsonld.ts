@@ -17,7 +17,7 @@ export function organizationSchema() {
     name: SITE.eigenaar.naam,
     url: SITE.url,
     description:
-      'Onafhankelijk beheerder van Thuisbatterijrekenaar. Verkoopt zelf geen thuisbatterijen en is niet verbonden aan een energieleverancier of installateur.',
+      'Onafhankelijk beheerder van Thuisbatterijrekenaar. Verkoopt zelf geen thuisbatterijen; de rekenmethode is leverancieronafhankelijk. Samenwerkingen met energieleveranciers lopen via affiliatelinks en worden op de site vermeld.',
   };
 }
 

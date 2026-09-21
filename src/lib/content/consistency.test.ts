@@ -136,6 +136,95 @@ describe('FAQ-antwoorden spreken de rekenmotor niet tegen', () => {
   });
 });
 
+describe('publieke claims kloppen met de partnerconfiguratie', () => {
+  // Aanleiding: op de dag dat de eerste affiliatelink live ging, stonden er nog
+  // zeven plekken op de site die zeiden dat wij aan niemand verbonden zijn en
+  // niets verdienen. Beide richtingen moeten automatisch fout gaan.
+
+  /**
+   * Alle bestanden waarin publieksteksten kunnen staan. Testbestanden zelf
+   * vallen af: die citeren de verboden zinnen juist om ze te herkennen.
+   */
+  function publiekeTeksten(): { naam: string; inhoud: string }[] {
+    const uit: { naam: string; inhoud: string }[] = [];
+    for (const vol of bronBestanden()) {
+      if (/.test.tsx?$/.test(vol)) continue;
+      uit.push({ naam: path.relative(wortel, vol), inhoud: readFileSync(vol, 'utf8') });
+    }
+    for (const naam of ['llms.txt']) {
+      const vol = path.join(wortel, 'public', naam);
+      uit.push({ naam, inhoud: readFileSync(vol, 'utf8') });
+    }
+    return uit;
+  }
+
+  const partnersBron = readFileSync(
+    path.join(srcMap, 'config', 'partners.ts'),
+    'utf8',
+  );
+  /** Staat er minstens één partner op actief: true? */
+  const heeftActievePartner = /actief:\s*true/.test(partnersBron);
+
+  it('5a. bij een actieve samenwerking staat er nergens meer een ontkenning', () => {
+    if (!heeftActievePartner) return;
+    // Claims die alleen waar zijn zonder samenwerking.
+    const ontkenningen = [
+      /niet verbonden aan een energieleverancier/i,
+      /geen affiliate-?links/i,
+      /gebruiken geen affiliate/i,
+      /nog geen samenwerking met installateurs of energieleveranciers/i,
+      /verdienen wij niets aan deze site/i,
+      /Op dit moment niet\. Wij hebben nog geen samenwerking/i,
+    ];
+    const overtreders: string[] = [];
+    for (const { naam, inhoud } of publiekeTeksten()) {
+      for (const patroon of ontkenningen) {
+        const m = patroon.exec(inhoud.replace(/\s+/g, ' '));
+        if (m) overtreders.push(`${naam}: "${m[0]}"`);
+      }
+    }
+    expect(
+      overtreders,
+      `Er is een actieve partner, maar deze teksten ontkennen dat:\n${overtreders.join('\n')}`,
+    ).toEqual([]);
+  });
+
+  it('5b. zonder actieve samenwerking staat er nergens een samenwerkingsclaim', () => {
+    if (heeftActievePartner) return;
+    const claims = [/werken wij samen via affiliatelinks/i, /affiliatenetwerk Daisycon/i];
+    const overtreders: string[] = [];
+    for (const { naam, inhoud } of publiekeTeksten()) {
+      for (const patroon of claims) {
+        const m = patroon.exec(inhoud.replace(/\s+/g, ' '));
+        if (m) overtreders.push(`${naam}: "${m[0]}"`);
+      }
+    }
+    expect(
+      overtreders,
+      `Geen actieve partner, maar deze teksten beweren een samenwerking:\n${overtreders.join('\n')}`,
+    ).toEqual([]);
+  });
+
+  it('5c. elke affiliatelink loopt via de component met sponsored-attributen', () => {
+    // Handmatige <a href="https://d.energyzero.nl/..."> zou rel kunnen missen.
+    const overtreders: string[] = [];
+    for (const vol of bronBestanden()) {
+      const naam = path.relative(wortel, vol);
+      // partners.ts is de enige bron van de URL; testbestanden citeren hem.
+      if (naam.includes('affiliate') || naam.includes('partners.ts')) continue;
+      if (/.test.tsx?$/.test(naam)) continue;
+      const inhoud = readFileSync(vol, 'utf8');
+      if (/href=["'`][^"'`]*d\.energyzero\.nl/.test(inhoud)) {
+        overtreders.push(naam);
+      }
+    }
+    expect(
+      overtreders,
+      `Directe affiliate-URL buiten AffiliateLink: ${overtreders.join(', ')}`,
+    ).toEqual([]);
+  });
+});
+
 describe('volledige tekst spreekt de rekenmotor niet tegen (pagina’s én concepten)', () => {
   // Aanleiding: het eerste gegenereerde concept (welke-capaciteit) bevatte
   // een "vuistregel"-FAQ, een "5 of 7,5 kWh is in veel gevallen beter"-zin

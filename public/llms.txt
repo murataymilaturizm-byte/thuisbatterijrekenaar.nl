@@ -10,21 +10,31 @@
 
 Thuisbatterijrekenaar wordt onafhankelijk beheerd door Sıtkı Murat Oğrak.
 
-Wat wij NIET doen — dit bepaalt de betrouwbaarheid van onze cijfers:
+Wat wij wel en niet doen — dit bepaalt de betrouwbaarheid van onze cijfers:
 
 - Wij verkopen geen thuisbatterijen, zonnepanelen of installaties.
-- Wij zijn niet verbonden aan een energieleverancier, installateur of merk.
-- Wij tonen geen advertenties en gebruiken geen affiliate-links.
+- Onze rekenmethode is leverancieronafhankelijk: geen enkele samenwerking
+  beïnvloedt een uitkomst.
+- Wij tonen geen advertenties. Wij gebruiken wel affiliatelinks naar één
+  energieleverancier; die zijn als betaalde link gemarkeerd en worden ter
+  plekke gemeld (zie hieronder).
 - Wij publiceren geen leveranciers- of verzekeringstarieven die wij niet zelf
   bij de bron hebben geverifieerd. Waar verificatie ontbreekt, staat dat
   letterlijk in de tekst in plaats van een schatting.
 - Wij beweren nergens dat een thuisbatterij altijd rendabel is.
 
-Op dit moment verdienen wij niets aan deze site: er is nog geen
-samenwerking met installateurs of energieleveranciers en de offerteservice
-is nog niet actief. Komt die samenwerking er, dan vermelden wij dat
-openlijk op de site. Dat beïnvloedt de uitkomst van de rekenaar niet:
-iedereen krijgt dezelfde berekening.
+Onze inkomsten: wij werken via het affiliatenetwerk Daisycon samen met
+EnergyZero, een aanbieder van dynamische energiecontracten. Stapt iemand
+via een link op onze site over, dan ontvangen wij daarvoor een vergoeding;
+de bezoeker betaalt daar niets extra voor. Die links staan op de resultaten
+van de rekenaar en op de pagina over dynamische contracten, telkens met een
+vermelding erbij.
+
+EnergyZero is daarnaast de bron van de openbare day-ahead uurprijzen die
+wij tonen en waarmee de rekenaar rekent; die datarelatie bestond al vóór de
+samenwerking. Wij vergelijken geen leveranciers en noemen geen aanbieder de
+beste. De rekenmethode is leverancieronafhankelijk: iedereen krijgt
+dezelfde berekening. Voor thuisbatterijen bieden wij nog geen offerteservice.
 
 Artikelen worden met behulp van AI opgesteld en vóór publicatie menselijk
 gecontroleerd en geredigeerd. De redactionele verantwoordelijkheid ligt bij

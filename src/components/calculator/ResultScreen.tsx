@@ -6,6 +6,7 @@ import {
   UITGANGSPUNTEN,
 } from '../../config/constants';
 import type { CalcResult, MarktData } from '../../lib/calc/types';
+import AffiliateLink from '../affiliate/AffiliateLink';
 import { fmtCapaciteit, fmtEuro, fmtKwh } from './format';
 
 interface Props {
@@ -132,6 +133,38 @@ export default function ResultScreen({
             .
           </p>
         ))}
+
+      {/* Overstapblok — alleen zinvol als er nog geen dynamisch contract is.
+          De interne uitleglink gaat voor: eerst begrijpen, dan pas kiezen. */}
+      {!wasDynamisch && (
+        <div className="rounded-lg border border-slate-200 bg-white p-4 text-center">
+          {!result.geenRendabeleCapaciteit && (
+            <p className="mb-3 text-sm text-slate-700">
+              Met een dynamisch contract komt er een tweede opbrengststroom bij:
+              het prijsverschil tussen goedkope en dure uren.{' '}
+              <a
+                href="/dynamisch-energiecontract-met-zonnepanelen/"
+                className="font-semibold underline"
+              >
+                Lees eerst hoe dat werkt
+              </a>
+              .
+            </p>
+          )}
+          <AffiliateLink
+            partnerId="energyzero"
+            subId="resultaat-scherm"
+            className="inline-block rounded-lg border-2 border-emerald-600 px-5 py-3 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-50"
+          >
+            Direct een dynamisch contract bekijken bij EnergyZero
+          </AffiliateLink>
+          <p className="mt-2 text-xs text-slate-500">
+            Wij ontvangen een vergoeding als u via deze link overstapt. U
+            betaalt daar niets extra voor, en het verandert niets aan onze
+            berekening.
+          </p>
+        </div>
+      )}
 
       {/* Marktprijszin — ons onderscheid */}
       <p className="text-center text-sm text-slate-600">
