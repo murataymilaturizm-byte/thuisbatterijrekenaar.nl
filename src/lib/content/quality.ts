@@ -109,6 +109,39 @@ export function constantenInTekst(body: string, constanteNamen: string[]): strin
   return constanteNamen.filter((naam) => new RegExp(`\\b${naam}\\b`).test(proza));
 }
 
+/**
+ * Wet-, richtlijn- of normnummers die alleen in het Bronnenblok staan én
+ * geen vindplaats hebben.
+ *
+ * Aanleiding: een concept voerde "Europese richtlijn 2019/944" op als bron,
+ * terwijl die richtlijn nergens in de tekst werd aangehaald en er geen
+ * vindplaats bij stond. Twee signalen samen, want elk apart geeft valse
+ * treffers: een echte bron (Kamerstuk 36202, nr. 156) staat mét link in
+ * Bronnen zonder dat het nummer in de lopende tekst hoeft te staan.
+ * Heuristisch: het gaat om opvallen, niet om volledigheid.
+ */
+export function ongebruikteBronnummers(body: string): string[] {
+  const delen = body.split(/###\s*Bronnen/i);
+  if (delen.length < 2) return [];
+  const romp = delen[0]!;
+  const bronnen = delen.slice(1).join('\n');
+
+  // Een juridisch/normatief trefwoord gevolgd door een nummer.
+  const re =
+    /\b(?:richtlijn|verordening|wet|besluit|regeling|norm|kamerstuk|NEN|EN|IEC|ISO)\b[^\n.;,]{0,20}?(\d{2,5}(?:[/:-]\d{1,5})+|\d{4})\b/gi;
+
+  const ongebruikt = new Set<string>();
+  // Per bronvermelding beoordelen: een regel met vindplaats is controleerbaar.
+  for (const regel of bronnen.split(/\n(?=\s*[-*])/)) {
+    if (/https?:\/\//.test(regel)) continue;
+    let m;
+    re.lastIndex = 0;
+    while ((m = re.exec(regel)) !== null) {
+      if (!romp.includes(m[1]!)) ongebruikt.add(m[0]!.trim());
+    }
+  }
+  return [...ongebruikt];
+}
 export function onbekendeGetallen(body: string, bekendeWaarden: number[]): string[] {
   const bekend = new Set<number>();
   for (const w of bekendeWaarden) {
@@ -144,7 +177,20 @@ export function beoordeelConcept(invoer: ConceptInvoer): PoortResultaat[] {
   const eerlijkheid = EERLIJKHEIDSSIGNALEN.filter((s) => lower.includes(s));
   const onbekend = bekendeWaarden ? onbekendeGetallen(body, bekendeWaarden) : [];
 
-  const poorten: PoortResultaat[] = [];
+  const bronnummers = ongebruikteBronnummers(body);
+
+  const poorten: PoortResultaat[] = [
+    {
+      id: 'bronnummers',
+      label: 'Bronnenblok noemt geen ongebruikte wet-/richtlijnnummers',
+      niveau: 'rood',
+      geslaagd: bronnummers.length === 0,
+      toelichting:
+        bronnummers.length === 0
+          ? 'Elke genoemde regelgeving komt ook in de tekst voor.'
+          : `Alleen in Bronnen, niet in de tekst: ${bronnummers.join('; ')}`,
+    },
+  ];
   if (constanteNamen) {
     const gevonden = constantenInTekst(body, constanteNamen);
     poorten.push({

@@ -148,13 +148,19 @@ describe('publieke claims kloppen met de partnerconfiguratie', () => {
   function publiekeTeksten(): { naam: string; inhoud: string }[] {
     const uit: { naam: string; inhoud: string }[] = [];
     for (const vol of bronBestanden()) {
-      if (/.test.tsx?$/.test(vol)) continue;
+      if (/\.test\.tsx?$/.test(vol)) continue;
       uit.push({ naam: path.relative(wortel, vol), inhoud: readFileSync(vol, 'utf8') });
     }
     for (const naam of ['llms.txt']) {
       const vol = path.join(wortel, 'public', naam);
       uit.push({ naam, inhoud: readFileSync(vol, 'utf8') });
     }
+    // De generatorprompt beschrijft ons aan het model; een verouderde claim
+    // dáár belandt in elk volgend concept.
+    uit.push({
+      naam: 'scripts/generate-draft.mjs',
+      inhoud: readFileSync(path.join(wortel, 'scripts', 'generate-draft.mjs'), 'utf8'),
+    });
     return uit;
   }
 
@@ -212,7 +218,7 @@ describe('publieke claims kloppen met de partnerconfiguratie', () => {
       const naam = path.relative(wortel, vol);
       // partners.ts is de enige bron van de URL; testbestanden citeren hem.
       if (naam.includes('affiliate') || naam.includes('partners.ts')) continue;
-      if (/.test.tsx?$/.test(naam)) continue;
+      if (/\.test\.tsx?$/.test(naam)) continue;
       const inhoud = readFileSync(vol, 'utf8');
       if (/href=["'`][^"'`]*d\.energyzero\.nl/.test(inhoud)) {
         overtreders.push(naam);

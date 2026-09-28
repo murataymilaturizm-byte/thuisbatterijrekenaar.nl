@@ -73,8 +73,10 @@ function bouwPrompt({ onderwerp, paginas, constanten, vandaag, vandaagNl }) {
 
 ## Wie wij zijn
 Een onafhankelijke rekenaar voor thuisbatterijen, beheerd door Sıtkı Murat Oğrak.
-Wij verkopen zelf GEEN batterijen en zijn niet verbonden aan een energieleverancier
-of installateur. Onze inkomsten komen uit vrijblijvende offerteaanvragen. Onze
+Wij verkopen zelf GEEN batterijen en onze rekenmethode is leverancieronafhankelijk.
+Wij werken via het affiliatenetwerk Daisycon samen met EnergyZero (dynamische
+energiecontracten); dat melden wij op de site bij elke link, en het verandert niets
+aan een berekening. Een offerteservice voor batterijen hebben wij nog niet. Onze
 positionering is eerlijkheid: wij zeggen het ook wanneer een thuisbatterij niet
 uit kan.
 
@@ -169,6 +171,39 @@ Deze formuleringen mag je NIET gebruiken:
   een specifieke capaciteit
 - "gemiddeld ... per dag" als je dat zelf hebt uitgerekend
 
+## REEDS GEVERIFIEERDE FEITEN — niet opnieuw ter discussie stellen
+
+Sommige feiten zijn al geverifieerd tegen de primaire bron en staan
+gepubliceerd op deze site. Zet daar GEEN [TEYIT GEREKLI] bij en
+schrijf niet dat ze nog gecontroleerd moeten worden.
+
+Geverifieerd (Belastingdienst, "Thuisbatterij en btw",
+laatst gewijzigd 3 augustus 2026 — zie /btw-thuisbatterij/):
+- De batterij valt onder 21% btw; het nultarief voor zonnepanelen
+  geldt er niet voor
+- Btw-teruggaaf is mogelijk onder vijf voorwaarden: handel in stroom
+  met de energiemaatschappij; een EMS waarmee in stroom gehandeld
+  kan worden; een dynamisch energiecontract; factuur én
+  energiecontract op eigen naam; geen deelname aan de KOR op het
+  moment van aanschaf
+- Er geldt geen forfait; teruggaaf binnen 6 maanden na afloop van
+  het aanschafjaar
+- Correctie privégebruik gedurende 5 jaar (herzieningsperiode)
+
+Verwijs voor details naar /btw-thuisbatterij/ in plaats van de
+voorwaarden opnieuw uit te leggen.
+
+Geverifieerd (Netbeheer Nederland — zie
+/thuisbatterij-melden-netbeheerder/):
+- Meldplicht geldt vanaf 0,8 kW VERMOGEN (niet kWh), op grond van
+  de Nederlandse Netcode Elektriciteit
+- Registratie via energieleveren.nl voor 0,8 kW tot 1 MW
+
+Overschrijd de bron niet. De Belastingdienst eist dat de batterij
+in staat IS om te handelen; schrijf niet dat u actief moet
+arbitreren of dat louter zelfverbruik de teruggaaf uitsluit —
+dat is onze interpretatie, niet hun tekst.
+
 ## Bestaande pagina's (voor interne links en om herhaling te vermijden)
 ${paginalijst}
 
@@ -222,6 +257,11 @@ frontmatter).
   bewering waar de onzekerheid over gaat. Nooit in het Bronnen-blok —
   daar staan alleen echte bronnen.
 - Beweren dat een thuisbatterij altijd rendabel is.
+- Noem in het Bronnen-blok uitsluitend bronnen die je in de tekst
+  daadwerkelijk hebt gebruikt en waarvan je titel en vindplaats kent.
+  Verzin geen wet-, richtlijn- of publicatienummers. Een Europese
+  richtlijn of Nederlandse wet noem je alleen als je die in de
+  lopende tekst inhoudelijk hebt aangehaald.
 - Beschrijf geen technische mechanismen die niet in onze rekenmotor
   zitten. Voorbeeld van wat NIET mag: beweren dat een batterij die
   's ochtends nog halfvol is, ertoe leidt dat zonnestroom naar het net
