@@ -61,7 +61,7 @@ describe('TEYIT-markering in een gepubliceerde pagina', () => {
    * Daarom een ratel in plaats van een harde nul: nieuwe overtredingen
    * vallen om, en het getal hieronder mag alleen omlaag.
    */
-  const OPENSTAANDE_MARKERINGEN = 7;
+  const OPENSTAANDE_MARKERINGEN = 0;
 
   it('het aantal zichtbare markeringen groeit niet', () => {
     const perPagina: string[] = [];

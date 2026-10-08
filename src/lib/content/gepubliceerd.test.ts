@@ -21,7 +21,7 @@ const paginaMap = path.join(wortel, 'src', 'content', 'pages');
 
 /** Aantal gepubliceerde pagina's dat deze rode poort nú niet haalt. */
 const BASISLIJN: Record<string, number> = {
-  'teyit-in-gepubliceerde-pagina': 7,
+  'teyit-in-gepubliceerde-pagina': 0,
   // Vier pagina's noemen een afgeleid bedrag (0,14 euro, 3.950, 9 kWh, 2.750,
   // 45%, 100%). Alle zes zijn op 8 oktober 2026 tegen de rekenmotor gelegd en
   // kloppen; ze staan alleen niet in constants.ts omdat ze eruit vólgen.
