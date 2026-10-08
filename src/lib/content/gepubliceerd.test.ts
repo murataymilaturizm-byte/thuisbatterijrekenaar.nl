@@ -34,14 +34,15 @@ const POORTEN_JURIDISCH_OVERIG = new Set([
 /**
  * Aantal pagina's dat een poort nú niet haalt. Alleen omlaag.
  *
- * Wat hier niet op nul staat, is op 8 oktober 2026 onderzocht en gemeld:
- * - onbekende-getallen: vier pagina's noemen een bedrag dat uit de motor
- *   vólgt (0,14 euro, 3.950, 9 kWh, 2.750, 45%, 100%). Alle zes zijn tegen de
- *   rekenmotor gelegd en kloppen.
- * - clusterlinks: het cluster 'dynamisch' telt twee pagina's, dus twee
- *   clusterlinks zijn er domweg niet te leggen. Structureel, geen gebrek.
- * - rekenaar: één inhoudspagina linkt niet naar de rekenaar. Dat is een echt
- *   gat; het wacht op een inhoudelijk besluit.
+ * Alles staat sinds 8 oktober 2026 op nul: elke poort moet voor elke
+ * gepubliceerde pagina slagen. Wie hier een getal boven nul zet, legt vast dat
+ * de site een bekend gebrek heeft — dan hoort er een regel bij wélke pagina's
+ * het zijn en waarom dat voorlopig zo blijft.
+ *
+ * De drie uitzonderingen van 8 oktober zijn opgelost in plaats van geboekt:
+ * de getallen die uit de motor vólgen staan in afgeleide-waarden.ts, de
+ * clustereis kan niet hoger liggen dan er pagina's te linken zijn, en de
+ * ontbrekende rekenaarlink is gelegd.
  */
 const BASISLIJN: Record<string, number> = {
   'teyit-in-gepubliceerde-pagina': 0,
@@ -53,7 +54,7 @@ const BASISLIJN: Record<string, number> = {
   'onbekende-getallen': 0,
   clusterlinks: 0,
   rekenaar: 0,
-  // Op 8 oktober 2026 over alle 23 gepubliceerde pagina's gemeten: nul. De 25
+  // Op 8 oktober 2026 over alle 21 gepubliceerde pagina's gemeten: nul. De 25
   // zinnen met "vaak/gangbaar/gebruikelijk" gaan over begrippen die worden
   // verward, niet over hoeveelheden.
   'vage-hoeveelheid': 0,
