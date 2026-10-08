@@ -277,15 +277,30 @@ frontmatter).
   de drie grenzen terugvindt, bestaat voor deze site niet.
   Bij twijfel: beschrijf het niet, of markeer het met [TEYIT GEREKLI].
 
-## Onzekerheid benoemen
+## Onzekerheid benoemen — en wanneer juist niet
 
-Onze aannames zijn geen gemeten waarden. Waar je een aanname noemt
-die per merk, model of situatie verschilt — bijvoorbeeld de
-ontladingsdiepte of de prijs per kWh — markeer die met
-[TEYIT GEREKLI: ...] in de lopende tekst.
+[TEYIT GEREKLI: ...] is er voor één geval: een EXTERN en controleerbaar
+feit waarvoor jij geen bron kon vinden. Denk aan een wettelijke termijn,
+een tarief van een instantie, een juridische kwalificatie. De markering
+zegt: "dit is te verifiëren, maar wij hebben de bron niet gevonden."
 
-Een concept zonder enkele markering is verdacht: het betekent
-meestal dat je onzekerheid hebt weggeschreven in plaats van benoemd.
+Zet NOOIT een markering op:
+
+1. Onze eigen rekenaannames. De waarden uit de constantenlijst hierboven
+   zijn van ons en staan gepubliceerd op /uitgangspunten/. Dat de
+   werkelijkheid per merk of model verschilt, is geen onzekerheid maar de
+   aard van een aanname. Schrijf dat als gewone Nederlandse zin, met een
+   verwijzing naar /uitgangspunten/. Bijvoorbeeld: "Dat is een
+   rekenaanname: de toegestane ontladingsdiepte verschilt per fabrikant,
+   dus controleer de specificaties van het systeem dat u overweegt."
+2. Onze eigen methode of ons eigen model. Daar is niets onzeker aan; het
+   staat beschreven op /uitgangspunten/ en /thuisbatterij-rendement/.
+3. Een interne planning, zoals "tarieven volgen in een aparte pagina".
+   Bestaat die pagina, verwijs ernaar; bestaat ze niet, laat de zin weg.
+
+Een concept zonder markeringen is prima. Een markering op een eigen
+aanname is fout — dat is precies de fout die wij in oktober 2026 over
+tien pagina's hebben moeten terugdraaien.
 
 Geef uitsluitend de inhoud van het MDX-bestand terug, zonder codeblok-hekjes
 eromheen en zonder begeleidende tekst.

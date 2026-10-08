@@ -1,14 +1,17 @@
 /**
  * De kwaliteitspoorten, toegepast op álle gepubliceerde pagina's.
  *
- * Tot nu toe draaide `beoordeelConcept` alleen vanuit /concepten, en die
- * pagina slaat gepubliceerde bestanden juist over — er keek dus niets naar de
- * pagina's die bezoekers te zien krijgen. Dat is hier rechtgezet.
+ * Tot 8 oktober 2026 draaide `beoordeelConcept` alleen vanuit /concepten, en
+ * die pagina slaat gepubliceerde bestanden juist over — er keek dus niets naar
+ * wat bezoekers te zien krijgen.
  *
- * In één keer hard afdwingen kan niet: er staat een erfenis van eerdere
- * afspraken in de teksten. Daarom een ratel per poort. Het getal in BASISLIJN
- * is het aantal pagina's dat die poort vandaag niet haalt; komt er één bij,
- * dan valt de test om. De getallen mogen alleen omlaag.
+ * Poorten gelden per paginatype. Een privacyverklaring hoort geen FAQ en geen
+ * link naar de rekenaar te hebben; die daar afdwingen levert rood op dat niets
+ * betekent, en een poort die altijd rood staat wordt genegeerd.
+ *
+ * Het type volgt uit de frontmatter: een pagina mét `cluster` hoort bij de
+ * kennisbank en krijgt alle poorten; een pagina zonder cluster is juridisch of
+ * overig. Daar is geen nieuw veld voor nodig.
  */
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -19,20 +22,37 @@ import { beoordeelConcept } from './quality';
 const wortel = path.resolve(__dirname, '..', '..', '..');
 const paginaMap = path.join(wortel, 'src', 'content', 'pages');
 
-/** Aantal gepubliceerde pagina's dat deze rode poort nú niet haalt. */
+/** Poorten die voor een juridische of overige pagina zinnig zijn. */
+const POORTEN_JURIDISCH_OVERIG = new Set([
+  'links',
+  'teyit-in-gepubliceerde-pagina',
+  'teyit-in-bronnen',
+  'constantenaam',
+  'bronnummers',
+]);
+
+/**
+ * Aantal pagina's dat een poort nú niet haalt. Alleen omlaag.
+ *
+ * Wat hier niet op nul staat, is op 8 oktober 2026 onderzocht en gemeld:
+ * - onbekende-getallen: vier pagina's noemen een bedrag dat uit de motor
+ *   vólgt (0,14 euro, 3.950, 9 kWh, 2.750, 45%, 100%). Alle zes zijn tegen de
+ *   rekenmotor gelegd en kloppen.
+ * - clusterlinks: het cluster 'dynamisch' telt twee pagina's, dus twee
+ *   clusterlinks zijn er domweg niet te leggen. Structureel, geen gebrek.
+ * - rekenaar: één inhoudspagina linkt niet naar de rekenaar. Dat is een echt
+ *   gat; het wacht op een inhoudelijk besluit.
+ */
 const BASISLIJN: Record<string, number> = {
   'teyit-in-gepubliceerde-pagina': 0,
-  // Vier pagina's noemen een afgeleid bedrag (0,14 euro, 3.950, 9 kWh, 2.750,
-  // 45%, 100%). Alle zes zijn op 8 oktober 2026 tegen de rekenmotor gelegd en
-  // kloppen; ze staan alleen niet in constants.ts omdat ze eruit vólgen.
-  'onbekende-getallen': 4,
-  clusterlinks: 6,
-  rekenaar: 4,
-  links: 0,
-  faq: 5,
   'teyit-in-bronnen': 0,
   bronnummers: 0,
   constantenaam: 0,
+  links: 0,
+  faq: 0,
+  'onbekende-getallen': 4,
+  clusterlinks: 2,
+  rekenaar: 1,
 };
 
 const bekendeWaarden = Object.values(alleConstanten)
@@ -69,7 +89,7 @@ function gepubliceerdePaginas(): Pagina[] {
         ruw,
         body: ruw.replace(/^---[\s\S]*?\n---\n/, ''),
         url: `/${naam.replace('.mdx', '')}/`,
-        cluster: /^cluster:\s*'(.+)'$/m.exec(fm)?.[1] ?? 'overig',
+        cluster: /^cluster:\s*'(.+)'$/m.exec(fm)?.[1] ?? '',
         faqAantal: (ruw.match(/^ {2}- vraag:/gm) ?? []).length,
       };
     })
@@ -80,26 +100,31 @@ describe('kwaliteitspoorten op gepubliceerde pagina’s', () => {
   const paginas = gepubliceerdePaginas();
   const bestaandeUrls = [...paginas.map((p) => p.url), ...astroPaginas];
 
-  /** Per rode poort: welke pagina's halen hem niet? */
   const gezakt: Record<string, string[]> = {};
   for (const p of paginas) {
+    const isInhoudspagina = p.cluster !== '';
     const resultaten = beoordeelConcept({
       body: p.body,
       ruw: p.ruw,
       faqAantal: p.faqAantal,
       cluster: p.cluster,
       bestaandeUrls,
-      clusterUrls: paginas.filter((a) => a.cluster === p.cluster && a.url !== p.url).map((a) => a.url),
+      clusterUrls: isInhoudspagina
+        ? paginas.filter((a) => a.cluster === p.cluster && a.url !== p.url).map((a) => a.url)
+        : [],
       bekendeWaarden,
       constanteNamen,
     });
     for (const r of resultaten) {
-      if (r.niveau === 'rood' && !r.geslaagd) (gezakt[r.id] ??= []).push(`${p.naam}: ${r.toelichting}`);
+      if (r.niveau !== 'rood' || r.geslaagd) continue;
+      if (!isInhoudspagina && !POORTEN_JURIDISCH_OVERIG.has(r.id)) continue;
+      (gezakt[r.id] ??= []).push(`${p.naam}: ${r.toelichting}`);
     }
   }
 
   it('er zijn gepubliceerde pagina’s om te controleren', () => {
     expect(paginas.length).toBeGreaterThan(15);
+    expect(paginas.filter((p) => p.cluster === '').length).toBeGreaterThan(0);
   });
 
   for (const [poort, maximum] of Object.entries(BASISLIJN)) {

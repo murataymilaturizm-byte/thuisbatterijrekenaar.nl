@@ -4,6 +4,7 @@
  * varianten moeten allemaal dezelfde schone MDX opleveren, en de
  * frontmattervalidatie moet ontbrekende velden bij naam noemen.
  */
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   normaliseerAntwoord,
@@ -113,5 +114,39 @@ describe('valideerFrontmatter', () => {
     expect(valideerFrontmatter('## Alleen een body')).toEqual([
       'frontmatter-blok (--- … ---)',
     ]);
+  });
+});
+
+/**
+ * De promptregels rond TEYIT.
+ *
+ * Batch 1 van oktober 2026 liet zien dat vijf van de tien markeringen op onze
+ * eigen rekenaannames stonden. Dat was geen misverstand van het model: de
+ * prompt gáf die opdracht, met "de ontladingsdiepte of de prijs per kWh" als
+ * voorbeeld. De instructie is herschreven; deze test houdt hem weg.
+ */
+describe('promptregels rond TEYIT', () => {
+  const prompt = readFileSync(
+    new URL('./generate-draft.mjs', import.meta.url),
+    'utf8',
+  );
+
+  it('instrueert niet langer om eigen aannames te markeren', () => {
+    expect(prompt).not.toContain('ontladingsdiepte of de prijs per kWh — markeer die met');
+    expect(prompt).not.toMatch(/Een concept zonder enkele markering is verdacht/);
+  });
+
+  it('bevat de drie regels: eigen aannames, extern feit, interne planning', () => {
+    expect(prompt).toContain('Zet NOOIT een markering op');
+    // 1 — eigen rekenaannames horen bij /uitgangspunten/
+    expect(prompt).toMatch(/eigen rekenaannames[\s\S]{0,400}\/uitgangspunten\//);
+    // 2 — alleen voor een extern, controleerbaar feit
+    expect(prompt).toMatch(/EXTERN en controleerbaar\s*\n?\s*feit/);
+    // 3 — interne planning is geen markering
+    expect(prompt).toMatch(/interne planning/);
+  });
+
+  it('laat expliciet toe dat een concept geen enkele markering heeft', () => {
+    expect(prompt).toContain('Een concept zonder markeringen is prima');
   });
 });
