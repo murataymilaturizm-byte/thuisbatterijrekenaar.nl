@@ -46,7 +46,16 @@ export interface ConceptInvoer {
 }
 
 export const MIN_WOORDEN = 800;
-export const MAX_WOORDEN = 1200;
+/**
+ * Geen harde bovengrens meer.
+ *
+ * De oude grens van 1200 had geen empirische basis en werkte averechts: hij
+ * dwong om geverifieerde inhoud weg te knippen. De zoekdata spreekt hem ook
+ * tegen — een pagina van 593 woorden staat op positie 3,5, een van 1261 op 72.
+ * Lengte voorspelt de positie niet. Alleen echt opgeblazen teksten verdienen
+ * nog een blik, en dat is een signaal, geen blokkade.
+ */
+export const WAARSCHUWING_WOORDEN = 1600;
 export const MIN_FAQ = 4;
 export const MIN_CLUSTERLINKS = 2;
 
@@ -293,10 +302,15 @@ export function beoordeelConcept(invoer: ConceptInvoer): PoortResultaat[] {
     ...poorten,
     {
       id: 'woorden',
-      label: `Lengte ${MIN_WOORDEN}–${MAX_WOORDEN} woorden`,
-      niveau: 'rood',
-      geslaagd: woorden >= MIN_WOORDEN && woorden <= MAX_WOORDEN,
-      toelichting: `${woorden} woorden geteld.`,
+      label: `Lengte (richtlijn vanaf ${MIN_WOORDEN}, signaal boven ${WAARSCHUWING_WOORDEN})`,
+      niveau: 'geel',
+      geslaagd: woorden >= MIN_WOORDEN && woorden <= WAARSCHUWING_WOORDEN,
+      toelichting:
+        woorden < MIN_WOORDEN
+          ? `${woorden} woorden — kort voor een concept; geen reden om te rekken.`
+          : woorden > WAARSCHUWING_WOORDEN
+            ? `${woorden} woorden — controleer op herhaling, niet op lengte alleen.`
+            : `${woorden} woorden geteld.`,
     },
     {
       id: 'faq',
