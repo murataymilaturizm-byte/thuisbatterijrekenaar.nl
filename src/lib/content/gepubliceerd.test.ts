@@ -53,6 +53,10 @@ const BASISLIJN: Record<string, number> = {
   'onbekende-getallen': 0,
   clusterlinks: 0,
   rekenaar: 0,
+  // Op 8 oktober 2026 over alle 23 gepubliceerde pagina's gemeten: nul. De 25
+  // zinnen met "vaak/gangbaar/gebruikelijk" gaan over begrippen die worden
+  // verward, niet over hoeveelheden.
+  'vage-hoeveelheid': 0,
 };
 
 const bekendeWaarden = Object.values(alleConstanten)

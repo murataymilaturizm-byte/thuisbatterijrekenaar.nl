@@ -13,6 +13,8 @@ import { JURIDISCHE_TOKENS } from '../../config/juridische-waarden';
 import {
   isGepubliceerd,
   onbekendeGetallen,
+  publiekeFrontmatter,
+  vageHoeveelheden,
   teyitInBronnen,
   teyitInGepubliceerdePagina,
 } from './quality';
@@ -119,5 +121,71 @@ describe('geverifieerde juridische waarden', () => {
       expect(w.wat.length, `${w.tekst} mist een omschrijving`).toBeGreaterThan(10);
     }
     expect(JURIDISCHE_TOKENS.size).toBe(JURIDISCHE_WAARDEN.length);
+  });
+});
+
+describe('publiekstekst uit de frontmatter', () => {
+  // Een FAQ staat in de frontmatter en is voor de lezer net zo zichtbaar als
+  // de lopende tekst. De getallenpoort keek er niet naar; zo stond
+  // "70 tot 80 procent" live zonder dat één poort iets zei.
+  const pagina = [
+    '---',
+    "title: 'Garantie op een thuisbatterij | Thuisbatterijrekenaar'",
+    "description: 'Wat een garantie wel en niet dekt.'",
+    "gepubliceerd: '2026-10-08'",
+    "cluster: 'regelgeving'",
+    'faq:',
+    "  - vraag: 'Hoeveel capaciteit blijft er over?'",
+    '    antwoord: >-',
+    '      Fabrikanten garanderen vaak 70 tot 80 procent restcapaciteit na tien',
+    '      jaar.',
+    '---',
+    '',
+    'De lopende tekst noemt geen los getal.',
+    '',
+  ].join('\n');
+
+  it('haalt de FAQ en de description op, zonder de datumvelden', () => {
+    const tekst = publiekeFrontmatter(pagina);
+    expect(tekst).toContain('70 tot 80 procent');
+    expect(tekst).toContain('Wat een garantie wel en niet dekt.');
+    expect(tekst, 'een datumveld hoort er niet bij').not.toContain('2026-10-08');
+    expect(tekst, 'een structuurveld hoort er niet bij').not.toContain('regelgeving');
+  });
+
+  it('de getallenpoort ziet een getal dat alleen in de FAQ staat', () => {
+    const body = pagina.replace(/^---[\s\S]*?\r?\n---\r?\n/, '');
+    expect(
+      onbekendeGetallen(body, []),
+      'alleen de body gelezen: het getal in de FAQ blijft onzichtbaar',
+    ).toEqual([]);
+    expect(onbekendeGetallen(`${body}\n${publiekeFrontmatter(pagina)}`, [])).toContain(
+      '80 procent',
+    );
+  });
+});
+
+describe('vaagheidswoord bij een hoeveelheid', () => {
+  // Deze poort is geel en opzettelijk smal. Hij moet vuren op het patroon dat
+  // als marktfeit leest zonder bron, en zwijgen bij "vaak twee dingen".
+  it('vuurt op een hoeveelheid achter een vaagheidswoord', () => {
+    expect(
+      vageHoeveelheden('Fabrikanten garanderen vaak 70 tot 80 procent restcapaciteit.'),
+    ).toHaveLength(1);
+    expect(vageHoeveelheden('Een cyclusgarantie van zes duizend cycli is gangbaar.')).toHaveLength(
+      1,
+    );
+    expect(vageHoeveelheden('Tien jaar garantie is gebruikelijk.')).toHaveLength(1);
+    expect(
+      vageHoeveelheden('Een terugverdientijd van vijftien jaar is veelvoorkomend.'),
+    ).toHaveLength(1);
+  });
+
+  it('zwijgt waar geen hoeveelheid staat', () => {
+    expect(vageHoeveelheden('Hier worden vaak twee dingen door elkaar gehaald.')).toEqual([]);
+    expect(vageHoeveelheden('Die derde grens wordt vaak vergeten.')).toEqual([]);
+    expect(vageHoeveelheden('Corporaties hebben vaak een standaardbeleid.')).toEqual([]);
+    // Zonder vaagheidswoord is een getal de taak van de getallenpoort.
+    expect(vageHoeveelheden('De garantie loopt tien jaar.')).toEqual([]);
   });
 });

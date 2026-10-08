@@ -194,6 +194,28 @@ export function ongebruikteBronnummers(body: string): string[] {
   }
   return [...ongebruikt];
 }
+/**
+ * De publiekstekst uit de frontmatter: title, description, h1 en de FAQ.
+ *
+ * De getallenpoort keek alleen naar de body, en de FAQ staat in de
+ * frontmatter. Zo stond "70 tot 80 procent" op een gepubliceerde pagina
+ * zonder dat één poort er iets over zei. Datum- en structuurvelden blijven
+ * buiten: daar staan getallen in die niets beweren.
+ */
+export function publiekeFrontmatter(ruw: string): string {
+  const fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(ruw)?.[1] ?? '';
+  if (!fm) return '';
+  const METADATA =
+    /^\s*-?\s*(gepubliceerd|gecontroleerd|published|cluster|slug|auteur|datum|bijgewerkt|zoekvolume|canonical|noindex)\s*:/i;
+  return fm
+    .split(/\r?\n/)
+    .filter((r) => !METADATA.test(r))
+    // Sleutelnaam en blokmarkering eraf, de waarde houden.
+    .map((r) => r.replace(/^\s*-?\s*[A-Za-z0-9_-]+:\s*(?:>-|\|-|>|\|)?\s*/, ''))
+    .map((r) => r.replace(/^['"]/, '').replace(/['"]$/, ''))
+    .join('\n');
+}
+
 export function onbekendeGetallen(body: string, bekendeWaarden: number[]): string[] {
   const bekend = new Set<number>();
   for (const w of bekendeWaarden) {
@@ -209,6 +231,46 @@ export function onbekendeGetallen(body: string, bekendeWaarden: number[]): strin
     if (AFGELEIDE_TOKENS.has(genormaliseerd)) return false;
     return !bekend.has(parseGetalNl(token));
   });
+}
+
+/**
+ * Een vaagheidswoord samen met een hoeveelheid in dezelfde zin.
+ *
+ * "Fabrikanten garanderen vaak 70 tot 80 procent na tien jaar" leest als een
+ * marktfeit, maar zegt niet wiens garantie, gemeten waarover, en op welke
+ * bron. Zo'n zin is niet fout te noemen en ook niet te controleren — daarom
+ * geel: een mens kijkt of er een bron bij hoort of dat de hoeveelheid eruit
+ * moet.
+ *
+ * Opzettelijk smal. Alleen deze vier woorden, en alleen als er in dezelfde
+ * zin een getal (cijfer óf voluit) direct vóór een tijds- of
+ * hoeveelheidseenheid staat. "Hier worden vaak twee dingen verward" is geen
+ * hoeveelheidsclaim en blijft dus buiten.
+ */
+const VAAGHEID = /\b(?:gangbaar|gebruikelijk|veelvoorkomend|vaak)\b/i;
+
+const GETAL_VOLUIT =
+  'twee|drie|vier|vijf|zes|zeven|acht|negen|tien|elf|twaalf|dertien|veertien|' +
+  'vijftien|zestien|zeventien|achttien|negentien|twintig|dertig|veertig|' +
+  'vijftig|zestig|zeventig|tachtig|negentig|honderd|duizend';
+const EENHEID =
+  'jaar|jaren|maand|maanden|week|weken|dag|dagen|uur|uren|cycli|cyclus|keer|maal|procent|%|kWh|kW|euro';
+const HOEVEELHEID = new RegExp(
+  `\\b(?:\\d[\\d.,]*|${GETAL_VOLUIT})` +
+    `(?:\\s*(?:-|tot|à|of|en)\\s*(?:\\d[\\d.,]*|${GETAL_VOLUIT}))?` +
+    `\\s+(?:${EENHEID})\\b`,
+  'i',
+);
+
+export function vageHoeveelheden(tekst: string): string[] {
+  const uit: string[] = [];
+  for (const zin of tekst.replace(/\s+/g, ' ').split(/(?<=[.!?])\s+/)) {
+    if (!VAAGHEID.test(zin)) continue;
+    const m = HOEVEELHEID.exec(zin);
+    if (!m) continue;
+    uit.push(`${m[0]} — ${zin.trim().slice(0, 140)}`);
+  }
+  return uit;
 }
 
 const EERLIJKHEIDSSIGNALEN = [
@@ -238,7 +300,11 @@ export function beoordeelConcept(invoer: ConceptInvoer): PoortResultaat[] {
   const clusterLinks = links.filter((l) => clusterSet.has(l));
   const getallen = losseGetallen(body);
   const eerlijkheid = EERLIJKHEIDSSIGNALEN.filter((s) => lower.includes(s));
-  const onbekend = bekendeWaarden ? onbekendeGetallen(body, bekendeWaarden) : [];
+  // Body én publieke frontmatter: de FAQ staat in de frontmatter en is net zo
+  // zichtbaar voor de lezer als de lopende tekst.
+  const publiekeTekst = `${body}\n${publiekeFrontmatter(ruw)}`;
+  const onbekend = bekendeWaarden ? onbekendeGetallen(publiekeTekst, bekendeWaarden) : [];
+  const vaag = vageHoeveelheden(publiekeTekst);
 
   const bronnummers = ongebruikteBronnummers(body);
   const teyitInBron = teyitInBronnen(body);
@@ -363,6 +429,16 @@ export function beoordeelConcept(invoer: ConceptInvoer): PoortResultaat[] {
         getallen.length === 0
           ? 'Geen losse getallen in de lopende tekst.'
           : `Controleer handmatig: ${getallen.join(', ')}`,
+    },
+    {
+      id: 'vage-hoeveelheid',
+      label: 'Geen vaagheidswoord bij een hoeveelheid',
+      niveau: 'geel',
+      geslaagd: vaag.length === 0,
+      toelichting:
+        vaag.length === 0
+          ? 'Geen "gangbaar/gebruikelijk/vaak" bij een getal.'
+          : `Wiens cijfer is dit, en waar staat het? ${vaag.join(' || ')}`,
     },
     {
       id: 'eerlijkheid',
