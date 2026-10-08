@@ -50,9 +50,9 @@ const BASISLIJN: Record<string, number> = {
   constantenaam: 0,
   links: 0,
   faq: 0,
-  'onbekende-getallen': 4,
-  clusterlinks: 2,
-  rekenaar: 1,
+  'onbekende-getallen': 0,
+  clusterlinks: 0,
+  rekenaar: 0,
 };
 
 const bekendeWaarden = Object.values(alleConstanten)

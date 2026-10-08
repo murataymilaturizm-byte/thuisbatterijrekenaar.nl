@@ -7,6 +7,7 @@
  * Pure functies, geen Astro/React — testbaar en herbruikbaar.
  */
 
+import { AFGELEIDE_TOKENS } from '../../config/afgeleide-waarden';
 import { JURIDISCHE_TOKENS } from '../../config/juridische-waarden';
 
 export type PoortNiveau = 'rood' | 'geel';
@@ -200,8 +201,12 @@ export function onbekendeGetallen(body: string, bekendeWaarden: number[]): strin
     if (w > 0 && w < 1) bekend.add(Math.round(w * 100));
   }
   return losseGetallen(body).filter((token) => {
+    const genormaliseerd = token.toLowerCase().replace(/\s+/g, ' ');
     // Wettelijke en fiscale waarden staan in een eigen, bronvermelde lijst.
-    if (JURIDISCHE_TOKENS.has(token.toLowerCase().replace(/\s+/g, ' '))) return false;
+    if (JURIDISCHE_TOKENS.has(genormaliseerd)) return false;
+    // Uit onze eigen cijfers afgeleid; afgeleide-waarden.test.ts herberekent
+    // ze bij elke run en valt om zodra een constante verschuift.
+    if (AFGELEIDE_TOKENS.has(genormaliseerd)) return false;
     return !bekend.has(parseGetalNl(token));
   });
 }
@@ -330,7 +335,9 @@ export function beoordeelConcept(invoer: ConceptInvoer): PoortResultaat[] {
       id: 'clusterlinks',
       label: `Minimaal ${MIN_CLUSTERLINKS} links binnen het cluster`,
       niveau: 'rood',
-      geslaagd: clusterLinks.length >= MIN_CLUSTERLINKS,
+      // Een cluster van twee pagina's kan er maar één aanbieden; de eis kan
+      // nooit hoger liggen dan wat er te linken valt.
+      geslaagd: clusterLinks.length >= Math.min(MIN_CLUSTERLINKS, clusterUrls.length),
       toelichting:
         clusterLinks.length > 0
           ? `${clusterLinks.length} gevonden: ${clusterLinks.join(', ')}`
