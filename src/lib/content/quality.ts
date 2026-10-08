@@ -7,6 +7,8 @@
  * Pure functies, geen Astro/React — testbaar en herbruikbaar.
  */
 
+import { JURIDISCHE_TOKENS } from '../../config/juridische-waarden';
+
 export type PoortNiveau = 'rood' | 'geel';
 
 export interface PoortResultaat {
@@ -110,6 +112,33 @@ export function constantenInTekst(body: string, constanteNamen: string[]): strin
 }
 
 /**
+ * Is deze pagina gepubliceerd?
+ *
+ * Let op de richting. De meeste gepubliceerde pagina's hebben helemaal geen
+ * `published`-veld — alleen de contentpijplijn schrijft het. Een pagina is dus
+ * gepubliceerd tenzij er expliciet `published: false` staat, precies zoals
+ * /concepten het bepaalt. Op `published: true` testen zou juist de oudste
+ * live pagina's ongecontroleerd laten.
+ */
+export function isGepubliceerd(ruw: string): boolean {
+  const fm = /^---\n([\s\S]*?)\n---/.exec(ruw)?.[1] ?? '';
+  return !/^published:\s*false\s*$/m.test(fm);
+}
+
+/**
+ * TEYIT-markeringen in een pagina die al gepubliceerd is.
+ *
+ * In een concept hoort de markering juist thuis — daar is het werk. Zodra
+ * `published: true` staat, is elke markering een interne notitie die de
+ * lezer te zien krijgt; dat is precies wat er op
+ * /thuisbatterij-melden-netbeheerder/ live stond.
+ */
+export function teyitInGepubliceerdePagina(ruw: string): string[] {
+  if (!isGepubliceerd(ruw)) return [];
+  return [...ruw.matchAll(/\[TEYIT[^\]]*\]?/g)].map((m) => m[0].slice(0, 70));
+}
+
+/**
  * Staat er een [TEYIT GEREKLI]-markering in het Bronnenblok?
  *
  * De markering hoort in de lopende tekst, bij de bewering waarover de
@@ -161,7 +190,11 @@ export function onbekendeGetallen(body: string, bekendeWaarden: number[]): strin
     bekend.add(w);
     if (w > 0 && w < 1) bekend.add(Math.round(w * 100));
   }
-  return losseGetallen(body).filter((token) => !bekend.has(parseGetalNl(token)));
+  return losseGetallen(body).filter((token) => {
+    // Wettelijke en fiscale waarden staan in een eigen, bronvermelde lijst.
+    if (JURIDISCHE_TOKENS.has(token.toLowerCase().replace(/\s+/g, ' '))) return false;
+    return !bekend.has(parseGetalNl(token));
+  });
 }
 
 const EERLIJKHEIDSSIGNALEN = [
@@ -194,8 +227,19 @@ export function beoordeelConcept(invoer: ConceptInvoer): PoortResultaat[] {
 
   const bronnummers = ongebruikteBronnummers(body);
   const teyitInBron = teyitInBronnen(body);
+  const teyitGepubliceerd = teyitInGepubliceerdePagina(ruw);
 
   const poorten: PoortResultaat[] = [
+    {
+      id: 'teyit-in-gepubliceerde-pagina',
+      label: 'Geen TEYIT-markering in een gepubliceerde pagina',
+      niveau: 'rood',
+      geslaagd: teyitGepubliceerd.length === 0,
+      toelichting:
+        teyitGepubliceerd.length === 0
+          ? 'Geen interne markeringen zichtbaar voor de lezer.'
+          : `Zichtbaar voor de lezer: ${teyitGepubliceerd.join(' | ')}`,
+    },
     {
       id: 'teyit-in-bronnen',
       label: 'Geen TEYIT-markering in het Bronnenblok',
