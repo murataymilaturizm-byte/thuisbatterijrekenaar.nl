@@ -255,7 +255,13 @@ frontmatter).
   Dat markeringspatroon is bewust; laat het letterlijk zo staan.
   [TEYIT GEREKLI: ...] hoort in de lopende tekst, direct bij de
   bewering waar de onzekerheid over gaat. Nooit in het Bronnen-blok —
-  daar staan alleen echte bronnen.
+  daar staan alleen echte bronnen. Zet de markering ook nooit midden
+  in een zin: hij mag de leesbaarheid niet breken. Schrijf de zin af
+  en plaats de markering er direct achter.
+  Fout:  "een investering over een periode van [TEYIT GEREKLI: ...]
+         beoordeelt"
+  Goed:  "een investering over vijftien jaar beoordeelt.
+         [TEYIT GEREKLI: gangbare afschrijvingstermijn]"
 - Beweren dat een thuisbatterij altijd rendabel is.
 - Noem in het Bronnen-blok uitsluitend bronnen die je in de tekst
   daadwerkelijk hebt gebruikt en waarvan je titel en vindplaats kent.

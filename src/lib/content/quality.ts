@@ -110,6 +110,19 @@ export function constantenInTekst(body: string, constanteNamen: string[]): strin
 }
 
 /**
+ * Staat er een [TEYIT GEREKLI]-markering in het Bronnenblok?
+ *
+ * De markering hoort in de lopende tekst, bij de bewering waarover de
+ * onzekerheid gaat. In Bronnen staan alleen echte bronnen; een markering
+ * daar maakt van een ontbrekende bron een bronvermelding.
+ */
+export function teyitInBronnen(body: string): boolean {
+  const delen = body.split(/###\s*Bronnen/i);
+  if (delen.length < 2) return false;
+  return /\[TEYIT/i.test(delen.slice(1).join('\n'));
+}
+
+/**
  * Wet-, richtlijn- of normnummers die alleen in het Bronnenblok staan én
  * geen vindplaats hebben.
  *
@@ -159,6 +172,8 @@ const EERLIJKHEIDSSIGNALEN = [
   'niet rendabel',
   'wij vonden geen',
   'niet aan te raden',
+  // 'Voor wie is dit géén goed argument' is ook een tegenwichtsectie.
+  'geen goed argument',
 ];
 
 export function beoordeelConcept(invoer: ConceptInvoer): PoortResultaat[] {
@@ -178,8 +193,18 @@ export function beoordeelConcept(invoer: ConceptInvoer): PoortResultaat[] {
   const onbekend = bekendeWaarden ? onbekendeGetallen(body, bekendeWaarden) : [];
 
   const bronnummers = ongebruikteBronnummers(body);
+  const teyitInBron = teyitInBronnen(body);
 
   const poorten: PoortResultaat[] = [
+    {
+      id: 'teyit-in-bronnen',
+      label: 'Geen TEYIT-markering in het Bronnenblok',
+      niveau: 'rood',
+      geslaagd: !teyitInBron,
+      toelichting: teyitInBron
+        ? 'Een TEYIT-markering hoort in de lopende tekst, niet tussen de bronnen.'
+        : 'Bronnen bevat alleen bronvermeldingen.',
+    },
     {
       id: 'bronnummers',
       label: 'Bronnenblok noemt geen ongebruikte wet-/richtlijnnummers',
