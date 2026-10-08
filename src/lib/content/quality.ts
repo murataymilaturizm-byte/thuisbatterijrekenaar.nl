@@ -131,7 +131,7 @@ export function constantenInTekst(body: string, constanteNamen: string[]): strin
  * live pagina's ongecontroleerd laten.
  */
 export function isGepubliceerd(ruw: string): boolean {
-  const fm = /^---\n([\s\S]*?)\n---/.exec(ruw)?.[1] ?? '';
+  const fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(ruw)?.[1] ?? '';
   return !/^published:\s*false\s*$/m.test(fm);
 }
 

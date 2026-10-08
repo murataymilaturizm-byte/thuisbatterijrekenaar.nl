@@ -18,7 +18,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 // Alle numerieke waarden uit constants.ts (arrays zoals de capaciteitenreeks
 // uitgevouwen) — voedt de poort "alle getallen komen uit constants.ts".
 const bekendeWaarden = Object.values(alleConstanten)
-  .flatMap((v) => (Array.isArray(v) ? v : [v]))
+  // Een unie met arrays erin laat zich niet door Array.isArray narrowen;
+  // het returntype expliciet maken houdt astro check stil zonder cast.
+  .flatMap((v): unknown[] => (Array.isArray(v) ? v : [v]))
   .filter((v): v is number => typeof v === 'number');
 
 // Constantennamen (HOOFDLETTERS_MET_UNDERSCORE) — afgeleid uit de exports,
@@ -84,7 +86,7 @@ for (const [pad, mod] of Object.entries(alleModules)) {
   if (!isConcept) continue;
 
   const ruw = ruweBronnen[pad] ?? '';
-  const body = ruw.replace(/^---[\s\S]*?\n---\n/, '');
+  const body = ruw.replace(/^---[\s\S]*?\r?\n---\r?\n/, '');
   const cluster = fm.cluster ?? 'overig';
   const clusterUrls = gepubliceerd
     .filter((p) => p.cluster === cluster)

@@ -40,7 +40,7 @@ function astroRoutes(): { naam: string; bron: string }[] {
  */
 function proza(bron: string): string {
   return bron
-    .replace(/^---\n[\s\S]*?\n---\n/, '')
+    .replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '')
     .replace(/\{[^}]*\}/g, '');
 }
 

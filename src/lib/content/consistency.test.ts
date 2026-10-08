@@ -95,7 +95,7 @@ describe('FAQ-antwoorden spreken de rekenmotor niet tegen', () => {
   function faqBlokken(): { naam: string; tekst: string }[] {
     return mdxBestanden()
       .map(({ naam, inhoud }) => {
-        const fm = /^---\n([\s\S]*?)\n---/.exec(inhoud)?.[1] ?? '';
+        const fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(inhoud)?.[1] ?? '';
         const faq = /^faq:\n([\s\S]*?)(?=\n[a-z_]+:|$)/m.exec(fm)?.[1] ?? '';
         return { naam, tekst: faq };
       })
@@ -149,6 +149,9 @@ describe('publieke claims kloppen met de partnerconfiguratie', () => {
     const uit: { naam: string; inhoud: string }[] = [];
     for (const vol of bronBestanden()) {
       if (/\.test\.tsx?$/.test(vol)) continue;
+      // claims.ts citeert de verboden formuleringen als voorbeeld; dat is
+      // het register, geen publiekstekst.
+      if (vol.endsWith('claims.ts')) continue;
       uit.push({ naam: path.relative(wortel, vol), inhoud: readFileSync(vol, 'utf8') });
     }
     for (const naam of ['llms.txt']) {

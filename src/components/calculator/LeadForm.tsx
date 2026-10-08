@@ -69,7 +69,8 @@ export default function LeadForm({
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       <h3 className="text-xl font-bold text-slate-900">Offerte aanvragen</h3>
       <p className="text-sm text-slate-600">
-        Wij zijn onafhankelijk en verkopen zelf geen batterijen. De
+        Wij verkopen zelf geen batterijen en onze rekenmethode is
+        leverancieronafhankelijk. De
         offerteservice is nog niet actief: wij werken op dit moment nog niet
         samen met installateurs. Uw gegevens worden daarom nog niet verstuurd
         of opgeslagen. Zodra dat verandert, staat hier precies met welke

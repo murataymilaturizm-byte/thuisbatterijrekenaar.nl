@@ -56,7 +56,9 @@ const BASISLIJN: Record<string, number> = {
 };
 
 const bekendeWaarden = Object.values(alleConstanten)
-  .flatMap((v) => (Array.isArray(v) ? v : [v]))
+  // Een unie met arrays erin laat zich niet door Array.isArray narrowen;
+  // het returntype expliciet maken houdt astro check stil zonder cast.
+  .flatMap((v): unknown[] => (Array.isArray(v) ? v : [v]))
   .filter((v): v is number => typeof v === 'number');
 const constanteNamen = Object.keys(alleConstanten).filter((n) => /^[A-Z][A-Z0-9_]*$/.test(n));
 
@@ -78,23 +80,57 @@ interface Pagina {
   faqAantal: number;
 }
 
+function leesPagina(naam: string, ruw: string): Pagina {
+  const fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(ruw)?.[1] ?? '';
+  return {
+    naam,
+    ruw,
+    body: ruw.replace(/^---[\s\S]*?\r?\n---\r?\n/, ''),
+    url: `/${naam.replace('.mdx', '')}/`,
+    cluster: /^cluster:\s*'(.+)'$/m.exec(fm)?.[1] ?? '',
+    faqAantal: (ruw.match(/^ {2}- vraag:/gm) ?? []).length,
+  };
+}
+
 function gepubliceerdePaginas(): Pagina[] {
   return readdirSync(paginaMap)
     .filter((b) => b.endsWith('.mdx') && !b.startsWith('_'))
-    .map((naam) => {
-      const ruw = readFileSync(path.join(paginaMap, naam), 'utf8');
-      const fm = /^---\n([\s\S]*?)\n---/.exec(ruw)?.[1] ?? '';
-      return {
-        naam,
-        ruw,
-        body: ruw.replace(/^---[\s\S]*?\n---\n/, ''),
-        url: `/${naam.replace('.mdx', '')}/`,
-        cluster: /^cluster:\s*'(.+)'$/m.exec(fm)?.[1] ?? '',
-        faqAantal: (ruw.match(/^ {2}- vraag:/gm) ?? []).length,
-      };
-    })
+    .map((naam) => leesPagina(naam, readFileSync(path.join(paginaMap, naam), 'utf8')))
     .filter((p) => !/^published:\s*false\s*$/m.test(p.ruw));
 }
+
+/**
+ * Eén bestand met Windows-regeleindes zette op 8 oktober 2026 een hele poort
+ * uit: `^---\n` matchte niet, de frontmatter werd leeg gelezen, de pagina gold
+ * als clusterloos en verdween uit haar eigen cluster. De poort werd niet rood,
+ * hij hield op te bestaan. Daarom deze test: dezelfde tekst met CRLF moet
+ * exact hetzelfde opleveren.
+ */
+describe('frontmatter leest hetzelfde met CRLF', () => {
+  it('cluster, body en faq-aantal zijn onafhankelijk van regeleindes', () => {
+    const afwijkend: string[] = [];
+    for (const p of gepubliceerdePaginas()) {
+      const crlf = leesPagina(p.naam, p.ruw.replace(/\r?\n/g, '\r\n'));
+      if (
+        crlf.cluster !== p.cluster ||
+        crlf.faqAantal !== p.faqAantal ||
+        crlf.body.replace(/\r/g, '') !== p.body.replace(/\r/g, '')
+      ) {
+        afwijkend.push(`${p.naam}: cluster "${p.cluster}" → "${crlf.cluster}"`);
+      }
+    }
+    expect(afwijkend, afwijkend.join('\n')).toEqual([]);
+  });
+
+  it('elke inhoudspagina heeft een leesbaar cluster', () => {
+    const zonder = gepubliceerdePaginas()
+      .filter((p) => /^cluster:/m.test(p.ruw) && p.cluster === '')
+      .map((p) => p.naam);
+    expect(zonder, `cluster staat in het bestand maar wordt niet gelezen:\n${zonder.join('\n')}`).toEqual(
+      [],
+    );
+  });
+});
 
 describe('kwaliteitspoorten op gepubliceerde pagina’s', () => {
   const paginas = gepubliceerdePaginas();

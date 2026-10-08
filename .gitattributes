@@ -1,0 +1,9 @@
+# Regeleindes vastzetten. Een .mdx met CRLF liet op 8 oktober 2026 een
+# kwaliteitspoort stilvallen: de frontmatter-regex las niets, de pagina gold
+# als clusterloos en verdween uit haar cluster. De poort werd niet rood, hij
+# verdween. LF in de repo haalt die klasse fouten weg.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary
