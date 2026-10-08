@@ -21,11 +21,29 @@
  */
 export const ONAFHANKELIJK_BIJVOEGLIJK = 'leverancieronafhankelijk';
 
-/** De volledige claim, voor plekken waar wij het onderwerp echt behandelen. */
+/** De pagina waar het verdienmodel uitgeschreven staat. */
+export const VERDIENMODEL_HREF = '/over-ons/';
+
+/**
+ * De volledige claim, in delen.
+ *
+ * In delen omdat een pagina de verwijzing als echte link moet kunnen zetten
+ * zonder de tekst over te typen. Wie hier naast gaat schrijven, maakt de
+ * elfde variant — en krijgt claims.test.ts rood.
+ */
+export const VERDIENMODEL = {
+  aanhef:
+    'Onze rekenmethode is leverancieronafhankelijk; onze inkomsten komen uit ' +
+    'affiliatelinks via het netwerk Daisycon.',
+  verwijzingVoor: 'Hoe wij geld verdienen, staat op ',
+  verwijzingLink: 'de pagina over ons',
+  verwijzingNa: '.',
+} as const;
+
+/** Dezelfde claim als platte tekst, voor plekken zonder opmaak. */
 export const VERDIENMODEL_ZIN =
-  'Onze rekenmethode is leverancieronafhankelijk; onze inkomsten komen uit ' +
-  'affiliatelinks via het netwerk Daisycon. Hoe wij geld verdienen, staat op ' +
-  'de pagina over ons.';
+  `${VERDIENMODEL.aanhef} ${VERDIENMODEL.verwijzingVoor}` +
+  `${VERDIENMODEL.verwijzingLink}${VERDIENMODEL.verwijzingNa}`;
 
 export interface GoedgekeurdeClaim {
   /** Herkenbaar fragment van de zin, genormaliseerd vergeleken. */

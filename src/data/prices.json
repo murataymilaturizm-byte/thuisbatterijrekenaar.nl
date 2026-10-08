@@ -1,8 +1,8 @@
 {
   "bron": "EnergyZero (day-ahead uurprijzen NL, incl. btw)",
-  "opgehaaldOp": "2026-10-08T12:48:41.802Z",
-  "gemiddeldeDagprijs30d": 0.1991,
-  "piekDalSpread90d": 0.2208,
+  "opgehaaldOp": "2026-10-08T13:00:09.882Z",
+  "gemiddeldeDagprijs30d": 0.199,
+  "piekDalSpread90d": 0.2203,
   "negatieveUren30d": 0,
   "datumVandaag": "2026-10-08",
   "uurprijzenVandaag": [

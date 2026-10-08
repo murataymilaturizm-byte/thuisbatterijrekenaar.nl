@@ -1,5 +1,6 @@
 ---
 import Calculator from '../components/calculator/Calculator';
+import { VERDIENMODEL, VERDIENMODEL_HREF } from '../config/claims';
 import prijsData from '../data/prices.json';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import type { MarktData } from '../lib/calc/types';
@@ -51,9 +52,19 @@ const marktData: MarktData = {
   <h1 class="mb-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
     Wat kost het einde van de saldering u — en wat bespaart een thuisbatterij?
   </h1>
-  <p class="mb-6 text-slate-600">
+  <p class="mb-2 text-slate-600">
     Bereken het in één minuut. Leverancieronafhankelijk, gratis en zonder
     verplichtingen.
+  </p>
+  {/* "Leverancieronafhankelijk" leest als "deze site heeft geen belang", en
+      dat is niet het hele verhaal. Daarom hier, direct onder de belofte en
+      vóór de rekenaar, waar wij ons geld vandaan halen. Tekst komt uit
+      claims.ts; geen tweede formulering. */}
+  <p class="mb-6 text-sm text-slate-500">
+    {VERDIENMODEL.aanhef} {VERDIENMODEL.verwijzingVoor}<a
+      href={VERDIENMODEL_HREF}
+      class="underline">{VERDIENMODEL.verwijzingLink}</a
+    >{VERDIENMODEL.verwijzingNa}
   </p>
 
   <Calculator client:load marktData={marktData} />

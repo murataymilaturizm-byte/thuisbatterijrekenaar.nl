@@ -11,7 +11,12 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { GOEDGEKEURDE_CLAIMS, normaliseerClaim } from '../../config/claims';
+import {
+  GOEDGEKEURDE_CLAIMS,
+  VERDIENMODEL,
+  VERDIENMODEL_ZIN,
+  normaliseerClaim,
+} from '../../config/claims';
 
 const wortel = path.resolve(__dirname, '..', '..', '..');
 
@@ -149,5 +154,37 @@ describe('claims over onszelf', () => {
         'inkomsten of samenwerkingen. Klopt de zin? Voeg hem dan bewust toe aan ' +
         `GOEDGEKEURDE_CLAIMS met een motivering.\n\n${onbekend.join('\n\n')}`,
     ).toEqual([]);
+  });
+});
+
+describe('de canonieke verdienmodelzin', () => {
+  it('staat zelf volledig op de goedgekeurde lijst', () => {
+    // Anders is de canonieke formulering zélf de elfde variant.
+    let rest = normaliseerClaim(VERDIENMODEL_ZIN);
+    for (const f of fragmenten) rest = rest.split(f).join(' ');
+    expect(RESIDU_CLAIM.test(rest), `niet gedekt in: "${rest.trim()}"`).toBe(false);
+  });
+
+  it('valt uit de delen samen tot één zin', () => {
+    expect(VERDIENMODEL_ZIN).toContain(VERDIENMODEL.aanhef);
+    expect(VERDIENMODEL_ZIN).toContain(
+      `${VERDIENMODEL.verwijzingVoor}${VERDIENMODEL.verwijzingLink}`,
+    );
+    expect(VERDIENMODEL_ZIN.endsWith(VERDIENMODEL.verwijzingNa)).toBe(true);
+  });
+
+  it('de homepage toont hem uit claims.ts en vóór de rekenaar', () => {
+    const index = readFileSync(path.join(wortel, 'src', 'pages', 'index.astro'), 'utf8');
+    expect(index, 'de tekst moet uit de bron komen').toContain("from '../config/claims'");
+    expect(index).toContain('VERDIENMODEL.aanhef');
+    expect(index, 'de verwijzing moet een echte link zijn').toContain('VERDIENMODEL_HREF');
+    expect(
+      index,
+      'de prozatekst overtypen maakt een tweede bron die stil kan verlopen',
+    ).not.toContain('onze inkomsten komen uit');
+    expect(
+      index.indexOf('VERDIENMODEL.aanhef'),
+      'de lezer moet dit zien voordat hij een uitkomst ziet',
+    ).toBeLessThan(index.indexOf('<Calculator'));
   });
 });
