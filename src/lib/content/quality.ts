@@ -221,6 +221,7 @@ const EERLIJKHEIDSSIGNALEN = [
   'niet aan te raden',
   // 'Voor wie is dit géén goed argument' is ook een tegenwichtsectie.
   'geen goed argument',
+  'minder geschikt',
 ];
 
 export function beoordeelConcept(invoer: ConceptInvoer): PoortResultaat[] {

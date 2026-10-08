@@ -176,6 +176,8 @@ describe('publieke claims kloppen met de partnerconfiguratie', () => {
     // Claims die alleen waar zijn zonder samenwerking.
     const ontkenningen = [
       /niet verbonden aan een energieleverancier/i,
+      // Variant die op 8 oktober 2026 door de maas glipte op /thuisbatterij-rendement/.
+      /aan geen enkele leverancier[^.]{0,40}verbonden/i,
       /geen affiliate-?links/i,
       /gebruiken geen affiliate/i,
       /nog geen samenwerking met installateurs of energieleveranciers/i,
