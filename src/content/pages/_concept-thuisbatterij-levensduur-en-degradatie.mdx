@@ -11,13 +11,13 @@ aiGegenereerd: true
 faq:
   - vraag: 'Hoe snel verliest een thuisbatterij capaciteit?'
     antwoord: >-
-      In onze berekening rekenen wij met 2 procent capaciteitsverlies per jaar. Dat betekent dat een batterij na vijf jaar nog circa 90 procent van de beginkapaciteit heeft, en na vijftien jaar circa 70 procent. De werkelijke afname hangt af van het merk, het aantal cycli en de omstandigheden.
+      In onze berekening rekenen wij met 2 procent capaciteitsverlies per jaar, samengesteld: elk jaar gaat er 2 procent af van wat er het jaar ervoor nog over was. In jaar vijf rekenen wij daardoor met 92 procent van de begincapaciteit, in jaar tien met 83 procent en in jaar vijftien met 75 procent. De werkelijke afname hangt af van het merk, het aantal cycli en de omstandigheden; wat een specifiek systeem belooft, staat in de specificaties daarvan.
   - vraag: 'Hoelang gaat een thuisbatterij mee?'
     antwoord: >-
-      In onze berekening hanteren wij een rekenperiode van vijftien jaar. Fabrikanten geven doorgaans een garantie op capaciteit voor tien jaar, maar veel systemen functioneren daarna nog. Raadpleeg de garantievoorwaarden van het systeem dat u overweegt; zie ook onze pagina over garantie.
+      In onze berekening hanteren wij een rekenperiode van vijftien jaar. Een onafhankelijke studie van CE Delft voor Alliander rekent met dezelfde technische levensduur. Hoe lang de capaciteitsgarantie van een specifiek systeem loopt en welke restcapaciteit daarbij wordt gegarandeerd, staat in de garantievoorwaarden van dat systeem; vraag dat document op voordat u koopt. Zie ook onze pagina over garantie op een thuisbatterij.
   - vraag: 'Waarom is degradatie belangrijk voor de terugverdientijd?'
     antwoord: >-
-      Een batterij die aan het einde van de rekenperiode nog maar 70 procent van de beginkapaciteit heeft, levert minder op dan in jaar één. Wie degradatie negeert en de jaarbesparing van jaar één simpelweg vermenigvuldigt met vijftien, overschat de totale opbrengst structureel. Onze rekenaar past de capaciteit elk jaar aan en toont per jaar wat er overblijft.
+      Een batterij die in jaar vijftien nog 75 procent van de begincapaciteit heeft, levert minder op dan in jaar één. Wie degradatie negeert en de jaarbesparing van jaar één simpelweg vermenigvuldigt met vijftien, overschat de totale opbrengst structureel. Onze rekenaar past de capaciteit elk jaar aan en toont per jaar wat er overblijft.
   - vraag: 'Rekent de rekenaar ook met rendementsverlies bij omzetting?'
     antwoord: >-
       Ja. In onze berekening rekenen wij met een round-trip rendement van 90 procent. Dat wil zeggen: van elke kilowattuur die u in de batterij laadt, is 90 procent beschikbaar bij het ontladen. Dit verlies staat los van degradatie en wordt elk jaar opnieuw toegepast op de dan geldende capaciteit.
@@ -33,19 +33,23 @@ Voor de vraag of een thuisbatterij financieel uitkomt, is degradatie relevant om
 
 In onze berekening rekenen wij met een capaciteitsverlies van 2 procent per jaar. Dat is een rekenaanname; de werkelijke afname verschilt per merk, per aantal cycli per dag en per gebruikspatroon. Op [onze uitgangspuntenpagina](/uitgangspunten/) leest u welke waarden wij verder hanteren.
 
-Het effect over vijftien jaar ziet er als volgt uit:
+Het verlies loopt samengesteld: elk jaar gaat er 2 procent af van wat er het jaar ervoor nog over was, niet van de oorspronkelijke capaciteit. De capaciteitsfactor geldt vanaf het begin van elk jaar, dus in jaar één rekent de motor met de volle capaciteit. Zo ziet dat eruit in onze cashflow:
 
-- Na vijf jaar is de effectieve capaciteit circa 90 procent van de beginwaarde.
-- Na tien jaar is dat circa 80 procent.
-- Na vijftien jaar is dat circa 70 procent.
+- In jaar vijf rekenen wij met 92 procent van de begincapaciteit.
+- In jaar tien met 83 procent.
+- In jaar vijftien met 75 procent.
+
+Wie het verlies lineair uitrekent — vijftien keer 2 procent eraf — komt op 70 procent uit en laat de batterij er dus slechter uitzien dan onze motor doet. Het verschil is klein per jaar en merkbaar over de hele periode. De exacte reeks per jaar staat in de cashflow onder de uitkomst van [de rekenaar](/).
 
 Dat klinkt misschien bescheiden, maar het heeft een merkbaar effect op de jaarlijkse opbrengst. Wie in jaar één een bepaalde besparing haalt, haalt in jaar vijftien — bij gelijke energieprijzen — minder, omdat de batterij minder kan opslaan en leveren.
 
-## Waarom de meeste rekenhulpen dit missen
+## Wat een berekening zonder degradatie mist
 
-De meest voorkomende fout in online berekeningen is de volgende: neem de investering, deel die door de jaarbesparing, en u hebt de terugverdientijd. Zo simpel is het niet.
+De kortste manier om een terugverdientijd uit te rekenen is: neem de investering, deel die door de jaarbesparing, en u bent klaar. Zo simpel is het niet.
 
 Ten eerste verandert de beschikbare capaciteit elk jaar door degradatie. Ten tweede wordt de bruikbare capaciteit op elk moment begrensd door drie factoren: het zonne-overschot dat er is om op te slaan, de bruikbare capaciteit van de batterij zelf, en het verbruik buiten de uren dat de zon schijnt. U kunt niet meer ontladen dan u ook verbruikt. Op de pagina [Het rendement van een thuisbatterij](/thuisbatterij-rendement/) staat dit model uitgebreider beschreven.
+
+Dat degradatie buiten beeld blijft, is geen bedacht probleem. CE Delft rekende in een onafhankelijke studie voor netbeheerder Alliander de businesscase van een thuisbatterij door over een technische levensduur van vijftien jaar — dezelfde periode die wij hanteren — en benoemt capaciteitsverlies in die berekening niet. Dat maakt die studie niet onjuist; het laat zien dat een vijftienjarige businesscase gebouwd kan worden zonder dat de capaciteit ooit afneemt. Wie vijftien jaar lang met de opbrengst van jaar één rekent, overschat de totale opbrengst.
 
 Onze rekenaar past de capaciteit elk jaar aan met het degradatiepercentage en berekent per jaar opnieuw hoeveel de batterij oplevert. De cashflow over vijftien jaar is daardoor realistischer dan een eenvoudige deling.
 
@@ -53,7 +57,7 @@ Onze rekenaar past de capaciteit elk jaar aan met het degradatiepercentage en be
 
 Ook los van degradatie is de capaciteit die u effectief kunt gebruiken lager dan de nominale waarde op de verpakking. In onze berekening rekenen wij met een bruikbare diepte van 90 procent van de nominale capaciteit. Een batterij van 10 kWh heeft in onze berekening dus 9 kWh bruikbare capaciteit in jaar één. Door degradatie neemt dat elk jaar verder af.
 
-Dat is een rekenaanname: de toegestane ontladingsdiepte verschilt per fabrikant, dus controleer de specificaties van het systeem dat u overweegt.
+Dat is een rekenaanname: de toegestane ontladingsdiepte verschilt per fabrikant, dus controleer de specificaties van het systeem dat u overweegt. Welke maat bij uw verbruik past, rekent de rekenaar voor u door; de afweging zelf staat op [Welke capaciteit heeft een thuisbatterij nodig?](/welke-capaciteit-thuisbatterij/).
 
 ## Het round-trip rendement
 
@@ -61,9 +65,11 @@ Bij elke laad- en ontlaadcyclus gaat energie verloren door warmteontwikkeling en
 
 ## Garantie en levensduur in de praktijk
 
-De meeste fabrikanten geven een capaciteitsgarantie voor tien jaar, waarbij zij een minimale restcapaciteit garanderen. [TEYIT GEREKLI: gangbare garantiedrempel voor restcapaciteit na tien jaar bij lithium-ijzerfosfaatbatterijen]
+Hoe lang een capaciteitsgarantie loopt en welke restcapaciteit daarbij wordt gegarandeerd, staat in de garantievoorwaarden van het systeem dat u overweegt. Vraag dat document op voordat u koopt en lees welke voorwaarden eraan hangen — denk aan een maximum aantal cycli of eisen aan de installatie. Wij noemen hier geen algemeen getal: het verschilt per merk en model, en voor úw systeem zegt een gemiddelde niets.
 
-Na het verstrijken van de garantietermijn kan een batterij nog jaren bruikbaar zijn, maar de fabrikant staat er niet meer voor in. Op de pagina [Garantie op een thuisbatterij](/garantie-thuisbatterij/) leest u waar u bij de aankoop op moet letten.
+Op de pagina [Garantie op een thuisbatterij](/garantie-thuisbatterij/) staat waar u in zo'n document op moet letten, en waarom een garantietermijn van de fabrikant iets anders is dan uw wettelijke rechten.
+
+Na het verstrijken van de garantietermijn kan een batterij nog jaren bruikbaar zijn, maar de fabrikant staat er niet meer voor in.
 
 In onze rekenaar hanteren wij een rekenperiode van vijftien jaar. Dat is een aanname, geen garantie dat een specifiek systeem het zo lang meegaat.
 
@@ -73,9 +79,9 @@ Een thuisbatterij verdient zichzelf niet altijd terug. Dat is een conclusie die 
 
 Situaties waarin de kans op een positief resultaat kleiner is:
 
-- **Klein zonne-overschot.** Wie weinig stroom teruglevert aan het net, heeft weinig om op te slaan. De batterij blijft dan vaak grotendeels onbenut.
+- **Klein zonne-overschot.** Wie weinig stroom teruglevert aan het net, heeft weinig om op te slaan. De batterij blijft dan grotendeels onbenut.
 - **Al hoog zelfverbruik zonder batterij.** Wie overdag thuis is en al veel zelfgebruik heeft, haalt minder extra voordeel uit opslag.
-- **Kort verwacht verblijf in de woning.** Een terugverdientijd van tien tot vijftien jaar is lang als u de woning eerder wilt verkopen. Of en hoe een batterij de woningwaarde beïnvloedt, is onzeker.
+- **Kort verwacht verblijf in de woning.** Een terugverdientijd die tegen de rekenperiode aan loopt, is lang als u de woning eerder wilt verkopen. Of en hoe een batterij de woningwaarde beïnvloedt, is onzeker.
 - **Vast energiecontract.** Bij een vast contract is prijsarbitrage niet mogelijk. Op de pagina [Thuisbatterij met een vast energiecontract](/thuisbatterij-bij-vast-contract/) staat waarom dat de rekening verslechtert.
 
 De rekenaar geeft voor uw specifieke situatie een uitkomst. Als die negatief is, zeggen wij dat ook.
@@ -84,12 +90,12 @@ De rekenaar geeft voor uw specifieke situatie een uitkomst. Als die negatief is,
 
 Voer uw gegevens in bij [de rekenaar](/) en bekijk de cashflow per jaar. U ziet dan niet alleen de totale opbrengst over vijftien jaar, maar ook hoe de jaarlijkse opbrengst afneemt naarmate de batterij degradeert. Dat geeft een eerlijker beeld dan een enkelvoudige terugverdientijdberekening.
 
-Wilt u weten welke capaciteit bij uw situatie past? De rekenaar berekent alle beschikbare maten door en laat zien welke het beste aansluit bij uw verbruik en uw zonne-overschot. Wij doen daar geen algemene uitspraak over, omdat de uitkomst sterk afhangt van uw individuele situatie.
+Vraag daarnaast bij elk aanbod de garantievoorwaarden en de specificaties op. Daarin staat wat de leverancier voor dát systeem belooft — en dat is het enige getal dat voor uw situatie telt.
 
 ### Bronnen
 
-- Thuisbatterijrekenaar.nl, [Onze uitgangspunten](/uitgangspunten/)
-- Thuisbatterijrekenaar.nl, [Het rendement van een thuisbatterij](/thuisbatterij-rendement/)
-- Thuisbatterijrekenaar.nl, [Garantie op een thuisbatterij](/garantie-thuisbatterij/)
+- CE Delft, "Impact van ToU-nettarief op thuisbatterijen, elektrische auto's en netcongestie", oktober 2024, in opdracht van Alliander. Rekent de businesscase van een thuisbatterij door over een technische levensduur van vijftien jaar en benoemt capaciteitsverlies daarbij niet: [netbeheernederland.nl](https://www.netbeheernederland.nl/sites/default/files/2024-11/ce_delft_230501_impact_van_tou-nettarief_op_thuisbatterijen_elektrische_autos_en_netcongestie_def.pdf)
 
-Deze pagina is voor het laatst gecontroleerd op 19 oktober 2026.
+Onze eigen rekenaannames — degradatie per jaar, bruikbare diepte, round-trip rendement en rekenperiode — staan op [onze uitgangspuntenpagina](/uitgangspunten/). Dat is onze methode, geen bron.
+
+Deze pagina is voor het laatst gecontroleerd op 20 oktober 2026.
