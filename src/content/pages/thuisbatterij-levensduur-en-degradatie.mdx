@@ -5,7 +5,8 @@ h1: 'Levensduur en degradatie: hoeveel capaciteit verliest een thuisbatterij?'
 gepubliceerd: '2026-10-19'
 cluster: 'basis'
 zoekintentie: 'Hoe lang gaat een thuisbatterij mee en wat betekent capaciteitsverlies voor mijn opbrengst?'
-published: false
+published: true
+gecontroleerd: '2026-10-20'
 gegenereerd: '2026-10-19'
 aiGegenereerd: true
 faq:
@@ -47,11 +48,30 @@ Dat klinkt misschien bescheiden, maar het heeft een merkbaar effect op de jaarli
 
 De kortste manier om een terugverdientijd uit te rekenen is: neem de investering, deel die door de jaarbesparing, en u bent klaar. Zo simpel is het niet.
 
-Ten eerste verandert de beschikbare capaciteit elk jaar door degradatie. Ten tweede wordt de bruikbare capaciteit op elk moment begrensd door drie factoren: het zonne-overschot dat er is om op te slaan, de bruikbare capaciteit van de batterij zelf, en het verbruik buiten de uren dat de zon schijnt. U kunt niet meer ontladen dan u ook verbruikt. Op de pagina [Het rendement van een thuisbatterij](/thuisbatterij-rendement/) staat dit model uitgebreider beschreven.
+Ten eerste verandert de beschikbare capaciteit elk jaar door degradatie. Ten tweede is de capaciteit van de batterij niet de enige grens: wat u er dagelijks uit haalt, wordt begrensd door drie factoren, en de kleinste daarvan beslist. Hoe die grenzen en de degradatie op elkaar inwerken, leest u in de volgende paragraaf. Het model zelf staat uitgebreider beschreven op de pagina [Het rendement van een thuisbatterij](/thuisbatterij-rendement/).
 
 Dat degradatie buiten beeld blijft, is geen bedacht probleem. CE Delft rekende in een onafhankelijke studie voor netbeheerder Alliander de businesscase van een thuisbatterij door over een technische levensduur van vijftien jaar — dezelfde periode die wij hanteren — en benoemt capaciteitsverlies in die berekening niet. Dat maakt die studie niet onjuist; het laat zien dat een vijftienjarige businesscase gebouwd kan worden zonder dat de capaciteit ooit afneemt. Wie vijftien jaar lang met de opbrengst van jaar één rekent, overschat de totale opbrengst.
 
 Onze rekenaar past de capaciteit elk jaar aan met het degradatiepercentage en berekent per jaar opnieuw hoeveel de batterij oplevert. De cashflow over vijftien jaar is daardoor realistischer dan een eenvoudige deling.
+
+## Hoe degradatie doorwerkt in de drie grenzen
+
+Onze motor bepaalt wat een batterij per dag oplevert door de kleinste van drie grenzen te nemen:
+
+1. **Het dagelijkse zonne-overschot.** U kunt niet meer opslaan dan u overhoudt.
+2. **De bruikbare capaciteit van de batterij.** Niet de volledige nominale capaciteit is bruikbaar; wij rekenen met 90 procent daarvan.
+3. **Het verbruik buiten de zonuren.** U kunt alleen ontladen wat u op dat moment ook gebruikt — en alleen het deel dat u zonder batterij niet al rechtstreeks zelf verbruikte.
+
+Welke van de drie knelt, verschilt per huishouden. Bij veel panelen en een klein verbruik is het verbruik de grens; bij weinig panelen en een groot verbruik is het overschot de grens. Alleen in het middengebied is de batterij zelf de bindende grens.
+
+Dat verklaart iets wat anders vreemd lijkt aan onze uitkomsten: zit u vast op grens één of grens drie, dan levert een grotere batterij niets extra op, want de batterij was de beperking niet. Dezelfde logica geldt voor degradatie. Verliest de batterij capaciteit terwijl het overschot of het verbruik de grens was, dan raakt dat verlies de bodem van de rekensom niet.
+
+Daarom hoort hier één kanttekening over onze methode. Wij passen de degradatie niet toe op grens twee, maar op de uitkomst: de motor berekent de dagelijkse benutting één keer met de bruikbare capaciteit van jaar één, en vermindert daarna de jaaropbrengst met de capaciteitsfactor van dat jaar. Dat is een vereenvoudiging, en wij weten in welke richting die afwijkt.
+
+- Was de capaciteit de bindende grens, dan komt onze methode op hetzelfde uit: capaciteit en opbrengst dalen dan in hetzelfde tempo.
+- Was het overschot of het verbruik de grens, dan rekenen wij de opbrengst in de latere jaren eerder te laag dan te hoog. Degradatie van capaciteit die toch al niet knelde, zou in werkelijkheid minder effect hebben.
+
+Onze uitkomst is in dat tweede geval dus voorzichtig. Dat is een bewuste keuze: liever een terugverdientijd die in de praktijk iets korter blijkt dan een die te mooi was. Welke grens in úw situatie knelt, ziet u aan de tussenwaarden onder de uitkomst van [de rekenaar](/).
 
 ## Bruikbare capaciteit is niet hetzelfde als nominale capaciteit
 

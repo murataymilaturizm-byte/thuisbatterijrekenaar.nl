@@ -71,24 +71,22 @@ export const AFGELEIDE_WAARDEN: AfgeleideWaarde[] = [
     afleiding: '5 kWh extra × BATTERIJ_PRIJS_PER_KWH',
     herbereken: () => 5 * BATTERIJ_PRIJS_PER_KWH,
   },
-  // De degradatiereeks. Staat nu nog op het concept; bij publicatie wordt de
-  // underscore eruit gehaald en valt deze test om tot de bestandsnaam hier is
-  // bijgewerkt. Dat is de bedoeling: luid op het moment dat het misgaat.
+  // De degradatiereeks, gepubliceerd op 20 oktober 2026.
   {
     tekst: '92 procent',
-    paginas: ['_concept-thuisbatterij-levensduur-en-degradatie.mdx'],
+    paginas: ['thuisbatterij-levensduur-en-degradatie.mdx'],
     afleiding: '(1 − DEGRADATIE_PER_JAAR)^4 × 100, afgerond — capaciteitsfactor van jaar 5',
     herbereken: () => capaciteitsfactorPct(5),
   },
   {
     tekst: '83 procent',
-    paginas: ['_concept-thuisbatterij-levensduur-en-degradatie.mdx'],
+    paginas: ['thuisbatterij-levensduur-en-degradatie.mdx'],
     afleiding: '(1 − DEGRADATIE_PER_JAAR)^9 × 100, afgerond — capaciteitsfactor van jaar 10',
     herbereken: () => capaciteitsfactorPct(10),
   },
   {
     tekst: '75 procent',
-    paginas: ['_concept-thuisbatterij-levensduur-en-degradatie.mdx'],
+    paginas: ['thuisbatterij-levensduur-en-degradatie.mdx'],
     afleiding: '(1 − DEGRADATIE_PER_JAAR)^14 × 100, afgerond — capaciteitsfactor van jaar 15',
     herbereken: () => capaciteitsfactorPct(15),
   },
@@ -97,7 +95,7 @@ export const AFGELEIDE_WAARDEN: AfgeleideWaarde[] = [
     // verlies lineair uitrekent. Ook dat volgt uit de constante, dus het moet
     // meeveranderen — anders klopt het tegenvoorbeeld niet meer.
     tekst: '70 procent',
-    paginas: ['_concept-thuisbatterij-levensduur-en-degradatie.mdx'],
+    paginas: ['thuisbatterij-levensduur-en-degradatie.mdx'],
     afleiding:
       '(1 − LEVENSDUUR_JAAR × DEGRADATIE_PER_JAAR) × 100 — de lineaire uitkomst, als tegenvoorbeeld',
     herbereken: () => Math.round((1 - LEVENSDUUR_JAAR * DEGRADATIE_PER_JAAR) * 100),
