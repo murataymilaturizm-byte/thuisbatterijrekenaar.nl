@@ -14,10 +14,26 @@
 import {
   BATTERIJ_PRIJS_PER_KWH,
   BATTERIJ_VASTE_KOSTEN,
+  DEGRADATIE_PER_JAAR,
   DOD_BRUIKBAAR,
+  LEVENSDUUR_JAAR,
   LEVERINGSTARIEF_KWH,
   TERUGLEVERVERGOEDING_AANDEEL,
 } from './constants';
+
+/**
+ * De capaciteitsfactor zoals berekenCashflow() hem toepast: de factor geldt
+ * vanaf het begin van jaar N, dus de exponent is N − 1 en jaar één rekent met
+ * de volle capaciteit. Afgerond op hele procenten, want de pagina schrijft
+ * hele getallen.
+ *
+ * Dit is precies de val waar het concept van 19 oktober in liep: het noemde
+ * 90, 80 en 70 procent — de LINEAIRE reeks (15 × 2 procent eraf), terwijl de
+ * motor samengesteld rekent. Alleen het derde getal viel op; de eerste twee
+ * leken te kloppen. Daarom staan ze nu alle drie hier.
+ */
+const capaciteitsfactorPct = (jaar: number): number =>
+  Math.round(Math.pow(1 - DEGRADATIE_PER_JAAR, jaar - 1) * 100);
 
 export interface AfgeleideWaarde {
   /** Precies zoals het in de tekst verschijnt. */
@@ -54,6 +70,35 @@ export const AFGELEIDE_WAARDEN: AfgeleideWaarde[] = [
     paginas: ['welke-capaciteit-thuisbatterij.mdx'],
     afleiding: '5 kWh extra × BATTERIJ_PRIJS_PER_KWH',
     herbereken: () => 5 * BATTERIJ_PRIJS_PER_KWH,
+  },
+  // De degradatiereeks, gepubliceerd op 20 oktober 2026.
+  {
+    tekst: '92 procent',
+    paginas: ['thuisbatterij-levensduur-en-degradatie.mdx'],
+    afleiding: '(1 − DEGRADATIE_PER_JAAR)^4 × 100, afgerond — capaciteitsfactor van jaar 5',
+    herbereken: () => capaciteitsfactorPct(5),
+  },
+  {
+    tekst: '83 procent',
+    paginas: ['thuisbatterij-levensduur-en-degradatie.mdx'],
+    afleiding: '(1 − DEGRADATIE_PER_JAAR)^9 × 100, afgerond — capaciteitsfactor van jaar 10',
+    herbereken: () => capaciteitsfactorPct(10),
+  },
+  {
+    tekst: '75 procent',
+    paginas: ['thuisbatterij-levensduur-en-degradatie.mdx'],
+    afleiding: '(1 − DEGRADATIE_PER_JAAR)^14 × 100, afgerond — capaciteitsfactor van jaar 15',
+    herbereken: () => capaciteitsfactorPct(15),
+  },
+  {
+    // Bewust het FOUTE getal: de pagina laat zien waar je uitkomt als je het
+    // verlies lineair uitrekent. Ook dat volgt uit de constante, dus het moet
+    // meeveranderen — anders klopt het tegenvoorbeeld niet meer.
+    tekst: '70 procent',
+    paginas: ['thuisbatterij-levensduur-en-degradatie.mdx'],
+    afleiding:
+      '(1 − LEVENSDUUR_JAAR × DEGRADATIE_PER_JAAR) × 100 — de lineaire uitkomst, als tegenvoorbeeld',
+    herbereken: () => Math.round((1 - LEVENSDUUR_JAAR * DEGRADATIE_PER_JAAR) * 100),
   },
 ];
 
