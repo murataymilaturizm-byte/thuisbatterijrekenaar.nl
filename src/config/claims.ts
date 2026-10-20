@@ -283,6 +283,11 @@ export const GOEDGEKEURDE_CLAIMS: GoedgekeurdeClaim[] = [
     waarom: 'Gaat over CE-markering, niet over ons: een zelfverklaring is geen keuring door een derde.',
   },
   {
+    fragment: 'of onafhankelijke publicatie',
+    waarom:
+      'Generatorprompt: beschrijft wat als externe bron geldt. Gaat over derden, niet over onze eigen positie.',
+  },
+  {
     fragment: 'door een onafhankelijk testinstituut',
     waarom: 'Gaat over certificering van batterijen door een extern instituut, niet over onze positie.',
   },

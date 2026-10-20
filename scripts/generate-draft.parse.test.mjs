@@ -150,3 +150,56 @@ describe('promptregels rond TEYIT', () => {
     expect(prompt).toContain('Een concept zonder markeringen is prima');
   });
 });
+
+/**
+ * Drie regels die op 20 oktober 2026 zijn toegevoegd, elk na een fout die
+ * twee concepten op rij maakte. Ze staan hier omdat een promptregel die
+ * niemand nareekent, bij de volgende herschrijving sneuvelt.
+ */
+describe('promptregels toegevoegd op 20 oktober 2026', () => {
+  const prompt = readFileSync(new URL('./generate-draft.mjs', import.meta.url), 'utf8');
+
+  it('verbiedt marktgeneralisaties over producten en fabrikanten', () => {
+    expect(prompt).toContain('GEEN MARKTGENERALISATIE OVER PRODUCTEN OF FABRIKANTEN');
+    // Alle zes woorden uit de poort moeten ook in de prompt staan, anders
+    // verbiedt de poort iets wat de prompt nog toestaat.
+    for (const woord of [
+      'doorgaans',
+      'de meeste',
+      'meestal',
+      'in de regel',
+      'standaard',
+      'over het algemeen',
+    ]) {
+      expect(prompt, `promptregel mist "${woord}"`).toContain(`"${woord}"`);
+    }
+    // Body én FAQ, cijfers én voluit.
+    expect(prompt).toMatch(/in de body én in de FAQ/);
+    expect(prompt).toMatch(/cijfers of voluit/);
+    // Het fout/goed-paar met precies de zin die terugkwam.
+    expect(prompt).toContain('Fabrikanten geven doorgaans een garantie op capaciteit voor');
+    expect(prompt).toContain('De meeste fabrikanten geven een capaciteitsgarantie voor tien');
+    expect(prompt).toMatch(/Goed:[\s\S]{0,300}garantievoorwaarden van/);
+    // Onze eigen rekenuitkomst blijft toegestaan.
+    expect(prompt).toMatch(/rekenuitkomst van ONZE motor is geen marktgeneralisatie/);
+  });
+
+  it('eist dat eerst wordt gekeken of de site het antwoord al heeft', () => {
+    expect(prompt).toContain('Eerst kijken of de site het antwoord al heeft');
+    expect(prompt).toMatch(/Voordat je een \[TEYIT GEREKLI\] zet/);
+    // Het voorbeeld is de markering die op 19 oktober werd gezet, en het
+    // goede antwoord is de pagina waar die vraag al is beantwoord.
+    expect(prompt).toContain('gangbare garantiedrempel voor');
+    expect(prompt).toMatch(/Goed:[\s\S]{0,400}\/garantie-thuisbatterij\//);
+  });
+
+  it('eist minstens één externe bron in het Bronnen-blok', () => {
+    expect(prompt).toContain('MINSTENS ÉÉN EXTERNE bron');
+    expect(prompt).toMatch(/eigen pagina's zijn geen bron/);
+    expect(prompt).toMatch(/Verzin er nooit een bij/);
+    // En het eerlijke alternatief, met de bestaande pagina als voorbeeld.
+    expect(prompt).toContain('/thuisbatterij-verzekering/');
+    // Geen opmerking vóór de frontmatter: die wordt weggesneden.
+    expect(prompt).toMatch(/vóór de frontmatter[\s\S]{0,200}weggesneden/);
+  });
+});
