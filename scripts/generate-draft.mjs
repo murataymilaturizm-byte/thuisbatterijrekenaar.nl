@@ -171,6 +171,35 @@ Deze formuleringen mag je NIET gebruiken:
   een specifieke capaciteit
 - "gemiddeld ... per dag" als je dat zelf hebt uitgerekend
 
+## GEEN MARKTGENERALISATIE OVER PRODUCTEN OF FABRIKANTEN
+
+Over een fabrikantspecificatie, een garantietermijn, een marktprijs of
+een productbereik schrijf je GEEN generalisatie. Verboden zijn onder
+meer "doorgaans", "de meeste", "meestal", "in de regel", "standaard",
+"over het algemeen", "gangbaar", "vaak" — in de body én in de FAQ, en
+het maakt niet uit of het getal in cijfers of voluit staat. Wij hebben
+geen marktonderzoek en kunnen zo'n bewering niet onderbouwen; een
+"circa"-vorm maakt haar niet minder een bewering.
+
+Dit geldt ook als de generalisatie waar klinkt. Wij weten niet wat de
+meeste fabrikanten doen.
+
+Schrijf in plaats daarvan een zin die de lezer naar zijn EIGEN document
+of aanbod stuurt — dat is bruikbaar en altijd waar.
+
+Fout: "Fabrikanten geven doorgaans een garantie op capaciteit voor
+      tien jaar."
+Fout: "De meeste fabrikanten geven een capaciteitsgarantie voor tien
+      jaar."
+Goed: "Hoe lang de capaciteitsgarantie loopt en welke restcapaciteit
+      daarbij wordt gegarandeerd, staat in de garantievoorwaarden van
+      het systeem dat u overweegt. Vraag dat document op vóór de
+      koop — zie ook /garantie-thuisbatterij/."
+
+Een rekenuitkomst van ONZE motor is geen marktgeneralisatie: "in onze
+berekening komt een batterij in de meeste doorgerekende situaties niet
+uit" mag, want dat is onze eigen uitkomst en die kunnen wij tonen.
+
 ## REEDS GEVERIFIEERDE FEITEN — niet opnieuw ter discussie stellen
 
 Sommige feiten zijn al geverifieerd tegen de primaire bron en staan
@@ -242,6 +271,24 @@ frontmatter).
    daaronder de zin: "Deze pagina is voor het laatst gecontroleerd op ${vandaagNl}."
    (In zichtbare tekst altijd de Nederlandse datumnotatie; ISO-datums horen
    alleen in de frontmatter.)
+6. In het Bronnen-blok staat MINSTENS ÉÉN EXTERNE bron, met volledige
+   URL. Onze eigen pagina's zijn geen bron — dat zijn interne links, en
+   die hoort de lezer in de lopende tekst tegen te komen. Een
+   Bronnen-blok met alleen thuisbatterijrekenaar.nl-links verwijst naar
+   onszelf en voegt niets controleerbaars toe.
+   Extern betekent: een instantie, wetgever, normcommissie, netbeheerder,
+   brancheorganisatie of onafhankelijke publicatie — met URL.
+   Vind je geen enkele externe bron voor dit onderwerp, dan schrijf je
+   dat op in het Bronnen-blok, in één zin en eerlijk, zoals
+   /thuisbatterij-verzekering/ dat doet ("voor verzekeringsvoorwaarden
+   bestaat geen centrale officiële bron"). Verzin er nooit een bij.
+   Die eerlijke zin is geen formaliteit: hij zegt de lezer waar de
+   kennis dan wél vandaan komt. Kun je het niet eerlijk opschrijven,
+   dan is de informatiewinst van deze pagina twijfelachtig — schrijf
+   dat dan in die ene zin op in plaats van het te verbergen.
+   (Zet zo'n opmerking niet vóór de frontmatter: alles vóór de eerste
+   --- wordt weggesneden en zou dus niemand bereiken. De poort
+   "externe-bron" meldt dit geval zelf op /concepten.)
 
 ## Absoluut verboden
 - Statistieken, percentages, tarieven of bedragen verzinnen. Noem alleen
@@ -297,6 +344,26 @@ Zet NOOIT een markering op:
    staat beschreven op /uitgangspunten/ en /thuisbatterij-rendement/.
 3. Een interne planning, zoals "tarieven volgen in een aparte pagina".
    Bestaat die pagina, verwijs ernaar; bestaat ze niet, laat de zin weg.
+
+### Eerst kijken of de site het antwoord al heeft
+
+Voordat je een [TEYIT GEREKLI] zet: zoek de vraag op in de lijst met
+bestaande pagina's hierboven. Behandelt een van die pagina's dit
+onderwerp al, dan is de markering fout — het antwoord staat er, of die
+pagina zegt al eerlijk dat het antwoord niet te geven is. Link ernaar
+en neem die eerlijke formulering over.
+
+Fout: "De meeste fabrikanten geven een capaciteitsgarantie voor tien
+      jaar. [TEYIT GEREKLI: gangbare garantiedrempel voor
+      restcapaciteit na tien jaar]"
+Goed: "Welke restcapaciteit een fabrikant garandeert, verschilt per
+      merk en model; wij noemen daar geen algemeen getal bij omdat het
+      voor úw systeem niets zegt. Wat er in zo'n garantie staat en waar
+      u op moet letten, leest u op /garantie-thuisbatterij/."
+
+Die pagina behandelt garantietermijnen en restcapaciteit al, inclusief
+de reden waarom wij er geen algemeen percentage bij noemen. Een
+markering erbovenop vraagt iets wat wij al hebben beantwoord.
 
 Een concept zonder markeringen is prima. Een markering op een eigen
 aanname is fout — dat is precies de fout die wij in oktober 2026 over

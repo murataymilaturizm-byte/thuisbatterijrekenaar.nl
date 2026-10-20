@@ -216,6 +216,28 @@ export function publiekeFrontmatter(ruw: string): string {
     .join('\n');
 }
 
+/**
+ * Externe bronnen uit het Bronnenblok.
+ *
+ * Een link naar onze eigen pagina is geen bron maar een interne link: hij
+ * verwijst naar onszelf en voegt geen controleerbaarheid toe. Twee concepten
+ * op rij voerden drie eigen pagina's op als "Bronnen", waarmee de hele
+ * bronvermelding een rondje om zichzelf werd. Staat er geen enkele externe
+ * URL, dan is de vraag waar de kennis op die pagina eigenlijk vandaan komt.
+ */
+export function externeBronnen(body: string): string[] {
+  const delen = body.split(/###\s*Bronnen/i);
+  if (delen.length < 2) return [];
+  const bronnen = delen.slice(1).join('\n');
+  const uit: string[] = [];
+  for (const m of bronnen.matchAll(/https?:\/\/[^\s)\]]+/g)) {
+    const url = m[0];
+    if (/^https?:\/\/(www\.)?thuisbatterijrekenaar\.nl/i.test(url)) continue;
+    uit.push(url);
+  }
+  return uit;
+}
+
 export function onbekendeGetallen(body: string, bekendeWaarden: number[]): string[] {
   const bekend = new Set<number>();
   for (const w of bekendeWaarden) {
@@ -247,7 +269,15 @@ export function onbekendeGetallen(body: string, bekendeWaarden: number[]): strin
  * hoeveelheidseenheid staat. "Hier worden vaak twee dingen verward" is geen
  * hoeveelheidsclaim en blijft dus buiten.
  */
-const VAAGHEID = /\b(?:gangbaar|gebruikelijk|veelvoorkomend|vaak)\b/i;
+/**
+ * Uitgebreid op 20 oktober 2026. De claim die wij op 8 oktober uit
+ * /garantie-thuisbatterij/ haalden, stond een week later weer in een nieuw
+ * concept — twee keer, met "doorgaans" en "de meeste" in plaats van
+ * "gangbaar". De poort kende die woorden niet, dus hij zweeg. Een
+ * genormaliseerde variant van dezelfde generalisatie is dezelfde fout.
+ */
+const VAAGHEID =
+  /\b(?:gangbaar|gebruikelijk|veelvoorkomend|vaak|doorgaans|meestal|standaard)\b|\bde meeste\b|\bin de regel\b|\bover het algemeen\b/i;
 
 const GETAL_VOLUIT =
   'twee|drie|vier|vijf|zes|zeven|acht|negen|tien|elf|twaalf|dertien|veertien|' +
@@ -467,6 +497,18 @@ export function beoordeelConcept(invoer: ConceptInvoer): PoortResultaat[] {
       toelichting: /###\s*Bronnen/i.test(body)
         ? 'Aanwezig.'
         : 'Geen "### Bronnen"-sectie gevonden.',
+    },
+    {
+      id: 'externe-bron',
+      label: 'Minstens één externe bron in het Bronnenblok',
+      niveau: 'geel',
+      geslaagd: !/###\s*Bronnen/i.test(body) || externeBronnen(body).length > 0,
+      toelichting: !/###\s*Bronnen/i.test(body)
+        ? 'Geen Bronnenblok; niets te beoordelen.'
+        : externeBronnen(body).length > 0
+          ? `${externeBronnen(body).length} externe bron(nen).`
+          : 'Alleen eigen pagina’s onder Bronnen. Dat zijn interne links, geen bronnen — ' +
+            'waar komt de kennis op deze pagina vandaan?',
     },
   ];
 }

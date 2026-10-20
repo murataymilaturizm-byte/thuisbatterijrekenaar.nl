@@ -54,10 +54,28 @@ const BASISLIJN: Record<string, number> = {
   'onbekende-getallen': 0,
   clusterlinks: 0,
   rekenaar: 0,
-  // Op 8 oktober 2026 over alle 21 gepubliceerde pagina's gemeten: nul. De 25
-  // zinnen met "vaak/gangbaar/gebruikelijk" gaan over begrippen die worden
-  // verward, niet over hoeveelheden.
-  'vage-hoeveelheid': 0,
+  // 20 oktober 2026, na uitbreiding van de woordenlijst: één pagina.
+  // thuisbatterij-bij-vast-contract.mdx zegt vier keer dat een thuisbatterij
+  // "in de meeste huishoudsituaties" niet uitkomt "binnen 15 jaar". Dat is
+  // geen marktgeneralisatie maar een uitkomst van onze eigen motor over onze
+  // eigen scenarioreeks, en 15 jaar is LEVENSDUUR_JAAR. Het patroon klopt,
+  // de zorg niet. Bewust gemeld en blijven staan; besluit ligt bij de
+  // eigenaar.
+  'vage-hoeveelheid': 1,
+  // 20 oktober 2026: vier pagina's, en ze vallen in twee soorten.
+  //
+  // Terecht geen externe bron — het Bronnenblok zegt zelf waarom:
+  //   thuisbatterij-huurwoning-en-vve.mdx, thuisbatterij-verzekering.mdx
+  //   ("voor huurrecht/verzekeringsvoorwaarden bestaat geen centrale
+  //   officiële bron" — de lezer wordt naar zijn eigen contract gestuurd).
+  //   Precies waarom deze poort geel is en niet rood.
+  //
+  // Wél hetzelfde gebrek als in de concepten — alleen eigen pagina's als
+  // "bron", een rondje om onszelf:
+  //   thuisbatterij-bij-vast-contract.mdx, welke-capaciteit-thuisbatterij.mdx
+  //
+  // Gemeld, niet gerepareerd; het besluit ligt bij de eigenaar.
+  'externe-bron': 4,
 };
 
 const bekendeWaarden = Object.values(alleConstanten)
@@ -142,6 +160,10 @@ describe('kwaliteitspoorten op gepubliceerde pagina’s', () => {
   const bestaandeUrls = [...paginas.map((p) => p.url), ...astroPaginas];
 
   const gezakt: Record<string, string[]> = {};
+  /** Elke poort-id die werkelijk is beoordeeld; zie de test eronder. */
+  const beoordeeldeIds = new Set<string>();
+  /** Alleen de rode poorten, voor de eis dat geen rode poort buiten de ratel valt. */
+  const rodeIds = new Set<string>();
   for (const p of paginas) {
     const isInhoudspagina = p.cluster !== '';
     const resultaten = beoordeelConcept({
@@ -157,11 +179,29 @@ describe('kwaliteitspoorten op gepubliceerde pagina’s', () => {
       constanteNamen,
     });
     for (const r of resultaten) {
-      if (r.niveau !== 'rood' || r.geslaagd) continue;
       if (!isInhoudspagina && !POORTEN_JURIDISCH_OVERIG.has(r.id)) continue;
+      beoordeeldeIds.add(r.id);
+      // Ook gele poorten tellen mee. Hiervóór werden ze overgeslagen, waardoor
+      // 'onbekende-getallen' en 'vage-hoeveelheid' wel in de ratel stonden
+      // maar nooit werden nagerekend: de regel zag eruit als bewaking en deed
+      // niets. Welke poorten worden geratelt, bepaalt BASISLIJN — niet de
+      // kleur.
+      if (r.niveau === 'rood') rodeIds.add(r.id);
+      if (r.geslaagd) continue;
       (gezakt[r.id] ??= []).push(`${p.naam}: ${r.toelichting}`);
     }
   }
+
+  it('elke geratelde poort is ook echt beoordeeld', () => {
+    // Een ratelregel voor een poort die nooit wordt bekeken, slaagt altijd.
+    // Zo stond 'vage-hoeveelheid' een week op nul zonder iets te doen.
+    const spook = Object.keys(BASISLIJN).filter((id) => !beoordeeldeIds.has(id));
+    expect(
+      spook,
+      `Deze poorten staan in BASISLIJN maar worden niet beoordeeld — ` +
+        `de regel bewaakt niets:\n${spook.join('\n')}`,
+    ).toEqual([]);
+  });
 
   it('er zijn gepubliceerde pagina’s om te controleren', () => {
     expect(paginas.length).toBeGreaterThan(15);
@@ -179,7 +219,9 @@ describe('kwaliteitspoorten op gepubliceerde pagina’s', () => {
   }
 
   it('geen onbekende rode poort buiten de ratel om', () => {
-    const onbekend = Object.keys(gezakt).filter((id) => !(id in BASISLIJN));
+    // Alleen rood: een gele poort mag bestaan zonder ratel (die signaleert,
+    // hij blokkeert niet). Rood zonder ratel is wel een gat.
+    const onbekend = Object.keys(gezakt).filter((id) => rodeIds.has(id) && !(id in BASISLIJN));
     expect(onbekend, `Nieuwe poort zonder basislijn: ${onbekend.join(', ')}`).toEqual([]);
   });
 });

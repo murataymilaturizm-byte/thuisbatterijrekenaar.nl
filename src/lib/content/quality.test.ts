@@ -13,6 +13,7 @@ import { JURIDISCHE_TOKENS } from '../../config/juridische-waarden';
 import {
   isGepubliceerd,
   onbekendeGetallen,
+  externeBronnen,
   publiekeFrontmatter,
   vageHoeveelheden,
   teyitInBronnen,
@@ -187,5 +188,67 @@ describe('vaagheidswoord bij een hoeveelheid', () => {
     expect(vageHoeveelheden('Corporaties hebben vaak een standaardbeleid.')).toEqual([]);
     // Zonder vaagheidswoord is een getal de taak van de getallenpoort.
     expect(vageHoeveelheden('De garantie loopt tien jaar.')).toEqual([]);
+  });
+});
+
+describe('genormaliseerde vaagheidswoorden', () => {
+  // De claim die op 8 oktober uit /garantie-thuisbatterij/ werd gehaald, stond
+  // een week later in een nieuw concept — met "doorgaans" en "de meeste".
+  // Dit zijn letterlijk die twee zinnen.
+  it('vuurt op de zinnen die op 19 oktober terugkwamen', () => {
+    expect(
+      vageHoeveelheden(
+        'Fabrikanten geven doorgaans een garantie op capaciteit voor tien jaar.',
+      ),
+    ).toHaveLength(1);
+    expect(
+      vageHoeveelheden('De meeste fabrikanten geven een capaciteitsgarantie voor tien jaar.'),
+    ).toHaveLength(1);
+  });
+
+  it('kent ook de overige varianten', () => {
+    for (const zin of [
+      'Een thuisbatterij gaat meestal tien jaar mee.',
+      'In de regel geldt een garantie van tien jaar.',
+      'Over het algemeen is dat tien jaar.',
+      'Standaard is de garantie tien jaar.',
+    ]) {
+      expect(vageHoeveelheden(zin), `niet opgemerkt: ${zin}`).toHaveLength(1);
+    }
+  });
+
+  it('zwijgt zonder hoeveelheid', () => {
+    expect(vageHoeveelheden('De meeste rekenhulpen negeren degradatie.')).toEqual([]);
+    expect(vageHoeveelheden('Corporaties hebben doorgaans een standaardbeleid.')).toEqual([]);
+  });
+});
+
+describe('externe bronnen in het Bronnenblok', () => {
+  const kop = '### Bronnen\n\n';
+
+  it('rekent onze eigen pagina’s niet mee als bron', () => {
+    const eigen =
+      `${kop}- Onze uitgangspunten: [/uitgangspunten/](/uitgangspunten/)\n` +
+      '- Rendement: [/thuisbatterij-rendement/](/thuisbatterij-rendement/)\n';
+    expect(externeBronnen(eigen)).toEqual([]);
+    // Ook niet met het volledige domein ervoor.
+    expect(
+      externeBronnen(`${kop}- [Onze pagina](https://thuisbatterijrekenaar.nl/uitgangspunten/)\n`),
+    ).toEqual([]);
+  });
+
+  it('herkent een echte externe bron', () => {
+    const extern = `${kop}- ACM, [Garantie](https://www.acm.nl/nl/node/28177)\n`;
+    expect(externeBronnen(extern)).toHaveLength(1);
+    expect(externeBronnen(extern)[0]).toContain('acm.nl');
+  });
+
+  it('kijkt alleen in het Bronnenblok, niet in de lopende tekst', () => {
+    const body = `Zie [ACM](https://www.acm.nl/nl/node/28177).\n\n${kop}- [Onze pagina](/uitgangspunten/)\n`;
+    expect(externeBronnen(body), 'een link in de tekst is geen bronvermelding').toEqual([]);
+  });
+
+  it('zonder Bronnenblok valt er niets te beoordelen', () => {
+    expect(externeBronnen('Gewone tekst zonder bronnen.')).toEqual([]);
   });
 });
