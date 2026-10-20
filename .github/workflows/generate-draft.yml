@@ -27,8 +27,46 @@ jobs:
 
       - run: npm ci
 
+      # De bottleneck is de beoordeling, niet de productie. Staat er nog een
+      # concept open, dan levert een nieuwe run twee dingen op die niemand wil:
+      # een tweede ongelezen taslak, en — als het hetzelfde onderwerp is — een
+      # force-push over de vorige heen. Dat laatste is op 19 oktober 2026
+      # gebeurd: de wachtrijstatus staat alleen op de conceptbranch, dus main
+      # koos levensduur een week later opnieuw en overschreef het concept van
+      # 12 oktober. Geen fout dus, maar een reden om te wachten: exit 0.
+      - name: Open concept? Dan niet genereren
+        id: wachten
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # gh heeft jq ingebouwd (--jq); geen externe jq nodig.
+          jq_filter='.[] | select(.headRefName | startswith("concept/")) | "- #\(.number) \(.title) — branch \(.headRefName), open sinds \(.createdAt[0:10])"'
+          open=$(gh pr list --state open --limit 50 --json number,title,headRefName,createdAt --jq "$jq_filter")
+          if [ -z "$open" ]; then
+            echo "blokkeer=0" >> "$GITHUB_OUTPUT"
+            echo "Geen open concept-PR; we genereren." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "blokkeer=1" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Niet gegenereerd: vorig concept nog in beoordeling"
+            echo
+            echo "De beoordeling is de bottleneck. Zolang hieronder een PR open"
+            echo "staat, levert een nieuwe run alleen een tweede ongelezen concept"
+            echo "op — en bij hetzelfde onderwerp een force-push over het vorige"
+            echo "heen."
+            echo
+            echo "$open"
+            echo
+            echo "Merge of sluit die PR; de volgende run pakt de wachtrij weer op."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "Niet gegenereerd — nog open concept-PR:"
+          echo "$open"
+
       - name: Concept genereren
         id: genereer
+        if: steps.wachten.outputs.blokkeer == '0'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -42,7 +80,7 @@ jobs:
 
       # Lege wachtrij of overgeslagen onderwerp: geen slug, dus stil stoppen.
       - name: Pull request openen
-        if: steps.genereer.outputs.slug != ''
+        if: steps.wachten.outputs.blokkeer == '0' && steps.genereer.outputs.slug != ''
         uses: peter-evans/create-pull-request@v6
         with:
           branch: concept/${{ steps.genereer.outputs.slug }}
